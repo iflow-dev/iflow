@@ -62,10 +62,20 @@ class GitDatabase:
         
         # Write artifact to file
         with open(file_path, 'w') as f:
-            f.write(artifact.to_yaml())
+            content = artifact.to_yaml()
+            f.write(content)
+            f.flush()  # Ensure data is written to disk
+            os.fsync(f.fileno())  # Force sync to disk
+        
+        # Verify file exists before adding to git
+        if not file_path.exists():
+            raise RuntimeError(f"Failed to create file: {file_path}")
         
         # Add to git and commit
-        self.repo.index.add([str(file_path)])
+        # Use absolute path for git operations
+        git_file_path = str(file_path.absolute())
+        
+        self.repo.index.add([git_file_path])
         commit_message = f"Add {artifact.type.value}: {artifact.summary}"
         self.repo.index.commit(commit_message)
     

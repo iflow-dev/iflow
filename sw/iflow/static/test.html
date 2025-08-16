@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>API Test</h1>
+    <div id="output"></div>
+    
+    <script>
+        const output = document.getElementById('output');
+        
+        function log(message) {
+            output.innerHTML += '<p>' + message + '</p>';
+            console.log(message);
+        }
+        
+        log('Page loaded');
+        
+        // Wait for pywebview to be ready
+        setTimeout(() => {
+            log('Checking pywebview.api...');
+            
+            if (typeof pywebview !== 'undefined') {
+                log('pywebview is defined');
+                log('pywebview.api: ' + JSON.stringify(pywebview.api));
+                
+                if (pywebview.api && pywebview.api.list_artifacts) {
+                    log('list_artifacts method found');
+                    
+                    // Test the API call
+                    pywebview.api.list_artifacts()
+                        .then(result => {
+                            log('API call successful: ' + JSON.stringify(result));
+                        })
+                        .catch(error => {
+                            log('API call failed: ' + error.message);
+                        });
+                } else {
+                    log('list_artifacts method NOT found');
+                }
+            } else {
+                log('pywebview is NOT defined');
+            }
+        }, 2000);
+    </script>
+</body>
+</html>

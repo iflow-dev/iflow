@@ -23,7 +23,8 @@ setup(
     author="iflow team",
     author_email="",
     url="",
-    packages=find_packages(),
+    packages=find_packages(where="sw"),
+    package_dir={"": "sw"},
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",

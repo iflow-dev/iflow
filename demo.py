@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Simple demo script for iflow.
-Run this to see the package in action.
+Run this from the root directory to see the package in action.
 """
 
 import sys
@@ -9,8 +9,8 @@ import os
 import argparse
 import traceback
 
-# Add the parent directory to the Python path to find the iflow package
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Add the sw directory to the Python path to find the iflow package
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'sw'))
 
 try:
     from iflow import Artifact, ArtifactType, GitDatabase
@@ -65,11 +65,11 @@ try:
         
 except ImportError as e:
     print(f"Error importing iflow: {e}")
-    print("Make sure you're running this from the correct directory.")
+    print("Make sure you're running this from the root directory.")
     print("You can also install the package with: pip install -e .")
 except Exception as e:
     print(f"Error running demo: {e}")
-    if 'args' in locals() and args.debug:
+    if args.debug:
         print("\n" + "="*50)
         print("FULL STACK TRACE:")
         print("="*50)
