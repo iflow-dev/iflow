@@ -17,3 +17,5 @@
             description:
                 <details>
         ```
+- features:
+    - list of all available artifacts
