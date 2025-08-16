@@ -1,0 +1,19 @@
+- `iflow` is a tool for managing project artifacts like requirements, tasks, test cases, issues for projects
+- make a web-based application
+- tooling
+    - use pywebview as the plattform
+    - iflow is a python package
+- architecture:
+    - every infomation is stored in an artifacts
+    - artifacts have an artifact type like 'requirement', 'task', etc
+    - all artifacts are stored in a flat structure
+    - artifacts are stored in a git database in order to have full history
+    - an artifact has a yaml like structure, example:
+        ```artifact
+        artifact:
+            id: <uniquie_id>
+            type: requirement
+            summary: <summary>
+            description:
+                <details>
+        ```
