@@ -18,6 +18,7 @@ class ArtifactType(Enum):
     FEATURE = "feature"
     STORY = "story"
     ASPECT = "aspect"
+    CHANGE = "change"
 
 
 class Artifact:
