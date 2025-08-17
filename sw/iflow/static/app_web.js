@@ -372,6 +372,12 @@ async function filterByCategory(category, exactMatch = false) {
         filtered = currentArtifacts.filter(artifact => 
             artifact.category === category
         );
+        
+        // Update the category filter input box to show the selected category
+        const categoryFilter = document.querySelector('input[placeholder="Filter by category..."]');
+        if (categoryFilter) {
+            categoryFilter.value = category;
+        }
     } else {
         // Partial matching for search box
         filtered = currentArtifacts.filter(artifact => 
