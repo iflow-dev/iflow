@@ -60,10 +60,9 @@ async function loadConfiguration() {
 }
 
 function updateTypeFilterOptions() {
-    // Update the type filter dropdown (first filter-select)
-    const typeFilters = document.querySelectorAll('.filter-select');
-    if (typeFilters.length >= 1 && workItemTypes.length > 0) {
-        const typeFilter = typeFilters[0];
+    // Update the type filter dropdown using specific ID
+    const typeFilter = document.getElementById('typeFilter');
+    if (typeFilter && workItemTypes.length > 0) {
         // Clear existing options
         typeFilter.innerHTML = '<option value="">All Types</option>';
         
@@ -79,9 +78,9 @@ function updateTypeFilterOptions() {
         });
     }
     
-    // Update the status filter dropdown (second filter-select)
-    if (typeFilters.length >= 2 && artifactStatuses.length > 0) {
-        const statusFilter = typeFilters[1];
+    // Update the status filter dropdown using specific ID
+    const statusFilter = document.getElementById('statusFilter');
+    if (statusFilter && artifactStatuses.length > 0) {
         // Clear existing options
         statusFilter.innerHTML = '<option value="">All Statuses</option>';
         
@@ -99,7 +98,7 @@ function updateTypeFilterOptions() {
     const artifactTypeSelect = document.getElementById('artifactType');
     if (artifactTypeSelect && workItemTypes.length > 0) {
         // Clear existing options
-        artifactTypeSelect.innerHTML = '';
+        artifactTypeSelect.innerHTML = '<option value="">Select Type</option>';
         
         // Add options for each work item type
         workItemTypes.forEach(type => {
@@ -119,7 +118,7 @@ function updateStatusFormOptions() {
     const artifactStatusSelect = document.getElementById('artifactStatus');
     if (artifactStatusSelect && artifactStatuses.length > 0) {
         // Clear existing options
-        artifactStatusSelect.innerHTML = '';
+        artifactStatusSelect.innerHTML = '<option value="">Select Status</option>';
         
         // Add options for each status
         artifactStatuses.forEach(status => {

@@ -17,20 +17,11 @@
         <div class="toolbar">
             <button class="btn" onclick="openCreateModal()">+ New Artifact</button>
             <input type="text" class="search-box" placeholder="Search artifacts..." onkeyup="searchArtifacts(this.value)">
-            <select class="filter-select" onchange="filterByType(this.value)">
+            <select class="filter-select" id="typeFilter" onchange="filterByType(this.value)">
                 <option value="">All Types</option>
-                <option value="requirement">Requirements</option>
-                <option value="task">Tasks</option>
-                <option value="bug">Bugs</option>
-                <option value="aspect">Aspects</option>
-                <option value="change">Changes</option>
             </select>
-            <select class="filter-select" onchange="filterByStatus(this.value)">
+            <select class="filter-select" id="statusFilter" onchange="filterByStatus(this.value)">
                 <option value="">All Statuses</option>
-                <option value="open">Open</option>
-                <option value="in_progress">In Progress</option>
-                <option value="done">Done</option>
-                <option value="blocked">Blocked</option>
             </select>
             <input type="text" class="search-box" placeholder="Filter by category..." onkeyup="filterByCategory(this.value)">
             <button class="btn btn-secondary" onclick="refreshArtifacts()">Refresh</button>
@@ -60,11 +51,7 @@
                 <div class="form-group">
                     <label class="form-label" for="artifactType">Type</label>
                     <select class="form-select" id="artifactType" required>
-                        <option value="requirement">Requirement</option>
-                        <option value="task">Task</option>
-                        <option value="bug">Bug</option>
-                        <option value="aspect">Aspect</option>
-                        <option value="change">Change</option>
+                        <option value="">Select Type</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -82,10 +69,7 @@
                 <div class="form-group">
                     <label class="form-label" for="artifactStatus">Status</label>
                     <select class="form-select" id="artifactStatus">
-                        <option value="open">Open</option>
-                        <option value="in_progress">In Progress</option>
-                        <option value="done">Done</option>
-                        <option value="blocked">Blocked</option>
+                        <option value="">Select Status</option>
                     </select>
                 </div>
                 <div class="form-actions">
