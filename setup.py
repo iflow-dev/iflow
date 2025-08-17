@@ -25,6 +25,9 @@ setup(
     url="",
     packages=find_packages(where="sw"),
     package_dir={"": "sw"},
+    package_data={
+        "iflow": ["static/*", "static/*/*"],
+    },
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
