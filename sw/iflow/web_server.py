@@ -29,6 +29,22 @@ def create_app(database_path=".iflow"):
 def register_routes():
     """Register all the Flask routes."""
     
+    @app.errorhandler(500)
+    def internal_error(error):
+        """Handle 500 internal server errors."""
+        print(f"500 Internal Server Error: {error}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': 'Internal server error'}), 500
+    
+    @app.errorhandler(Exception)
+    def handle_exception(e):
+        """Handle any unhandled exceptions."""
+        print(f"Unhandled exception: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+    
     @app.route('/')
     def index():
         """Serve the main HTML page."""
@@ -38,7 +54,10 @@ def register_routes():
     def get_stats():
         """Get database statistics."""
         try:
+            print("Getting database statistics...")
             stats = db.get_stats()
+            print(f"Raw stats: {stats}")
+            
             # Ensure datetime objects are serializable
             if 'last_commit' in stats and stats['last_commit']:
                 commit_info = stats['last_commit']
@@ -47,8 +66,13 @@ def register_routes():
                         commit_info['date'] = commit_info['date'].isoformat()
                 elif hasattr(commit_info, 'isoformat'):
                     stats['last_commit'] = commit_info.isoformat()
+            
+            print(f"Processed stats: {stats}")
             return jsonify(stats)
         except Exception as e:
+            print(f"Error getting stats: {e}")
+            import traceback
+            traceback.print_exc()
             return jsonify({'error': str(e)}), 500
     
     @app.route('/api/artifacts')
@@ -56,16 +80,23 @@ def register_routes():
         """List all artifacts, optionally filtered by type."""
         try:
             artifact_type = request.args.get('type')
+            print(f"Listing artifacts, type filter: {artifact_type}")
+            
             if artifact_type:
                 artifact_type_enum = ArtifactType(artifact_type)
                 artifacts = db.list_artifacts(artifact_type_enum)
             else:
                 artifacts = db.list_artifacts()
             
+            print(f"Found {len(artifacts)} artifacts")
+            
             # Convert to dictionaries for JSON serialization
             result = [artifact_to_dict(artifact) for artifact in artifacts]
             return jsonify(result)
         except Exception as e:
+            print(f"Error listing artifacts: {e}")
+            import traceback
+            traceback.print_exc()
             return jsonify({'error': str(e)}), 500
     
     @app.route('/api/artifacts/<artifact_id>')
@@ -127,9 +158,14 @@ def register_routes():
     def delete_artifact(artifact_id):
         """Delete an artifact."""
         try:
+            print(f"Attempting to delete artifact: {artifact_id}")
             db.delete_artifact(artifact_id)
+            print(f"Successfully deleted artifact: {artifact_id}")
             return jsonify({'success': True})
         except Exception as e:
+            print(f"Error deleting artifact {artifact_id}: {e}")
+            import traceback
+            traceback.print_exc()
             return jsonify({'error': str(e)}), 500
     
     @app.route('/api/search')
