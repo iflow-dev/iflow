@@ -119,10 +119,21 @@ function createCustomDropdowns() {
         createCustomDropdown(typeFilter, 'type', workItemTypes);
     }
     
-    // Replace the form dropdown with a custom one
+    // Replace the status filter dropdown with a custom one
+    const statusFilter = document.getElementById('statusFilter');
+    if (statusFilter && !statusFilter.classList.contains('custom-dropdown')) {
+        createCustomDropdown(statusFilter, 'status', artifactStatuses);
+    }
+    
+    // Replace the form dropdowns with custom ones
     const artifactTypeSelect = document.getElementById('artifactType');
     if (artifactTypeSelect && !artifactTypeSelect.classList.contains('custom-dropdown')) {
         createCustomDropdown(artifactTypeSelect, 'form', workItemTypes);
+    }
+    
+    const artifactStatusSelect = document.getElementById('artifactStatus');
+    if (artifactStatusSelect && !artifactStatusSelect.classList.contains('custom-dropdown')) {
+        createCustomDropdown(artifactStatusSelect, 'status-form', artifactStatuses);
     }
 }
 
@@ -156,7 +167,15 @@ function createCustomDropdown(originalSelect, type, items) {
     // Create the selected value display
     const selectedValue = document.createElement('span');
     selectedValue.className = 'custom-dropdown-selected';
-    selectedValue.textContent = type === 'type' ? 'All Types' : 'Select Type';
+    if (type === 'type') {
+        selectedValue.textContent = 'All Types';
+    } else if (type === 'status') {
+        selectedValue.textContent = 'All Statuses';
+    } else if (type === 'form') {
+        selectedValue.textContent = 'Select Type';
+    } else if (type === 'status-form') {
+        selectedValue.textContent = 'Select Status';
+    }
     
     // Create the dropdown arrow
     const arrow = document.createElement('span');
@@ -197,7 +216,15 @@ function createCustomDropdown(originalSelect, type, items) {
         font-size: 14px;
         line-height: 1.2;
     `;
-    defaultOption.textContent = type === 'type' ? 'All Types' : 'Select Type';
+    if (type === 'type') {
+        defaultOption.textContent = 'All Types';
+    } else if (type === 'status') {
+        defaultOption.textContent = 'All Statuses';
+    } else if (type === 'form') {
+        defaultOption.textContent = 'Select Type';
+    } else if (type === 'status-form') {
+        defaultOption.textContent = 'Select Status';
+    }
     defaultOption.setAttribute('data-value', '');
     optionsContainer.appendChild(defaultOption);
     
@@ -254,7 +281,15 @@ function createCustomDropdown(originalSelect, type, items) {
             
             // Update selected value display
             if (value === '') {
-                selectedValue.textContent = type === 'type' ? 'All Types' : 'Select Type';
+                if (type === 'type') {
+                    selectedValue.textContent = 'All Types';
+                } else if (type === 'status') {
+                    selectedValue.textContent = 'All Statuses';
+                } else if (type === 'form') {
+                    selectedValue.textContent = 'Select Type';
+                } else if (type === 'status-form') {
+                    selectedValue.textContent = 'Select Status';
+                }
             } else {
                 const item = items.find(i => i.id === value);
                 selectedValue.innerHTML = '';
