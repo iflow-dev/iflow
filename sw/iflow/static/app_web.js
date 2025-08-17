@@ -60,9 +60,10 @@ async function loadConfiguration() {
 }
 
 function updateTypeFilterOptions() {
-    // Update the filter dropdown
-    const typeFilter = document.querySelector('.filter-select');
-    if (typeFilter && workItemTypes.length > 0) {
+    // Update the type filter dropdown (first filter-select)
+    const typeFilters = document.querySelectorAll('.filter-select');
+    if (typeFilters.length >= 1 && workItemTypes.length > 0) {
+        const typeFilter = typeFilters[0];
         // Clear existing options
         typeFilter.innerHTML = '<option value="">All Types</option>';
         
@@ -73,6 +74,22 @@ function updateTypeFilterOptions() {
             option.textContent = `${type.icon} ${type.name}`;
             option.style.color = type.color;
             typeFilter.appendChild(option);
+        });
+    }
+    
+    // Update the status filter dropdown (second filter-select)
+    if (typeFilters.length >= 2 && artifactStatuses.length > 0) {
+        const statusFilter = typeFilters[1];
+        // Clear existing options
+        statusFilter.innerHTML = '<option value="">All Statuses</option>';
+        
+        // Add options for each status
+        artifactStatuses.forEach(status => {
+            const option = document.createElement('option');
+            option.value = status.id;
+            option.textContent = `${status.icon} ${status.name}`;
+            option.style.color = status.color;
+            statusFilter.appendChild(option);
         });
     }
     
@@ -355,6 +372,18 @@ async function filterByCategory(category) {
     displayArtifacts(filtered);
 }
 
+async function filterByStatus(status) {
+    if (status === '') {
+        displayArtifacts(currentArtifacts);
+        return;
+    }
+    
+    const filtered = currentArtifacts.filter(artifact => 
+        artifact.status === status
+    );
+    displayArtifacts(filtered);
+}
+
 // Form Handling
 document.getElementById('artifactForm').addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -424,6 +453,19 @@ async function deleteArtifact(artifactId) {
 }
 
 function refreshArtifacts() {
+    // Reset all filters
+    const typeFilters = document.querySelectorAll('.filter-select');
+    if (typeFilters.length >= 1) typeFilters[0].value = '';
+    if (typeFilters.length >= 2) typeFilters[1].value = '';
+    
+    // Reset category filter
+    const categoryFilter = document.querySelector('input[placeholder="Filter by category..."]');
+    if (categoryFilter) categoryFilter.value = '';
+    
+    // Reset search
+    const searchBox = document.querySelector('input[placeholder="Search artifacts..."]');
+    if (searchBox) searchBox.value = '';
+    
     loadStats();
     loadArtifacts();
 }

@@ -25,6 +25,13 @@
                 <option value="feature">Features</option>
                 <option value="story">Stories</option>
             </select>
+            <select class="filter-select" onchange="filterByStatus(this.value)">
+                <option value="">All Statuses</option>
+                <option value="open">Open</option>
+                <option value="in_progress">In Progress</option>
+                <option value="done">Done</option>
+                <option value="blocked">Blocked</option>
+            </select>
             <input type="text" class="search-box" placeholder="Filter by category..." onkeyup="filterByCategory(this.value)">
             <button class="btn btn-secondary" onclick="refreshArtifacts()">Refresh</button>
         </div>
