@@ -31,7 +31,7 @@ Examples:
     parser.add_argument(
         '--version', '-v',
         action='version',
-        version='iflow 0.1.0'
+        version='iflow 0.2.0'
     )
     
     args = parser.parse_args()

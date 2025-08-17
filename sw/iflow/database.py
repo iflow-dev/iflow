@@ -393,7 +393,7 @@ class GitDatabase:
             "project": {
                 "name": "iflow",
                 "description": "Git-based artifact management system",
-                "version": "1.0.0"
+                "version": "0.2.0"
             },
             "work_item_types": [
                 {
