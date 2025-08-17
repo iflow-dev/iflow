@@ -57,6 +57,9 @@ async function loadConfiguration() {
             artifactStatuses = await statusesResponse.json();
             console.log('Artifact statuses loaded:', artifactStatuses);
             updateStatusFormOptions();
+            
+            // Now that both data sets are loaded, create custom dropdowns
+            createCustomDropdowns();
         } else {
             console.error('Failed to load artifact statuses:', statusesResponse.status);
         }
@@ -107,9 +110,6 @@ function updateTypeFilterOptions() {
             artifactTypeSelect.appendChild(option);
         });
     }
-    
-    // Create custom dropdowns that can display Ionic icons
-    createCustomDropdowns();
 }
 
 function createCustomDropdowns() {
