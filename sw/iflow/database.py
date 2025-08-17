@@ -108,8 +108,13 @@ class GitDatabase:
         """
         # If artifact doesn't have a number, generate one
         if '/' not in artifact.artifact_id:
-            artifact_number = self._get_next_artifact_number()
-            artifact.artifact_id = artifact_number
+            if artifact.artifact_id == "00000":  # Placeholder ID
+                # Generate new ID for new artifacts
+                artifact_number = self._get_next_artifact_number()
+                artifact.artifact_id = artifact_number
+            else:
+                # Use existing ID for updates
+                artifact_number = artifact.artifact_id
         else:
             # Extract number from existing ID (for backward compatibility)
             artifact_number = artifact.artifact_id.split('/')[-1]
@@ -130,6 +135,10 @@ class GitDatabase:
         # Verify file exists before adding to git
         if not file_path.exists():
             raise RuntimeError(f"Failed to create file: {file_path}")
+        
+        # Add to git and commit
+        # Use repository-relative path for Git operations
+        git_file_path = self._get_repo_relative_path(artifact_number)
         
         # Add to git and commit
         # Use repository-relative path for Git operations
