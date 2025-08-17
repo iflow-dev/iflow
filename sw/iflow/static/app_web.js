@@ -20,6 +20,7 @@ let currentFilterState = {
 let dropdownManager = null;
 let tileManager = null;
 let statisticsManager = null;
+let searchManager = null;
 
 // API base URL
 const API_BASE = '/api';
@@ -69,6 +70,7 @@ async function loadConfiguration() {
             dropdownManager = new CustomDropdownManager();
             tileManager = new TileManager();
             statisticsManager = new StatisticsManager();
+            searchManager = new SearchManager();
             
             if (dropdownManager.initializeData(workItemTypes, artifactStatuses)) {
                 dropdownManager.createCustomDropdowns();
@@ -80,6 +82,10 @@ async function loadConfiguration() {
             
             if (statisticsManager) {
                 statisticsManager.initialize(projectConfig);
+            }
+            
+            if (searchManager) {
+                searchManager.initialize();
             }
         } else {
             console.error('Failed to load artifact statuses:', statusesResponse.status);
@@ -311,7 +317,13 @@ async function loadArtifacts() {
 
 // Search and Filter
 async function searchArtifacts(query) {
-    currentFilterState.search = query.trim();
+    if (searchManager) {
+        searchManager.setSearchValue(query);
+        currentFilterState.search = query.trim();
+    } else {
+        // Fallback to old method
+        currentFilterState.search = query.trim();
+    }
     
     // Apply all active filters
     await applyCombinedFilters();
@@ -425,9 +437,14 @@ function updateFilterDOMValues() {
     }
     
     // Update search input
-    const searchBox = document.querySelector('input[placeholder="Search artifacts..."]');
-    if (searchBox) {
-        searchBox.value = currentFilterState.search;
+    if (searchManager) {
+        searchManager.setSearchValue(currentFilterState.search);
+    } else {
+        // Fallback to old method
+        const searchBox = document.querySelector('input[placeholder="Search artifacts..."]');
+        if (searchBox) {
+            searchBox.value = currentFilterState.search;
+        }
     }
 }
 
@@ -526,8 +543,13 @@ function refreshArtifacts() {
     if (categoryFilter) categoryFilter.value = '';
     
     // Reset search
-    const searchBox = document.querySelector('input[placeholder="Search artifacts..."]');
-    if (searchBox) searchBox.value = '';
+    if (searchManager) {
+        searchManager.clearSearch();
+    } else {
+        // Fallback to old method
+        const searchBox = document.querySelector('input[placeholder="Search artifacts..."]');
+        if (searchBox) searchBox.value = '';
+    }
     
     // Reset filter state
     currentFilterState = {
@@ -580,6 +602,11 @@ function cleanupManagers() {
     if (statisticsManager) {
         statisticsManager.cleanup();
         statisticsManager = null;
+    }
+    
+    if (searchManager) {
+        searchManager.cleanup();
+        searchManager = null;
     }
 }
 

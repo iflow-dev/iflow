@@ -16,7 +16,7 @@
     <div class="container">
         <div class="toolbar">
             <button class="btn" onclick="openCreateModal()">+ New Artifact</button>
-            <input type="text" class="search-box" placeholder="Search artifacts..." onkeyup="searchArtifacts(this.value)">
+            <input type="text" id="search-input" class="search-box" placeholder="Search artifacts...">
             <select class="filter-select" id="typeFilter" onchange="filterByType(this.value)">
                 <option value="">All Types</option>
             </select>
@@ -80,9 +80,10 @@
         </div>
     </div>
     
-    <script src="/static/dropdown.js"></script>
-    <script src="/static/tile.js"></script>
-    <script src="/static/statistics.js"></script>
-    <script src="/static/app_web.js"></script>
+            <script src="/static/dropdown.js"></script>
+        <script src="/static/tile.js"></script>
+        <script src="/static/statistics.js"></script>
+        <script src="/static/search.js"></script>
+        <script src="/static/app_web.js"></script>
 </body>
 </html>
