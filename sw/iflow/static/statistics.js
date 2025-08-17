@@ -54,6 +54,24 @@ class StatisticsManager {
             </div>`;
         }
         
+        // Format last tag display
+        let lastTagDisplay = '';
+        if (stats.last_tag) {
+            lastTagDisplay = `<div class="stat-item">
+                <div class="stat-number">${stats.last_tag}</div>
+                <div class="stat-label">Last Tag</div>
+            </div>`;
+        }
+        
+        // Format current branch display
+        let currentBranchDisplay = '';
+        if (stats.current_branch) {
+            currentBranchDisplay = `<div class="stat-item">
+                <div class="stat-number">${stats.current_branch}</div>
+                <div class="stat-label">Branch</div>
+            </div>`;
+        }
+        
         this.statsBarElement.innerHTML = `
             <div class="stat-item">
                 <div class="stat-number">${stats.total_artifacts}</div>
@@ -63,6 +81,8 @@ class StatisticsManager {
                 <div class="stat-number">${stats.total_commits}</div>
                 <div class="stat-label">Total Commits</div>
             </div>
+            ${lastTagDisplay}
+            ${currentBranchDisplay}
             <div class="stat-item">
                 <div class="stat-number">${Object.keys(stats.by_type).length}</div>
                 <div class="stat-label">Artifact Types</div>
@@ -111,3 +131,4 @@ class StatisticsManager {
         this.statsBarElement = null;
     }
 }
+
