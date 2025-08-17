@@ -390,14 +390,22 @@ function updateProjectHeader() {
 
 // Function to programmatically set values on custom dropdowns
 function setCustomDropdownValue(dropdownElement, value) {
+    console.log('setCustomDropdownValue called with:', { dropdownElement, value });
+    console.log('dropdownElement._selectedValue:', dropdownElement._selectedValue);
+    console.log('dropdownElement._items:', dropdownElement._items);
+    console.log('dropdownElement._type:', dropdownElement._type);
+    
     if (dropdownElement && dropdownElement._selectedValue && dropdownElement._items) {
         const selectedValue = dropdownElement._selectedValue;
         const items = dropdownElement._items;
         const type = dropdownElement._type;
         
+        console.log('Found required properties, updating dropdown');
+        
         // Update the original select element
         if (dropdownElement._originalSelect) {
             dropdownElement._originalSelect.value = value;
+            console.log('Updated original select value to:', value);
         }
         
         // Update the visual display
@@ -411,8 +419,10 @@ function setCustomDropdownValue(dropdownElement, value) {
             } else if (type === 'status-form') {
                 selectedValue.textContent = 'Select Status';
             }
+            console.log('Set empty value display for type:', type);
         } else {
             const item = items.find(i => i.id === value);
+            console.log('Found item for value:', value, item);
             if (item) {
                 selectedValue.innerHTML = '';
                 
@@ -432,8 +442,14 @@ function setCustomDropdownValue(dropdownElement, value) {
                 const nameSpan = document.createElement('span');
                 nameSpan.textContent = ` ${item.name}`;
                 selectedValue.appendChild(nameSpan);
+                
+                console.log('Updated visual display for item:', item);
+            } else {
+                console.log('No item found for value:', value);
             }
         }
+    } else {
+        console.log('Missing required properties for custom dropdown');
     }
 }
 
@@ -769,23 +785,41 @@ function openEditModal(artifactId) {
         const artifactStatusSelect = document.getElementById('artifactStatus');
         
         if (artifactTypeSelect) {
-            // Check if it's a custom dropdown
-            const customDropdown = artifactTypeSelect.nextElementSibling;
+            // Check if it's a custom dropdown by looking for the custom dropdown element
+            let customDropdown = null;
+            if (artifactTypeSelect.classList.contains('custom-dropdown')) {
+                customDropdown = artifactTypeSelect;
+            } else {
+                // Look for the custom dropdown that replaced this select
+                customDropdown = artifactTypeSelect.parentNode.querySelector('.custom-dropdown');
+            }
+            
             if (customDropdown && customDropdown.classList.contains('custom-dropdown')) {
+                console.log('Setting type dropdown value:', artifact.type);
                 setCustomDropdownValue(customDropdown, artifact.type);
             } else {
                 // Fallback to native select
+                console.log('Using native select for type, value:', artifact.type);
                 artifactTypeSelect.value = artifact.type;
             }
         }
         
         if (artifactStatusSelect) {
-            // Check if it's a custom dropdown
-            const customDropdown = artifactStatusSelect.nextElementSibling;
+            // Check if it's a custom dropdown by looking for the custom dropdown element
+            let customDropdown = null;
+            if (artifactStatusSelect.classList.contains('custom-dropdown')) {
+                customDropdown = artifactStatusSelect;
+            } else {
+                // Look for the custom dropdown that replaced this select
+                customDropdown = artifactStatusSelect.parentNode.querySelector('.custom-dropdown');
+            }
+            
             if (customDropdown && customDropdown.classList.contains('custom-dropdown')) {
+                console.log('Setting status dropdown value:', artifact.status || 'open');
                 setCustomDropdownValue(customDropdown, artifact.status || 'open');
             } else {
                 // Fallback to native select
+                console.log('Using native select for status, value:', artifact.status || 'open');
                 artifactStatusSelect.value = artifact.status || 'open';
             }
         }
