@@ -334,6 +334,12 @@ function createCustomDropdown(originalSelect, type, items) {
     customDropdown.appendChild(dropdownButton);
     customDropdown.appendChild(optionsContainer);
     
+    // Store references for external access
+    customDropdown._originalSelect = originalSelect;
+    customDropdown._selectedValue = selectedValue;
+    customDropdown._items = items;
+    customDropdown._type = type;
+    
     // Replace the original select
     originalSelect.style.display = 'none';
     originalSelect.parentNode.insertBefore(customDropdown, originalSelect);
@@ -378,6 +384,55 @@ function updateProjectHeader() {
         const header = document.querySelector('.header h1');
         if (header) {
             header.textContent = `${projectConfig.name} - ${projectConfig.description}`;
+        }
+    }
+}
+
+// Function to programmatically set values on custom dropdowns
+function setCustomDropdownValue(dropdownElement, value) {
+    if (dropdownElement && dropdownElement._selectedValue && dropdownElement._items) {
+        const selectedValue = dropdownElement._selectedValue;
+        const items = dropdownElement._items;
+        const type = dropdownElement._type;
+        
+        // Update the original select element
+        if (dropdownElement._originalSelect) {
+            dropdownElement._originalSelect.value = value;
+        }
+        
+        // Update the visual display
+        if (value === '') {
+            if (type === 'type') {
+                selectedValue.textContent = 'All Types';
+            } else if (type === 'status') {
+                selectedValue.textContent = 'All Statuses';
+            } else if (type === 'form') {
+                selectedValue.textContent = 'Select Type';
+            } else if (type === 'status-form') {
+                selectedValue.textContent = 'Select Status';
+            }
+        } else {
+            const item = items.find(i => i.id === value);
+            if (item) {
+                selectedValue.innerHTML = '';
+                
+                if (item.icon.startsWith('ion-')) {
+                    const icon = document.createElement('ion-icon');
+                    icon.setAttribute('name', item.icon.replace('ion-', ''));
+                    icon.style.fontSize = '16px';
+                    icon.style.color = item.color;
+                    selectedValue.appendChild(icon);
+                } else {
+                    const iconSpan = document.createElement('span');
+                    iconSpan.textContent = item.icon;
+                    iconSpan.style.fontSize = '16px';
+                    selectedValue.appendChild(iconSpan);
+                }
+                
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = ` ${item.name}`;
+                selectedValue.appendChild(nameSpan);
+            }
         }
     }
 }
@@ -703,11 +758,37 @@ function openEditModal(artifactId) {
     const artifact = currentArtifacts.find(a => a.artifact_id === artifactId);
     if (artifact) {
         document.getElementById('modalTitle').textContent = 'Edit Artifact';
-        document.getElementById('artifactType').value = artifact.type;
+        
+        // Set values on form fields
         document.getElementById('artifactSummary').value = artifact.summary;
         document.getElementById('artifactDescription').value = artifact.description || '';
         document.getElementById('artifactCategory').value = artifact.category || '';
-        document.getElementById('artifactStatus').value = artifact.status || 'open';
+        
+        // Set values on custom dropdowns
+        const artifactTypeSelect = document.getElementById('artifactType');
+        const artifactStatusSelect = document.getElementById('artifactStatus');
+        
+        if (artifactTypeSelect) {
+            // Check if it's a custom dropdown
+            const customDropdown = artifactTypeSelect.nextElementSibling;
+            if (customDropdown && customDropdown.classList.contains('custom-dropdown')) {
+                setCustomDropdownValue(customDropdown, artifact.type);
+            } else {
+                // Fallback to native select
+                artifactTypeSelect.value = artifact.type;
+            }
+        }
+        
+        if (artifactStatusSelect) {
+            // Check if it's a custom dropdown
+            const customDropdown = artifactStatusSelect.nextElementSibling;
+            if (customDropdown && customDropdown.classList.contains('custom-dropdown')) {
+                setCustomDropdownValue(customDropdown, artifact.status || 'open');
+            } else {
+                // Fallback to native select
+                artifactStatusSelect.value = artifact.status || 'open';
+            }
+        }
         
         // Show and populate artifact ID display
         const artifactIdDisplay = document.getElementById('artifactIdDisplay');
