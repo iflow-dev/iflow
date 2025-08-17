@@ -3,36 +3,28 @@ Hooks for radish BDD tests.
 This file contains test lifecycle hooks and utilities.
 """
 
-from radish import before, after, before_all, after_all
+from radish import before, after
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 import time
 
 @before.all
-def setup_test_environment(features, context):
+def setup_test_environment(*args, **kwargs):
     """Set up the test environment before all tests."""
     print("Setting up BDD test environment...")
     
-    # Set default timeout for waits
-    context.default_timeout = 10
-    
-    # Set up test configuration
-    context.test_config = {
-        'headless': True,
-        'window_size': (1920, 1080),
-        'implicit_wait': 10
-    }
+    # For now, just print a message to see if this works
+    pass
 
 @after.all
-def cleanup_test_environment(features, context):
+def cleanup_test_environment(*args, **kwargs):
     """Clean up after all tests complete."""
     print("Cleaning up BDD test environment...")
     
     # Any final cleanup can go here
     pass
 
-@before.each_scenario
 def setup_scenario(scenario, context):
     """Set up before each scenario."""
     print(f"Starting scenario: {scenario.name}")
@@ -42,7 +34,6 @@ def setup_scenario(scenario, context):
     context.current_page = None
     context.last_action = None
 
-@after.each_scenario
 def cleanup_scenario(scenario, context):
     """Clean up after each scenario."""
     scenario_duration = time.time() - context.scenario_start_time

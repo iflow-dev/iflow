@@ -1,8 +1,9 @@
-Feature: Simple Branch Display Check
+Feature: Simple Page Title Check
   As a user
-  I want to see the current branch in the status line
-  So that I know which branch I'm working on
+  I want to see the page title
+  So that I know which page I'm on
 
-  Scenario: Check Master Branch Display
-    Given I am on the artifacts page
-    Then the status line should show "Branch: master"
+  Scenario: Check Page Title Display
+    Given I go to home
+    Given I am on the search page
+    Then the page title should be displayed

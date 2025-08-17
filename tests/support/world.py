@@ -8,73 +8,76 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import os
 
-def before_scenario(scenario, context):
+from radish import before, after
+
+@before.each_scenario
+def before_scenario(scenario):
     """Set up the test environment before each scenario."""
     
-    # Set up Chrome options for headless testing
+    print("Setting up scenario...")
+    
+    # Set up Chrome options for visible testing (not headless)
     chrome_options = Options()
-    chrome_options.add_argument("--headless")  # Run in headless mode
+    # chrome_options.add_argument("--headless")  # Commented out to show browser
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--window-size=1920,1080")
     
-    # Initialize the web driver
+    # Initialize the web driver in world
     try:
-        context.driver = webdriver.Chrome(options=chrome_options)
-        context.driver.implicitly_wait(10)
+        world.driver = webdriver.Chrome(options=chrome_options)
+        world.driver.implicitly_wait(10)
+        print("Chrome driver initialized successfully")
     except Exception as e:
         print(f"Warning: Could not initialize Chrome driver: {e}")
         print("Tests will run but may fail without a web driver")
-        context.driver = None
-    
-    # Initialize test state
-    context.current_artifact_id = None
-    context.filter_state = {}
-    context.wait = None
 
-def after_scenario(scenario, context):
+@after.each_scenario
+def after_scenario(scenario):
     """Clean up after each scenario."""
     
-    # Close the web driver
-    if hasattr(context, 'driver') and context.driver:
-        try:
-            context.driver.quit()
-        except:
-            pass
+    print("Cleaning up scenario...")
     
-    # Clear test state
-    context.current_artifact_id = None
-    context.filter_state = {}
-    context.wait = None
+    # Clean up the web driver from world
+    if hasattr(world, 'driver') and world.driver:
+        try:
+            # Add a delay so you can see the result
+            import time
+            print("Waiting 5 seconds before closing browser...")
+            time.sleep(5)
+            
+            world.driver.quit()
+            print("Chrome driver closed successfully")
+        except Exception as e:
+            print(f"Error closing driver: {e}")
+    else:
+        print("No driver to clean up")
 
-def before_all(features, context):
+@before.all
+def before_all(*args, **kwargs):
     """Set up before all tests run."""
     
+    print("Starting BDD tests...")
+    
     # Set base URL for the application
-    context.base_url = os.getenv('IFLOW_BASE_URL', 'http://localhost:8080')
+    import os
+    base_url = os.getenv('IFLOW_BASE_URL', 'http://localhost:8081')
+    print(f"Testing against: {base_url}")
     
-    # Set up test data
-    context.test_data = {
-        'sample_artifact': {
-            'type': 'requirement',
-            'summary': 'Test requirement for BDD testing',
-            'description': 'This is a test requirement created during BDD testing',
-            'category': 'Testing',
-            'status': 'open'
-        }
-    }
-    
-    print(f"Starting BDD tests against: {context.base_url}")
+    # Store in context if available
+    if args and len(args) > 0:
+        context = args[0]
+        if hasattr(context, '__dict__'):
+            context.base_url = base_url
+            print(f"Base URL set in context: {context.base_url}")
+        else:
+            print("Context is not a proper object, cannot set base_url")
+    else:
+        print("No context available in before_all")
 
-def after_all(features, context):
+@after.all
+def after_all(*args, **kwargs):
     """Clean up after all tests complete."""
     
     print("BDD testing completed")
-    
-    # Clean up any test artifacts if needed
-    if hasattr(context, 'driver') and context.driver:
-        try:
-            context.driver.quit()
-        except:
-            pass
