@@ -231,8 +231,7 @@ body {
     padding: 1rem;
     border-top: 1px solid #eee;
     display: flex;
-    gap: 0.5rem;
-    justify-content: space-between;
+    justify-content: flex-end; /* Align single button to the right */
 }
 
 .artifact-actions .btn {
@@ -248,22 +247,16 @@ body {
     transition: all 0.2s ease;
 }
 
-.artifact-actions .btn-primary {
-    background: #007bff;
-    color: white;
+.artifact-actions .btn-transparent {
+    background: transparent;
+    color: #6c757d;
+    border: 1px solid #dee2e6;
 }
 
-.artifact-actions .btn-primary:hover {
-    background: #0056b3;
-}
-
-.artifact-actions .btn-danger {
-    background: #dc3545;
-    color: white;
-}
-
-.artifact-actions .btn-danger:hover {
-    background: #c82333;
+.artifact-actions .btn-transparent:hover {
+    background: #f8f9fa;
+    color: #495057;
+    border-color: #adb5bd;
 }
 
 .artifact-actions ion-icon {
