@@ -6,8 +6,8 @@ instead of using pywebview.
 """
 
 from flask import Flask, render_template_string, request, jsonify
-from .core import Artifact, ArtifactType
-from .database import GitDatabase
+from core import Artifact, ArtifactType
+from database import GitDatabase
 
 import os
 
@@ -21,15 +21,21 @@ def init_database():
     """Initialize the database with the default path."""
     global db
     if db is None:
-        # Try to initialize with the default path
-        default_db_path = "../../.iflow-demo"
-        if os.path.exists(default_db_path):
-            print(f"Initializing database with default path: {default_db_path}")
-            db = GitDatabase(default_db_path)
+        # Check if environment variable is set
+        env_db_path = os.environ.get("IFLOW_DATABASE_PATH")
+        if env_db_path:
+            print(f"Initializing database with environment path: {env_db_path}")
+            db = GitDatabase(env_db_path)
         else:
-            print(f"Default database path not found: {default_db_path}")
-            # Fall back to the original default
-            db = GitDatabase(".iflow")
+            # Try to initialize with the default path
+            default_db_path = "../../.iflow-demo"
+            if os.path.exists(default_db_path):
+                print(f"Initializing database with default path: {default_db_path}")
+                db = GitDatabase(default_db_path)
+            else:
+                print(f"Default database path not found: {default_db_path}")
+                # Fall back to the original default
+                db = GitDatabase(".iflow")
 
 # Initialize database when the module is imported
 init_database()
@@ -304,3 +310,20 @@ def run_web_server(database_path=".iflow", host="127.0.0.1", port=5000, debug=Tr
 
 # Note: This module is designed to be imported and used by run_web.py
 # The run_web_server function should be called from the importing script
+
+if __name__ == "__main__":
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="iflow Web Server")
+    parser.add_argument("--port", type=int, default=5000, help="Port to run the server on")
+    parser.add_argument("--database", type=str, default=".iflow-demo", help="Database path to use")
+    parser.add_argument("--host", type=str, default="0.0.0.0", help="Host to bind to")
+    
+    args = parser.parse_args()
+    
+    print(f"Starting iflow web server...")
+    print(f"Database: {args.database}")
+    print(f"Host: {args.host}")
+    print(f"Port: {args.port}")
+    
+    run_web_server(database_path=args.database, host=args.host, port=args.port, debug=False)
