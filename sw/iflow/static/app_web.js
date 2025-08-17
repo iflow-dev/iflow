@@ -16,6 +16,9 @@ let currentFilterState = {
     search: ''
 };
 
+// Initialize the dropdown manager
+let dropdownManager = null;
+
 // API base URL
 const API_BASE = '/api';
 
@@ -58,8 +61,11 @@ async function loadConfiguration() {
             console.log('Artifact statuses loaded:', artifactStatuses);
             updateStatusFormOptions();
             
-            // Now that both data sets are loaded, create custom dropdowns
-            createCustomDropdowns();
+            // Initialize dropdown manager with the loaded data
+            dropdownManager = new CustomDropdownManager();
+            if (dropdownManager.initializeData(workItemTypes, artifactStatuses)) {
+                dropdownManager.createCustomDropdowns();
+            }
         } else {
             console.error('Failed to load artifact statuses:', statusesResponse.status);
         }
@@ -110,240 +116,14 @@ function updateTypeFilterOptions() {
             artifactTypeSelect.appendChild(option);
         });
     }
-}
-
-function createCustomDropdowns() {
-    // Replace the type filter dropdown with a custom one
-    const typeFilter = document.getElementById('typeFilter');
-    if (typeFilter && !typeFilter.classList.contains('custom-dropdown')) {
-        createCustomDropdown(typeFilter, 'type', workItemTypes);
-    }
     
-    // Replace the status filter dropdown with a custom one
-    const statusFilter = document.getElementById('statusFilter');
-    if (statusFilter && !statusFilter.classList.contains('custom-dropdown')) {
-        createCustomDropdown(statusFilter, 'status', artifactStatuses);
-    }
-    
-    // Replace the form dropdowns with custom ones
-    const artifactTypeSelect = document.getElementById('artifactType');
-    if (artifactTypeSelect && !artifactTypeSelect.classList.contains('custom-dropdown')) {
-        createCustomDropdown(artifactTypeSelect, 'form', workItemTypes);
-    }
-    
-    const artifactStatusSelect = document.getElementById('artifactStatus');
-    if (artifactStatusSelect && !artifactStatusSelect.classList.contains('custom-dropdown')) {
-        createCustomDropdown(artifactStatusSelect, 'status-form', artifactStatuses);
+    // Update dropdown manager if available
+    if (dropdownManager) {
+        dropdownManager.updateDropdownOptions();
     }
 }
 
-function createCustomDropdown(originalSelect, type, items) {
-    // Create custom dropdown container
-    const customDropdown = document.createElement('div');
-    customDropdown.className = 'custom-dropdown';
-    customDropdown.style.position = 'relative';
-    customDropdown.style.display = 'inline-block';
-    customDropdown.style.width = originalSelect.offsetWidth + 'px';
-    customDropdown.style.minWidth = '200px';
-    customDropdown.style.maxWidth = '300px';
-    
-    // Create the dropdown button
-    const dropdownButton = document.createElement('div');
-    dropdownButton.className = 'custom-dropdown-button';
-    dropdownButton.style.cssText = `
-        padding: 6px 10px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        background: white;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        min-height: 32px;
-        font-size: 14px;
-        line-height: 1.2;
-    `;
-    
-    // Create the selected value display
-    const selectedValue = document.createElement('span');
-    selectedValue.className = 'custom-dropdown-selected';
-    if (type === 'type') {
-        selectedValue.textContent = 'All Types';
-    } else if (type === 'status') {
-        selectedValue.textContent = 'All Statuses';
-    } else if (type === 'form') {
-        selectedValue.textContent = 'Select Type';
-    } else if (type === 'status-form') {
-        selectedValue.textContent = 'Select Status';
-    }
-    
-    // Create the dropdown arrow
-    const arrow = document.createElement('span');
-    arrow.textContent = '▼';
-    arrow.style.fontSize = '12px';
-    arrow.style.transition = 'transform 0.2s';
-    
-    dropdownButton.appendChild(selectedValue);
-    dropdownButton.appendChild(arrow);
-    
-    // Create the dropdown options container
-    const optionsContainer = document.createElement('div');
-    optionsContainer.className = 'custom-dropdown-options';
-    optionsContainer.style.cssText = `
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        background: white;
-        border: 1px solid #ccc;
-        border-top: none;
-        border-radius: 0 0 4px 4px;
-        max-height: 200px;
-        overflow-y: auto;
-        z-index: 1000;
-        display: none;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        width: 100%;
-    `;
-    
-    // Add default option
-    const defaultOption = document.createElement('div');
-    defaultOption.className = 'custom-dropdown-option';
-    defaultOption.style.cssText = `
-        padding: 6px 10px;
-        cursor: pointer;
-        border-bottom: 1px solid #eee;
-        font-size: 14px;
-        line-height: 1.2;
-    `;
-    if (type === 'type') {
-        defaultOption.textContent = 'All Types';
-    } else if (type === 'status') {
-        defaultOption.textContent = 'All Statuses';
-    } else if (type === 'form') {
-        defaultOption.textContent = 'Select Type';
-    } else if (type === 'status-form') {
-        defaultOption.textContent = 'Select Status';
-    }
-    defaultOption.setAttribute('data-value', '');
-    optionsContainer.appendChild(defaultOption);
-    
-    // Add item options
-    items.forEach(item => {
-        const option = document.createElement('div');
-        option.className = 'custom-dropdown-option';
-        option.style.cssText = `
-            padding: 6px 10px;
-            cursor: pointer;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 14px;
-            line-height: 1.2;
-        `;
-        
-        // Create icon element
-        if (item.icon.startsWith('ion-')) {
-            const icon = document.createElement('ion-icon');
-            icon.setAttribute('name', item.icon.replace('ion-', ''));
-            icon.style.fontSize = '16px';
-            icon.style.color = item.color;
-            option.appendChild(icon);
-        } else {
-            const iconSpan = document.createElement('span');
-            iconSpan.textContent = item.icon;
-            iconSpan.style.fontSize = '16px';
-            option.appendChild(iconSpan);
-        }
-        
-        // Add item name
-        const nameSpan = document.createElement('span');
-        nameSpan.textContent = item.name;
-        option.appendChild(nameSpan);
-        
-        option.setAttribute('data-value', item.id);
-        optionsContainer.appendChild(option);
-    });
-    
-    // Add event listeners
-    dropdownButton.addEventListener('click', () => {
-        const isOpen = optionsContainer.style.display === 'block';
-        optionsContainer.style.display = isOpen ? 'none' : 'block';
-        arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
-    });
-    
-    // Handle option selection
-    optionsContainer.addEventListener('click', (e) => {
-        if (e.target.closest('.custom-dropdown-option')) {
-            const option = e.target.closest('.custom-dropdown-option');
-            const value = option.getAttribute('data-value');
-            
-            // Update selected value display
-            if (value === '') {
-                if (type === 'type') {
-                    selectedValue.textContent = 'All Types';
-                } else if (type === 'status') {
-                    selectedValue.textContent = 'All Statuses';
-                } else if (type === 'form') {
-                    selectedValue.textContent = 'Select Type';
-                } else if (type === 'status-form') {
-                    selectedValue.textContent = 'Select Status';
-                }
-            } else {
-                const item = items.find(i => i.id === value);
-                selectedValue.innerHTML = '';
-                
-                if (item.icon.startsWith('ion-')) {
-                    const icon = document.createElement('ion-icon');
-                    icon.setAttribute('name', item.icon.replace('ion-', ''));
-                    icon.style.fontSize = '16px';
-                    icon.style.color = item.color;
-                    selectedValue.appendChild(icon);
-                } else {
-                    const iconSpan = document.createElement('span');
-                    iconSpan.textContent = item.icon;
-                    iconSpan.style.fontSize = '16px';
-                    selectedValue.appendChild(iconSpan);
-                }
-                
-                const nameSpan = document.createElement('span');
-                nameSpan.textContent = ` ${item.name}`;
-                selectedValue.appendChild(nameSpan);
-            }
-            
-            // Trigger the original select change event
-            originalSelect.value = value;
-            originalSelect.dispatchEvent(new Event('change'));
-            
-            // Close dropdown
-            optionsContainer.style.display = 'none';
-            arrow.style.transform = 'rotate(0deg)';
-        }
-    });
-    
-    // Close dropdown when clicking outside
-    document.addEventListener('click', (e) => {
-        if (!customDropdown.contains(e.target)) {
-            optionsContainer.style.display = 'none';
-            arrow.style.transform = 'rotate(0deg)';
-        }
-    });
-    
-    // Assemble the custom dropdown
-    customDropdown.appendChild(dropdownButton);
-    customDropdown.appendChild(optionsContainer);
-    
-    // Store references for external access
-    customDropdown._originalSelect = originalSelect;
-    customDropdown._selectedValue = selectedValue;
-    customDropdown._items = items;
-    customDropdown._type = type;
-    
-    // Replace the original select
-    originalSelect.style.display = 'none';
-    originalSelect.parentNode.insertBefore(customDropdown, originalSelect);
-}
+// Dropdown creation is now handled by the CustomDropdownManager class
 
 function updateStatusFormOptions() {
     // Update the status form dropdown
@@ -377,6 +157,11 @@ function updateStatusFormOptions() {
             statusFilter.appendChild(option);
         });
     }
+    
+    // Update dropdown manager if available
+    if (dropdownManager) {
+        dropdownManager.updateDropdownOptions();
+    }
 }
 
 function updateProjectHeader() {
@@ -388,275 +173,9 @@ function updateProjectHeader() {
     }
 }
 
-// Function to programmatically set values on custom dropdowns
-function setCustomDropdownValue(dropdownElement, value) {
-    if (dropdownElement && dropdownElement._selectedValue && dropdownElement._items) {
-        const selectedValue = dropdownElement._selectedValue;
-        const items = dropdownElement._items;
-        const type = dropdownElement._type;
-        
-        // Update the original select element
-        if (dropdownElement._originalSelect) {
-            dropdownElement._originalSelect.value = value;
-        }
-        
-        // Update the visual display
-        if (value === '') {
-            if (type === 'type') {
-                selectedValue.textContent = 'All Types';
-            } else if (type === 'status') {
-                selectedValue.textContent = 'All Statuses';
-            } else if (type === 'form') {
-                selectedValue.textContent = 'Select Type';
-            } else if (type === 'status-form') {
-                selectedValue.textContent = 'Select Status';
-            }
-        } else {
-            const item = items.find(i => i.id === value);
-            if (item) {
-                selectedValue.innerHTML = '';
-                
-                if (item.icon.startsWith('ion-')) {
-                    const icon = document.createElement('ion-icon');
-                    icon.setAttribute('name', item.icon.replace('ion-', ''));
-                    icon.style.fontSize = '16px';
-                    icon.style.color = item.color;
-                    selectedValue.appendChild(icon);
-                } else {
-                    const iconSpan = document.createElement('span');
-                    iconSpan.textContent = item.icon;
-                    iconSpan.style.fontSize = '16px';
-                    selectedValue.appendChild(iconSpan);
-                }
-                
-                const nameSpan = document.createElement('span');
-                nameSpan.textContent = ` ${item.name}`;
-                selectedValue.appendChild(nameSpan);
-            }
-        }
-    }
-}
+// Custom dropdown value setting is now handled by the CustomDropdownManager class
 
-// Helper function to convert icon names to visual symbols
-function convertIconToSymbol(iconName) {
-    // Map Ionic icon names to their visual representations
-    const iconMap = {
-        'ion-flash-outline': '⚡',
-        'ion-checkmark-circle': '✅',
-        'ion-close-circle': '❌',
-        'ion-warning': '⚠️',
-        'ion-information-circle': 'ℹ️',
-        'ion-heart': '❤️',
-        'ion-star': '⭐',
-        'ion-home': '🏠',
-        'ion-person': '👤',
-        'ion-settings': '⚙️',
-        'ion-search': '🔍',
-        'ion-add': '➕',
-        'ion-remove': '➖',
-        'ion-arrow-up': '⬆️',
-        'ion-arrow-down': '⬇️',
-        'ion-arrow-forward': '➡️',
-        'ion-arrow-back': '⬅️',
-        'ion-menu': '☰',
-        'ion-close': '✕',
-        'ion-refresh': '🔄',
-        'ion-download': '⬇️',
-        'ion-upload': '⬆️',
-        'ion-mail': '✉️',
-        'ion-call': '📞',
-        'ion-camera': '📷',
-        'ion-image': '🖼️',
-        'ion-videocam': '📹',
-        'ion-mic': '🎤',
-        'ion-musical-notes': '🎵',
-        'ion-calendar': '📅',
-        'ion-time': '🕐',
-        'ion-location': '📍',
-        'ion-navigate': '🧭',
-        'ion-car': '🚗',
-        'ion-bicycle': '🚲',
-        'ion-airplane': '✈️',
-        'ion-boat': '🚢',
-        'ion-train': '🚂',
-        'ion-bus': '🚌',
-        'ion-truck': '🚛',
-        'ion-rocket': '🚀',
-        'ion-bulb': '💡',
-        'ion-battery-charging': '🔋',
-        'ion-wifi': '📶',
-        'ion-bluetooth': '📡',
-        'ion-phone-portrait': '📱',
-        'ion-tablet-portrait': '📱',
-        'ion-laptop': '💻',
-        'ion-desktop': '🖥️',
-        'ion-server': '🖥️',
-        'ion-cloud': '☁️',
-        'ion-rainy': '🌧️',
-        'ion-sunny': '☀️',
-        'ion-moon': '🌙',
-        'ion-snow': '❄️',
-        'ion-thunderstorm': '⛈️',
-        'ion-umbrella': '☂️',
-        'ion-leaf': '🍃',
-        'ion-flower': '🌸',
-        'ion-tree': '🌳',
-        'ion-fish': '🐟',
-        'ion-bird': '🐦',
-        'ion-cat': '🐱',
-        'ion-dog': '🐕',
-        'ion-horse': '🐎',
-        'ion-cow': '🐄',
-        'ion-pig': '🐷',
-        'ion-sheep': '🐑',
-        'ion-chicken': '🐔',
-        'ion-bee': '🐝',
-        'ion-butterfly': '🦋',
-        'ion-spider': '🕷️',
-        'ion-snake': '🐍',
-        'ion-lizard': '🦎',
-        'ion-frog': '🐸',
-        'ion-turtle': '🐢',
-        'ion-crab': '🦀',
-        'ion-octopus': '🐙',
-        'ion-dolphin': '🐬',
-        'ion-whale': '🐋',
-        'ion-shark': '🦈',
-        'ion-jellyfish': '🪼',
-        'ion-starfish': '⭐',
-        'ion-coral': '🪸',
-        'ion-seashell': '🐚',
-        'ion-pearl': '💎',
-        'ion-diamond': '💎',
-        'ion-ruby': '💎',
-        'ion-emerald': '💎',
-        'ion-sapphire': '💎',
-        'ion-gold': '🥇',
-        'ion-silver': '🥈',
-        'ion-bronze': '🥉',
-        'ion-trophy': '🏆',
-        'ion-medal': '🏅',
-        'ion-ribbon': '🎗️',
-        'ion-crown': '👑',
-        'ion-gem': '💎',
-        'ion-coins': '🪙',
-        'ion-banknote': '💵',
-        'ion-credit-card': '💳',
-        'ion-receipt': '🧾',
-        'ion-calculator': '🧮',
-        'ion-abacus': '🧮',
-        'ion-chart': '📊',
-        'ion-graph': '📈',
-        'ion-pie-chart': '🥧',
-        'ion-bar-chart': '📊',
-        'ion-line-chart': '📈',
-        'ion-area-chart': '📊',
-        'ion-scatter-plot': '📊',
-        'ion-histogram': '📊',
-        'ion-box-plot': '📦',
-        'ion-violin-plot': '🎻',
-        'ion-heatmap': '🔥',
-        'ion-tree-map': '🗺️',
-        'ion-sankey': '🌊',
-        'ion-chord': '🎵',
-        'ion-force': '💪',
-        'ion-cluster': '🔗',
-        'ion-bubble': '🫧',
-        'ion-scatter': '✨',
-        'ion-bubble-chart': '🫧',
-        'ion-radar': '📡',
-        'ion-polar': '🧭',
-        'ion-candlestick': '🕯️',
-        'ion-ohlc': '📊',
-        'ion-kagi': '📊',
-        'ion-renko': '🧱',
-        'ion-point-and-figure': '📊',
-        'ion-ichimoku': '☁️',
-        'ion-macd': '📊',
-        'ion-rsi': '📊',
-        'ion-bollinger': '📊',
-        'ion-fibonacci': '📐',
-        'ion-elliott-wave': '🌊',
-        'ion-harmonic': '🎵',
-        'ion-pattern': '🔍',
-        'ion-support': '🆘',
-        'ion-resistance': '🛡️',
-        'ion-trend': '📈',
-        'ion-breakout': '🚀',
-        'ion-breakdown': '📉',
-        'ion-consolidation': '📊',
-        'ion-accumulation': '📈',
-        'ion-distribution': '📊',
-        'ion-manipulation': '🎭',
-        'ion-pump': '📈',
-        'ion-dump': '📉',
-        'ion-squeeze': '🫧',
-        'ion-short': '📉',
-        'ion-long': '📈',
-        'ion-bull': '🐂',
-        'ion-bear': '🐻',
-        'ion-whale': '🐋',
-        'ion-shark': '🦈',
-        'ion-piranha': '🐟',
-        'ion-minnow': '🐟',
-        'ion-guppy': '🐟',
-        'ion-goldfish': '🐟',
-        'ion-koi': '🐟',
-        'ion-angelfish': '🐟',
-        'ion-betta': '🐟',
-        'ion-tetra': '🐟',
-        'ion-platy': '🐟',
-        'ion-molly': '🐟',
-        'ion-swordtail': '🐟',
-        'ion-livebearer': '🐟',
-        'ion-egg-layer': '🥚',
-        'ion-bubble-nest': '🫧',
-        'ion-cave-spawner': '🕳️',
-        'ion-substrate-spawner': '🌱',
-        'ion-mouthbrooder': '👄',
-        'ion-pouch-brooder': '👛',
-        'ion-gill-brooder': '🫁',
-        'ion-skin-brooder': '🦠',
-        'ion-egg-eater': '🥚',
-        'ion-fry-eater': '🐟',
-        'ion-adult-eater': '🐟',
-        'ion-herbivore': '🌿',
-        'ion-carnivore': '🥩',
-        'ion-omnivore': '🍽️',
-        'ion-filter-feeder': '🔍',
-        'ion-grazer': '🌱',
-        'ion-browser': '🌿',
-        'ion-picker': '✋',
-        'ion-sifter': '🔍',
-        'ion-scraper': '🔧',
-        'ion-rasper': '🔧',
-        'ion-crusher': '🦷',
-        'ion-grinder': '🦷',
-        'ion-cutter': '✂️',
-        'ion-piercer': '🔪',
-        'ion-sucker': '👄',
-        'ion-picker': '✋',
-        'ion-grazer': '🌱',
-        'ion-browser': '🌿',
-        'ion-picker': '✋',
-        'ion-sifter': '🔍',
-        'ion-scraper': '🔧',
-        'ion-rasper': '🔧',
-        'ion-crusher': '🦷',
-        'ion-grinder': '🦷',
-        'ion-cutter': '✂️',
-        'ion-piercer': '🔪',
-        'ion-sucker': '👄'
-    };
-    
-    // If it's an Ionic icon, return the mapped symbol, otherwise return the icon as-is
-    if (iconName.startsWith('ion-')) {
-        return iconMap[iconName] || iconName; // Fallback to original if not mapped
-    }
-    
-    // Return emojis and other icons as-is
-    return iconName;
-}
+
 
 // Helper function to get type display information
 function getTypeDisplayInfo(typeId) {
@@ -779,7 +298,7 @@ function openEditModal(artifactId) {
             }
             
             if (customDropdown && customDropdown.classList.contains('custom-dropdown')) {
-                setCustomDropdownValue(customDropdown, artifact.type);
+                dropdownManager.setCustomDropdownValue(customDropdown, artifact.type);
             } else {
                 // Fallback to native select
                 artifactTypeSelect.value = artifact.type;
@@ -797,7 +316,7 @@ function openEditModal(artifactId) {
             }
             
             if (customDropdown && customDropdown.classList.contains('custom-dropdown')) {
-                setCustomDropdownValue(customDropdown, artifact.status || 'open');
+                dropdownManager.setCustomDropdownValue(customDropdown, artifact.status || 'open');
             } else {
                 // Fallback to native select
                 artifactStatusSelect.value = artifact.status || 'open';
@@ -1169,3 +688,14 @@ window.onclick = function(event) {
         closeModal();
     }
 }
+
+// Cleanup function for dropdown manager
+function cleanupDropdownManager() {
+    if (dropdownManager) {
+        dropdownManager.cleanup();
+        dropdownManager = null;
+    }
+}
+
+// Page unload cleanup
+window.addEventListener('beforeunload', cleanupDropdownManager);
