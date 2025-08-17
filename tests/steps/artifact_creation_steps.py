@@ -97,8 +97,12 @@ def i_cancel_artifact_creation(step):
 def i_remain_on_search_view(step):
     """Verify that we remain on the search view after cancellation."""
     from radish import world
-    # TODO: Implement view verification
-    raise NotImplementedError("This step is not implemented yet")
+    from controls import Title
+    
+    # Verify that we're still on the search page by checking the page title
+    title = Title("iflow")
+    if not title.exists(world.driver):
+        raise AssertionError("Not on the search view - page title not found")
 
 @step(r"I search for artifacts with {search_text:QuotedString}")
 def i_search_for_artifacts_with(step, search_text):
