@@ -11,8 +11,8 @@ from .database import GitDatabase
 
 import os
 
-# Create Flask app
-app = Flask(__name__)
+# Create Flask app with static file serving
+app = Flask(__name__, static_folder='static', static_url_path='/static')
 
 # Global variables
 db = None
