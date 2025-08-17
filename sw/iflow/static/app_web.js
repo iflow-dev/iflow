@@ -204,6 +204,8 @@ function openCreateModal() {
     editingArtifactId = null;
     document.getElementById('modalTitle').textContent = 'Create New Artifact';
     document.getElementById('artifactForm').reset();
+    // Hide artifact ID display for new artifacts
+    document.getElementById('artifactIdDisplay').style.display = 'none';
     document.getElementById('artifactModal').style.display = 'block';
 }
 
@@ -217,6 +219,13 @@ function openEditModal(artifactId) {
         document.getElementById('artifactDescription').value = artifact.description || '';
         document.getElementById('artifactCategory').value = artifact.category || '';
         document.getElementById('artifactStatus').value = artifact.status || 'open';
+        
+        // Show and populate artifact ID display
+        const artifactIdDisplay = document.getElementById('artifactIdDisplay');
+        const artifactIdLarge = document.getElementById('artifactIdLarge');
+        artifactIdDisplay.style.display = 'block';
+        artifactIdLarge.textContent = artifact.artifact_id;
+        
         document.getElementById('artifactModal').style.display = 'block';
     }
 }
