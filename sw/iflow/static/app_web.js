@@ -74,7 +74,9 @@ function updateTypeFilterOptions() {
         workItemTypes.forEach(type => {
             const option = document.createElement('option');
             option.value = type.id;
-            option.textContent = `${type.icon} ${type.name}`;
+            // For Ionic icons, show the icon name; for emojis, show the emoji
+            const displayIcon = type.icon.startsWith('ion-') ? type.icon.replace('ion-', '') : type.icon;
+            option.textContent = `${displayIcon} ${type.name}`;
             option.style.color = type.color;
             typeFilter.appendChild(option);
         });
@@ -106,7 +108,9 @@ function updateTypeFilterOptions() {
         workItemTypes.forEach(type => {
             const option = document.createElement('option');
             option.value = type.id;
-            option.textContent = `${type.icon} ${type.name}`;
+            // For Ionic icons, show the icon name; for emojis, show the emoji
+            const displayIcon = type.icon.startsWith('ion-') ? type.icon.replace('ion-', '') : type.icon;
+            option.textContent = `${displayIcon} ${type.name}`;
             option.style.color = type.color;
             artifactTypeSelect.appendChild(option);
         });
@@ -165,6 +169,18 @@ function getTypeDisplayInfo(typeId) {
         color: "#6B7280",
         icon: "📄"
     };
+}
+
+// Helper function to render icon (supports both emoji and Ionic icons)
+function renderIcon(iconValue) {
+    if (iconValue.startsWith('ion-')) {
+        // Ionic icon - return the icon element HTML
+        const iconName = iconValue.replace('ion-', '');
+        return `<ion-icon name="${iconName}"></ion-icon>`;
+    } else {
+        // Emoji or other icon - return as is
+        return iconValue;
+    }
 }
 
 // Helper function to get status display information
@@ -300,10 +316,10 @@ function displayArtifacts(artifacts) {
         <div class="artifact-card">
             <div class="artifact-header">
                 <span class="artifact-type" style="border-color: ${typeInfo.color}; color: ${typeInfo.color}">
-                    ${typeInfo.icon} ${typeInfo.name}
+                    ${renderIcon(typeInfo.icon)} ${typeInfo.name}
                 </span>
                 <span class="artifact-status" style="color: ${statusInfo.color}">
-                    ${statusInfo.icon} ${statusInfo.name}
+                    ${renderIcon(statusInfo.icon)} ${statusInfo.name}
                 </span>
                 <span class="artifact-id">${artifact.artifact_id}</span>
             </div>

@@ -339,3 +339,17 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
+/* Ionic Icons Styling */
+ion-icon {
+    vertical-align: middle;
+    margin-right: 0.25rem;
+    width: 1em;
+    height: 1em;
+}
+
+.artifact-type ion-icon,
+.artifact-status ion-icon {
+    display: inline-block;
+    vertical-align: text-bottom;
+}
