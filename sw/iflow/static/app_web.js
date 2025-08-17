@@ -16,8 +16,9 @@ let currentFilterState = {
     search: ''
 };
 
-// Initialize the dropdown manager
+// Initialize the managers
 let dropdownManager = null;
+let tileManager = null;
 
 // API base URL
 const API_BASE = '/api';
@@ -61,11 +62,16 @@ async function loadConfiguration() {
             console.log('Artifact statuses loaded:', artifactStatuses);
             updateStatusFormOptions();
             
-            // Initialize dropdown manager with the loaded data
+            // Initialize managers with the loaded data
             dropdownManager = new CustomDropdownManager();
+            tileManager = new TileManager();
             
             if (dropdownManager.initializeData(workItemTypes, artifactStatuses)) {
                 dropdownManager.createCustomDropdowns();
+            }
+            
+            if (tileManager.initializeData(workItemTypes, artifactStatuses)) {
+                console.log('Tile manager initialized successfully');
             }
         } else {
             console.error('Failed to load artifact statuses:', statusesResponse.status);
@@ -178,83 +184,7 @@ function updateProjectHeader() {
 
 
 
-// Helper function to get type display information
-function getTypeDisplayInfo(typeId) {
-    console.log('getTypeDisplayInfo called with:', typeId);
-    console.log('Available workItemTypes:', workItemTypes);
-    
-    if (workItemTypes && workItemTypes.length > 0) {
-        const typeInfo = workItemTypes.find(type => type.id === typeId);
-        console.log('Found typeInfo:', typeInfo);
-        if (typeInfo) {
-            return {
-                id: typeInfo.id,
-                name: typeInfo.name,
-                color: typeInfo.color,
-                icon: typeInfo.icon
-            };
-        }
-    }
-    // Fallback for unknown types
-    console.log('Using fallback for type:', typeId);
-    return {
-        id: typeId,
-        name: typeId.charAt(0).toUpperCase() + typeId.slice(1),
-        color: "#6B7280",
-        icon: "📄"
-    };
-}
-
-// Helper function to render icon (supports both emoji and Ionic icons)
-function renderIcon(iconValue) {
-    if (iconValue.startsWith('ion-')) {
-        // Ionic icon - return the icon element HTML
-        const iconName = iconValue.replace('ion-', '');
-        return `<ion-icon name="${iconName}"></ion-icon>`;
-    } else {
-        // Emoji or other icon - return as is
-        return iconValue;
-    }
-}
-
-// Helper function to get status display information
-function getStatusDisplayInfo(statusId) {
-    // Handle empty or undefined statusId
-    if (!statusId || statusId === '') {
-        if (artifactStatuses && artifactStatuses.length > 0) {
-            const defaultStatus = artifactStatuses.find(status => status.id === 'open');
-            if (defaultStatus) {
-                return {
-                    "name": defaultStatus.name,
-                    "icon": defaultStatus.icon,
-                    "color": defaultStatus.color
-                };
-            }
-        }
-        return {
-            "name": "Open",
-            "icon": "🔓",
-            "color": "#10B981"
-        };
-    }
-    
-    if (artifactStatuses && artifactStatuses.length > 0) {
-        const statusInfo = artifactStatuses.find(status => status.id === statusId);
-        if (statusInfo) {
-            return {
-                "name": statusInfo.name,
-                "icon": statusInfo.icon,
-                "color": statusInfo.color
-            };
-        }
-    }
-    
-    return {
-        "name": statusId || "Unknown",
-        "icon": "⚪",
-        "color": "#6B7280"
-    };
-}
+// Tile-related functions are now handled by the TileManager class
 
 // Modal Management
 function openCreateModal() {
@@ -403,7 +333,15 @@ async function loadArtifacts() {
         const artifacts = await response.json();
         console.log('Artifacts received:', artifacts);
         currentArtifacts = artifacts;
-        displayArtifacts(artifacts);
+        
+        // Update tile manager with artifacts
+        if (tileManager) {
+            tileManager.updateArtifacts(artifacts);
+            tileManager.displayArtifacts(artifacts);
+        } else {
+            // Fallback to old method if tile manager not available
+            displayArtifacts(artifacts);
+        }
     } catch (error) {
         console.error('Error loading artifacts:', error);
         console.error('Error details:', error.message, error.stack);
@@ -411,44 +349,7 @@ async function loadArtifacts() {
     }
 }
 
-function displayArtifacts(artifacts) {
-    const container = document.getElementById('artifacts-container');
-    
-    if (artifacts.length === 0) {
-        container.innerHTML = '<div class="loading">No artifacts found. Create your first artifact to get started!</div>';
-        return;
-    }
-    
-    container.innerHTML = artifacts.map(artifact => {
-        const typeInfo = getTypeDisplayInfo(artifact.type);
-        const statusInfo = getStatusDisplayInfo(artifact.status);
-        return `
-        <div class="artifact-card">
-            <div class="artifact-header">
-                <span class="artifact-type" style="border-color: ${typeInfo.color}; color: ${typeInfo.color}">
-                    ${renderIcon(typeInfo.icon)} ${typeInfo.name}
-                </span>
-                <span class="artifact-status" style="color: ${statusInfo.color}">
-                    ${renderIcon(statusInfo.icon)} ${statusInfo.name}
-                </span>
-                <span class="artifact-id">${artifact.artifact_id}</span>
-            </div>
-            <div class="artifact-content">
-                <div class="artifact-summary">${artifact.summary}</div>
-                <div class="artifact-description">${artifact.description || 'No description'}</div>
-                ${artifact.category ? `<div class="artifact-category"><a href="#" onclick="filterByCategory('${artifact.category}', true); return false;" class="category-link">${artifact.category}</a></div>` : ''}
-                <div class="artifact-meta">
-                    <span>Created: ${new Date(artifact.created_at).toLocaleDateString()}</span>
-                    <span>Updated: ${new Date(artifact.updated_at).toLocaleDateString()}</span>
-                </div>
-            </div>
-            <div class="artifact-actions">
-                <button class="btn btn-secondary" onclick="openEditModal('${artifact.artifact_id}')">Edit</button>
-                <button class="btn btn-danger" onclick="deleteArtifact('${artifact.artifact_id}')">Delete</button>
-            </div>
-        </div>
-    `}).join('');
-}
+// Artifact display is now handled by the TileManager class
 
 // Search and Filter
 async function searchArtifacts(query) {
@@ -528,11 +429,21 @@ async function applyCombinedFilters() {
         // Update DOM filter values to keep them in sync
         updateFilterDOMValues();
         
-        displayArtifacts(filtered);
+        // Use tile manager to display filtered artifacts
+        if (tileManager) {
+            tileManager.displayArtifacts(filtered);
+        } else {
+            // Fallback to old method
+            displayArtifacts(filtered);
+        }
     } catch (error) {
         console.error('Error applying combined filters:', error);
         // Fallback to showing all artifacts
-        displayArtifacts(currentArtifacts);
+        if (tileManager) {
+            tileManager.displayArtifacts(currentArtifacts);
+        } else {
+            displayArtifacts(currentArtifacts);
+        }
     }
 }
 
@@ -690,13 +601,18 @@ window.onclick = function(event) {
     }
 }
 
-// Cleanup function for dropdown manager
-function cleanupDropdownManager() {
+// Cleanup function for managers
+function cleanupManagers() {
     if (dropdownManager) {
         dropdownManager.cleanup();
         dropdownManager = null;
     }
+    
+    if (tileManager) {
+        tileManager.cleanup();
+        tileManager = null;
+    }
 }
 
 // Page unload cleanup
-window.addEventListener('beforeunload', cleanupDropdownManager);
+window.addEventListener('beforeunload', cleanupManagers);
