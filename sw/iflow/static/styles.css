@@ -232,7 +232,7 @@ body {
 }
 
 .artifact-bottom {
-    padding: 1rem;
+    padding: 0.5rem 1rem;
     border-top: 1px solid #eee;
     display: flex;
     justify-content: space-between;
@@ -264,13 +264,12 @@ body {
 .artifact-actions .btn-transparent {
     background: transparent;
     color: #6c757d;
-    border: 1px solid #dee2e6;
+    border: none;
 }
 
 .artifact-actions .btn-transparent:hover {
     background: #f8f9fa;
     color: #495057;
-    border-color: #adb5bd;
 }
 
 .artifact-actions ion-icon {
