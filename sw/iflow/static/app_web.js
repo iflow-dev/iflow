@@ -19,6 +19,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     await loadConfiguration();
     loadStats();
     loadArtifacts();
+    
+    // Add event listeners for filter changes
+    setupFilterEventListeners();
 });
 
 // Configuration Management
@@ -540,8 +543,8 @@ window.onclick = function(event) {
     }
 }
 
-// Add event listeners for filter changes
-document.addEventListener('DOMContentLoaded', function() {
+// Setup event listeners for filter changes
+function setupFilterEventListeners() {
     // Add event listeners for filter dropdowns
     const typeFilters = document.querySelectorAll('.filter-select');
     if (typeFilters.length >= 1) {
@@ -570,4 +573,4 @@ document.addEventListener('DOMContentLoaded', function() {
             applyAllFilters();
         });
     }
-});
+}
