@@ -12,9 +12,9 @@ from .database import GitDatabase
 import os
 
 # Create Flask app with static file serving
-import pkg_resources
-static_folder = pkg_resources.resource_filename('iflow', 'static')
-app = Flask(__name__, static_folder=static_folder, static_url_path='/static')
+import importlib.resources
+static_folder = importlib.resources.files('iflow') / 'static'
+app = Flask(__name__, static_folder=str(static_folder), static_url_path='/static')
 
 # Global variables
 db = None
