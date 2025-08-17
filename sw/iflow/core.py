@@ -2,23 +2,32 @@
 Core classes for iflow artifacts.
 """
 
-from enum import Enum
 from typing import Dict, Any, Optional
 import yaml
 from datetime import datetime
 
 
-class ArtifactType(Enum):
-    """Enumeration of supported artifact types."""
-    REQUIREMENT = "requirement"
-    TASK = "task"
-    TEST_CASE = "test_case"
-    ISSUE = "issue"
-    BUG = "bug"
-    FEATURE = "feature"
-    STORY = "story"
-    ASPECT = "aspect"
-    CHANGE = "change"
+class ArtifactType:
+    """Simple artifact type wrapper that can be any string value."""
+    
+    def __init__(self, value: str):
+        self.value = value
+    
+    def __eq__(self, other):
+        if isinstance(other, ArtifactType):
+            return self.value == other.value
+        elif isinstance(other, str):
+            return self.value == other
+        return False
+    
+    def __hash__(self):
+        return hash(self.value)
+    
+    def __str__(self):
+        return self.value
+    
+    def __repr__(self):
+        return f"ArtifactType('{self.value}')"
 
 
 class Artifact:
