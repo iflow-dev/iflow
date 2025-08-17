@@ -108,8 +108,15 @@ def i_remain_on_search_view(step):
 def i_search_for_artifacts_with(step, search_text):
     """Search for artifacts with the specified text."""
     from radish import world
-    # TODO: Implement search functionality
-    raise NotImplementedError("This step is not implemented yet")
+    
+    # Find the search input field and enter the search text
+    search_input = world.driver.find_element_by_id("search-input")
+    search_input.clear()
+    search_input.send_keys(search_text)
+    
+    # Press Enter to trigger the search
+    from selenium.webdriver.common.keys import Keys
+    search_input.send_keys(Keys.RETURN)
 
 @step("I see 0 search results")
 def i_see_zero_search_results(step):
