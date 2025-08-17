@@ -57,7 +57,7 @@ class TileManager {
         const statusInfo = this.getStatusDisplayInfo(artifact.status);
         
         return `
-        <div class="artifact-card">
+        <div class="artifact-card" style="border: 2px solid ${typeInfo.color}">
             <div class="artifact-header">
                 <span class="artifact-type" style="border-color: ${typeInfo.color}; color: ${typeInfo.color}">
                     ${this.renderIcon(typeInfo.icon)} ${typeInfo.name}
@@ -70,10 +70,6 @@ class TileManager {
             <div class="artifact-content">
                 <div class="artifact-summary">${artifact.summary}</div>
                 <div class="artifact-description">${artifact.description || 'No description'}</div>
-                <div class="artifact-meta">
-                    <span>Created: ${new Date(artifact.created_at).toLocaleDateString()}</span>
-                    <span>Updated: ${new Date(artifact.updated_at).toLocaleDateString()}</span>
-                </div>
             </div>
             <div class="artifact-bottom">
                 ${artifact.category ? `<div class="artifact-category-left"><a href="#" onclick="filterByCategory('${artifact.category}', true); return false;" class="category-link">${artifact.category}</a></div>` : '<div class="artifact-category-left"></div>'}
@@ -82,6 +78,10 @@ class TileManager {
                         <ion-icon name="create-outline"></ion-icon>
                     </button>
                 </div>
+            </div>
+            <div class="artifact-dates-line">
+                <div class="artifact-dates-left">Created: ${new Date(artifact.created_at).toLocaleDateString()}</div>
+                <div class="artifact-dates-right">Updated: ${new Date(artifact.updated_at).toLocaleDateString()}</div>
             </div>
         </div>
         `;

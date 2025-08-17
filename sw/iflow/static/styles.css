@@ -248,6 +248,25 @@ body {
     justify-content: flex-end;
 }
 
+.artifact-dates-line {
+    padding: 0.25rem 1rem;
+    background: #f8f9fa;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.7rem;
+    color: #6c757d;
+}
+
+.artifact-dates-left {
+    text-align: left;
+}
+
+.artifact-dates-right {
+    text-align: right;
+}
+
 .artifact-actions .btn {
     display: flex;
     align-items: center;
