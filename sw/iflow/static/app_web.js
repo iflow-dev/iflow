@@ -19,9 +19,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     await loadConfiguration();
     loadStats();
     loadArtifacts();
-    
-    // Add event listeners for filter changes
-    setupFilterEventListeners();
 });
 
 // Configuration Management
@@ -74,9 +71,7 @@ function updateTypeFilterOptions() {
         workItemTypes.forEach(type => {
             const option = document.createElement('option');
             option.value = type.id;
-            // For Ionic icons, show the icon name; for emojis, show the emoji
-            const displayIcon = type.icon.startsWith('ion-') ? type.icon.replace('ion-', '') : type.icon;
-            option.textContent = `${displayIcon} ${type.name}`;
+            option.textContent = `${type.icon} ${type.name}`;
             option.style.color = type.color;
             typeFilter.appendChild(option);
         });
@@ -108,9 +103,7 @@ function updateTypeFilterOptions() {
         workItemTypes.forEach(type => {
             const option = document.createElement('option');
             option.value = type.id;
-            // For Ionic icons, show the icon name; for emojis, show the emoji
-            const displayIcon = type.icon.startsWith('ion-') ? type.icon.replace('ion-', '') : type.icon;
-            option.textContent = `${displayIcon} ${type.name}`;
+            option.textContent = `${type.icon} ${type.name}`;
             option.style.color = type.color;
             artifactTypeSelect.appendChild(option);
         });
@@ -169,18 +162,6 @@ function getTypeDisplayInfo(typeId) {
         color: "#6B7280",
         icon: "📄"
     };
-}
-
-// Helper function to render icon (supports both emoji and Ionic icons)
-function renderIcon(iconValue) {
-    if (iconValue.startsWith('ion-')) {
-        // Ionic icon - return the icon element HTML
-        const iconName = iconValue.replace('ion-', '');
-        return `<ion-icon name="${iconName}"></ion-icon>`;
-    } else {
-        // Emoji or other icon - return as is
-        return iconValue;
-    }
 }
 
 // Helper function to get status display information
@@ -316,10 +297,10 @@ function displayArtifacts(artifacts) {
         <div class="artifact-card">
             <div class="artifact-header">
                 <span class="artifact-type" style="border-color: ${typeInfo.color}; color: ${typeInfo.color}">
-                    ${renderIcon(typeInfo.icon)} ${typeInfo.name}
+                    ${typeInfo.icon} ${typeInfo.name}
                 </span>
                 <span class="artifact-status" style="color: ${statusInfo.color}">
-                    ${renderIcon(statusInfo.icon)} ${statusInfo.name}
+                    ${statusInfo.icon} ${statusInfo.name}
                 </span>
                 <span class="artifact-id">${artifact.artifact_id}</span>
             </div>
@@ -343,54 +324,80 @@ function displayArtifacts(artifacts) {
 // Search and Filter
 async function searchArtifacts(query) {
     if (query.trim() === '') {
-        // If no search query, apply other active filters
-        applyAllFilters();
+        displayArtifacts(currentArtifacts);
         return;
     }
     
-    // Apply search filter locally and then apply all other active filters
-    applyAllFilters();
+    try {
+        const response = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const results = await response.json();
+        displayArtifacts(results);
+    } catch (error) {
+        console.error('Error searching artifacts:', error);
+    }
 }
 
 async function filterByType(type) {
     if (type === '') {
-        // If no type filter, apply other active filters
-        applyAllFilters();
+        displayArtifacts(currentArtifacts);
         return;
     }
     
-    // Apply type filter locally and then apply all other active filters
-    applyAllFilters();
+    try {
+        const response = await fetch(`${API_BASE}/artifacts?type=${encodeURIComponent(type)}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const filtered = await response.json();
+        displayArtifacts(filtered);
+    } catch (error) {
+        console.error('Error filtering artifacts:', error);
+    }
 }
 
 async function filterByCategory(category, exactMatch = false) {
     if (category.trim() === '') {
-        // If no category filter, apply other active filters
-        applyAllFilters();
+        displayArtifacts(currentArtifacts);
         return;
     }
     
-    // Update the category filter input box to show the selected category
+    let filtered;
     if (exactMatch) {
+        // Exact matching for category links
+        filtered = currentArtifacts.filter(artifact => 
+            artifact.category === category
+        );
+        
+        // Update the category filter input box to show the selected category
         const categoryFilter = document.querySelector('input[placeholder="Filter by category..."]');
         if (categoryFilter) {
             categoryFilter.value = category;
         }
+    } else {
+        // Partial matching for search box
+        filtered = currentArtifacts.filter(artifact => 
+            artifact.category && artifact.category.toLowerCase().includes(category.toLowerCase())
+        );
     }
     
-    // Apply category filter locally and then apply all other active filters
-    applyAllFilters();
+    displayArtifacts(filtered);
 }
 
 async function filterByStatus(status) {
     if (status === '') {
-        // If no status filter, apply other active filters
-        applyAllFilters();
+        displayArtifacts(currentArtifacts);
         return;
     }
     
-    // Apply status filter locally and then apply all other active filters
-    applyAllFilters();
+    const filtered = currentArtifacts.filter(artifact => 
+        artifact.status === status
+    );
+    displayArtifacts(filtered);
 }
 
 // Form Handling
@@ -506,49 +513,18 @@ function getCurrentFilterState() {
 }
 
 function applyFilterState(filterState) {
-    if (filterState.type || filterState.status || filterState.category || filterState.search) {
-        applyAllFilters();
+    if (filterState.type) {
+        filterByType(filterState.type);
+    } else if (filterState.status) {
+        filterByStatus(filterState.status);
+    } else if (filterState.category) {
+        filterByCategory(filterState.category, true);
+    } else if (filterState.search) {
+        searchArtifacts(filterState.search);
     } else {
         // No filters active, show all artifacts
         displayArtifacts(currentArtifacts);
     }
-}
-
-// New function to apply all active filters in combination
-function applyAllFilters() {
-    const filterState = getCurrentFilterState();
-    let filtered = [...currentArtifacts]; // Start with all artifacts
-    
-    // Apply type filter
-    if (filterState.type) {
-        filtered = filtered.filter(artifact => artifact.type === filterState.type);
-    }
-    
-    // Apply status filter
-    if (filterState.status) {
-        filtered = filtered.filter(artifact => artifact.status === filterState.status);
-    }
-    
-    // Apply category filter
-    if (filterState.category) {
-        filtered = filtered.filter(artifact => 
-            artifact.category && artifact.category.toLowerCase().includes(filterState.category.toLowerCase())
-        );
-    }
-    
-    // Apply search filter
-    if (filterState.search) {
-        filtered = filtered.filter(artifact => 
-            artifact.summary.toLowerCase().includes(filterState.search.toLowerCase()) ||
-            artifact.description.toLowerCase().includes(filterState.search.toLowerCase()) ||
-            (artifact.category && artifact.category.toLowerCase().includes(filterState.search.toLowerCase()))
-        );
-    }
-    
-    console.log(`Applied filters - Type: ${filterState.type}, Status: ${filterState.status}, Category: ${filterState.category}, Search: ${filterState.search}`);
-    console.log(`Filtered from ${currentArtifacts.length} to ${filtered.length} artifacts`);
-    
-    displayArtifacts(filtered);
 }
 
 // Event Listeners
@@ -556,37 +532,5 @@ window.onclick = function(event) {
     const modal = document.getElementById('artifactModal');
     if (event.target === modal) {
         closeModal();
-    }
-}
-
-// Setup event listeners for filter changes
-function setupFilterEventListeners() {
-    // Add event listeners for filter dropdowns
-    const typeFilters = document.querySelectorAll('.filter-select');
-    if (typeFilters.length >= 1) {
-        typeFilters[0].addEventListener('change', function() {
-            applyAllFilters();
-        });
-    }
-    if (typeFilters.length >= 2) {
-        typeFilters[1].addEventListener('change', function() {
-            applyAllFilters();
-        });
-    }
-    
-    // Add event listener for category filter input
-    const categoryFilter = document.querySelector('input[placeholder="Filter by category..."]');
-    if (categoryFilter) {
-        categoryFilter.addEventListener('input', function() {
-            applyAllFilters();
-        });
-    }
-    
-    // Add event listener for search input
-    const searchBox = document.querySelector('input[placeholder="Search artifacts..."]');
-    if (searchBox) {
-        searchBox.addEventListener('input', function() {
-            applyAllFilters();
-        });
     }
 }
