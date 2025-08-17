@@ -76,11 +76,11 @@ class TileManager {
                 </div>
             </div>
             <div class="artifact-actions">
-                <button class="btn btn-primary" onclick="openEditModal('${artifact.artifact_id}')" title="Edit artifact">
-                    <ion-icon name="create-outline"></ion-icon>
-                </button>
                 <button class="btn btn-danger" onclick="deleteArtifact('${artifact.artifact_id}')" title="Delete artifact">
                     <ion-icon name="trash-outline"></ion-icon>
+                </button>
+                <button class="btn btn-primary" onclick="openEditModal('${artifact.artifact_id}')" title="Edit artifact">
+                    <ion-icon name="create-outline"></ion-icon>
                 </button>
             </div>
             ${artifact.category ? `<div class="artifact-category-bottom"><a href="#" onclick="filterByCategory('${artifact.category}', true); return false;" class="category-link">${artifact.category}</a></div>` : ''}
