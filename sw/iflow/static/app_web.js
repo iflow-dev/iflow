@@ -13,9 +13,9 @@ let workItemTypes = [];
 const API_BASE = '/api';
 
 // Initialize the application
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     console.log('DOM loaded, starting to load data...');
-    loadConfiguration();
+    await loadConfiguration();
     loadStats();
     loadArtifacts();
 });
@@ -38,7 +38,10 @@ async function loadConfiguration() {
         if (typesResponse.ok) {
             workItemTypes = await typesResponse.json();
             console.log('Work item types loaded:', workItemTypes);
+            console.log('workItemTypes array length:', workItemTypes.length);
             updateTypeFilterOptions();
+        } else {
+            console.error('Failed to load work item types:', typesResponse.status);
         }
     } catch (error) {
         console.error('Error loading configuration:', error);
@@ -90,8 +93,12 @@ function updateProjectHeader() {
 
 // Helper function to get type display information
 function getTypeDisplayInfo(typeId) {
+    console.log('getTypeDisplayInfo called with:', typeId);
+    console.log('Available workItemTypes:', workItemTypes);
+    
     if (workItemTypes && workItemTypes.length > 0) {
         const typeInfo = workItemTypes.find(type => type.id === typeId);
+        console.log('Found typeInfo:', typeInfo);
         if (typeInfo) {
             return {
                 id: typeInfo.id,
@@ -102,6 +109,7 @@ function getTypeDisplayInfo(typeId) {
         }
     }
     // Fallback for unknown types
+    console.log('Using fallback for type:', typeId);
     return {
         id: typeId,
         name: typeId.charAt(0).toUpperCase() + typeId.slice(1),
