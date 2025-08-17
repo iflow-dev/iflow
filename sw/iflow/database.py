@@ -335,7 +335,9 @@ class GitDatabase:
             'total_artifacts': len(all_artifacts),
             'by_type': {},
             'total_commits': len(list(self.repo.iter_commits())),
-            'last_commit': None
+            'last_commit': None,
+            'current_branch': None,
+            'last_tag': None
         }
         
         # Count by type
@@ -352,6 +354,29 @@ class GitDatabase:
                 'date': last_commit.committed_datetime,
                 'message': last_commit.message.strip()
             }
+        except Exception:
+            pass
+        
+        # Get current branch name
+        try:
+            stats['current_branch'] = self.repo.active_branch.name
+        except Exception:
+            stats['current_branch'] = 'unknown'
+        
+        # Get last tag on current branch
+        try:
+            # Get all tags
+            tags = list(self.repo.tags)
+            if tags:
+                # Sort tags by commit date (most recent first)
+                sorted_tags = sorted(tags, key=lambda tag: tag.commit.committed_datetime, reverse=True)
+                
+                # Find the most recent tag that is reachable from current branch
+                current_branch = self.repo.active_branch
+                for tag in sorted_tags:
+                    if tag.commit in current_branch.commit.iter_parents() or tag.commit == current_branch.commit:
+                        stats['last_tag'] = tag.name
+                        break
         except Exception:
             pass
         
