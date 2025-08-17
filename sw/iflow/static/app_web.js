@@ -76,8 +76,8 @@ function updateTypeFilterOptions() {
         workItemTypes.forEach(type => {
             const option = document.createElement('option');
             option.value = type.id;
-            // For Ionic icons, show the icon name; for emojis, show the emoji
-            const displayIcon = type.icon.startsWith('ion-') ? type.icon.replace('ion-', '') : type.icon;
+            // Show the full icon name for both Ionic icons and emojis
+            const displayIcon = type.icon;
             option.textContent = `${displayIcon} ${type.name}`;
             option.style.color = type.color;
             typeFilter.appendChild(option);
@@ -96,8 +96,8 @@ function updateTypeFilterOptions() {
         workItemTypes.forEach(type => {
             const option = document.createElement('option');
             option.value = type.id;
-            // For Ionic icons, show the icon name; for emojis, show the emoji
-            const displayIcon = type.icon.startsWith('ion-') ? type.icon.replace('ion-', '') : type.icon;
+            // Show the full icon name for both Ionic icons and emojis
+            const displayIcon = type.icon;
             option.textContent = `${displayIcon} ${type.name}`;
             option.style.color = type.color;
             artifactTypeSelect.appendChild(option);
