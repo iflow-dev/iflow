@@ -78,21 +78,7 @@ function updateTypeFilterOptions() {
         });
     }
     
-    // Update the status filter dropdown using specific ID
-    const statusFilter = document.getElementById('statusFilter');
-    if (statusFilter && artifactStatuses.length > 0) {
-        // Clear existing options
-        statusFilter.innerHTML = '<option value="">All Statuses</option>';
-        
-        // Add options for each status
-        artifactStatuses.forEach(status => {
-            const option = document.createElement('option');
-            option.value = status.id;
-            option.textContent = `${status.icon} ${status.name}`;
-            option.style.color = status.color;
-            statusFilter.appendChild(option);
-        });
-    }
+    // Note: Status filter dropdown is updated by updateStatusFormOptions()
     
     // Update the form dropdown
     const artifactTypeSelect = document.getElementById('artifactType');
@@ -127,6 +113,22 @@ function updateStatusFormOptions() {
             option.textContent = `${status.icon} ${status.name}`;
             option.style.color = status.color;
             artifactStatusSelect.appendChild(option);
+        });
+    }
+    
+    // Update the status filter dropdown
+    const statusFilter = document.getElementById('statusFilter');
+    if (statusFilter && artifactStatuses.length > 0) {
+        // Clear existing options
+        statusFilter.innerHTML = '<option value="">All Statuses</option>';
+        
+        // Add options for each status
+        artifactStatuses.forEach(status => {
+            const option = document.createElement('option');
+            option.value = status.id;
+            option.textContent = `${status.icon} ${status.name}`;
+            option.style.color = status.color;
+            statusFilter.appendChild(option);
         });
     }
 }
