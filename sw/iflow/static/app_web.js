@@ -134,6 +134,7 @@ function openEditModal(artifactId) {
         document.getElementById('artifactType').value = artifact.type;
         document.getElementById('artifactSummary').value = artifact.summary;
         document.getElementById('artifactDescription').value = artifact.description || '';
+        document.getElementById('artifactCategory').value = artifact.category || '';
         document.getElementById('artifactModal').style.display = 'block';
     }
 }
@@ -236,6 +237,7 @@ function displayArtifacts(artifacts) {
             <div class="artifact-content">
                 <div class="artifact-summary">${artifact.summary}</div>
                 <div class="artifact-description">${artifact.description || 'No description'}</div>
+                ${artifact.category ? `<div class="artifact-category">Category: ${artifact.category}</div>` : ''}
                 <div class="artifact-meta">
                     <span>Created: ${new Date(artifact.created_at).toLocaleDateString()}</span>
                     <span>Updated: ${new Date(artifact.updated_at).toLocaleDateString()}</span>
@@ -288,6 +290,18 @@ async function filterByType(type) {
     }
 }
 
+async function filterByCategory(category) {
+    if (category.trim() === '') {
+        displayArtifacts(currentArtifacts);
+        return;
+    }
+    
+    const filtered = currentArtifacts.filter(artifact => 
+        artifact.category && artifact.category.toLowerCase().includes(category.toLowerCase())
+    );
+    displayArtifacts(filtered);
+}
+
 // Form Handling
 document.getElementById('artifactForm').addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -295,7 +309,8 @@ document.getElementById('artifactForm').addEventListener('submit', async functio
     const formData = {
         type: document.getElementById('artifactType').value,
         summary: document.getElementById('artifactSummary').value,
-        description: document.getElementById('artifactDescription').value
+        description: document.getElementById('artifactDescription').value,
+        category: document.getElementById('artifactCategory').value
     };
     
     try {

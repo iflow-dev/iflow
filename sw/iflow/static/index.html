@@ -25,6 +25,7 @@
                 <option value="feature">Features</option>
                 <option value="story">Stories</option>
             </select>
+            <input type="text" class="search-box" placeholder="Filter by category..." onkeyup="filterByCategory(this.value)">
             <button class="btn btn-secondary" onclick="refreshArtifacts()">Refresh</button>
         </div>
         
@@ -64,6 +65,10 @@
                 <div class="form-group">
                     <label class="form-label" for="artifactDescription">Description</label>
                     <textarea class="form-textarea" id="artifactDescription" placeholder="Detailed description of the artifact"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="artifactCategory">Category</label>
+                    <input type="text" class="form-input" id="artifactCategory" placeholder="Category (e.g., Frontend, Backend, UI/UX)">
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>

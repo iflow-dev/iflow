@@ -141,6 +141,7 @@ def create_artifact():
             artifact_type=ArtifactType(data['type']),
             summary=data['summary'],
             description=data.get('description', ''),
+            category=data.get('category', ''),
             artifact_id=data.get('artifact_id')
         )
         
@@ -169,6 +170,8 @@ def update_artifact(artifact_id):
             artifact.summary = data['summary']
         if 'description' in data:
             artifact.description = data['description']
+        if 'category' in data:
+            artifact.category = data['category']
         
         # Update timestamp
         artifact.update()
@@ -222,6 +225,7 @@ def artifact_to_dict(artifact):
         'type': artifact.type.value,
         'summary': artifact.summary,
         'description': artifact.description,
+        'category': artifact.category,
         'created_at': artifact.created_at.isoformat(),
         'updated_at': artifact.updated_at.isoformat(),
         'metadata': artifact.metadata
