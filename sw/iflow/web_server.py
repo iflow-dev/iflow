@@ -8,7 +8,7 @@ instead of using pywebview.
 from flask import Flask, render_template_string, request, jsonify
 from .core import Artifact, ArtifactType
 from .database import GitDatabase
-from .config import get_config
+
 import os
 
 # Create Flask app
@@ -16,6 +16,23 @@ app = Flask(__name__)
 
 # Global database instance - will be initialized when server starts
 db = None
+
+def init_database():
+    """Initialize the database with the default path."""
+    global db
+    if db is None:
+        # Try to initialize with the default path
+        default_db_path = "../../.iflow-demo"
+        if os.path.exists(default_db_path):
+            print(f"Initializing database with default path: {default_db_path}")
+            db = GitDatabase(default_db_path)
+        else:
+            print(f"Default database path not found: {default_db_path}")
+            # Fall back to the original default
+            db = GitDatabase(".iflow")
+
+# Initialize database when the module is imported
+init_database()
 
 def create_app(database_path=".iflow"):
     """Create and configure the Flask app."""
@@ -75,8 +92,7 @@ def get_stats():
 def get_work_item_types():
     """Get available work item types from configuration."""
     try:
-        config = get_config()
-        work_item_types = config.get_work_item_types()
+        work_item_types = db.config.get("work_item_types", [])
         return jsonify(work_item_types)
     except Exception as e:
         print(f"Error getting work item types: {e}")
@@ -88,8 +104,7 @@ def get_work_item_types():
 def get_artifact_statuses():
     """Get available artifact statuses from configuration."""
     try:
-        config = get_config()
-        artifact_statuses = config.get_artifact_statuses()
+        artifact_statuses = db.config.get("artifact_statuses", [])
         return jsonify(artifact_statuses)
     except Exception as e:
         print(f"Error getting artifact statuses: {e}")
@@ -101,8 +116,7 @@ def get_artifact_statuses():
 def get_project_info():
     """Get project information from configuration."""
     try:
-        config = get_config()
-        project_info = config.get_project_info()
+        project_info = db.config.get("project", {})
         return jsonify(project_info)
     except Exception as e:
         print(f"Error getting project info: {e}")
@@ -112,38 +126,21 @@ def get_project_info():
 
 @app.route('/api/artifacts')
 def list_artifacts():
-    """List all artifacts, optionally filtered by multiple criteria."""
+    """List all artifacts, optionally filtered by type."""
     try:
         artifact_type = request.args.get('type')
-        artifact_status = request.args.get('status')
-        artifact_category = request.args.get('category')
+        print(f"Listing artifacts, type filter: {artifact_type}")
         
-        print(f"Listing artifacts, filters - type: {artifact_type}, status: {artifact_status}, category: {artifact_category}")
+        if artifact_type:
+            artifact_type_enum = ArtifactType(artifact_type)
+            artifacts = db.list_artifacts(artifact_type_enum)
+        else:
+            artifacts = db.list_artifacts()
         
-        # Get all artifacts first
-        artifacts = db.list_artifacts()
-        
-        # Apply filters in memory for now (can be optimized later)
-        filtered_artifacts = []
-        for artifact in artifacts:
-            # Type filter
-            if artifact_type and artifact.type.value != artifact_type:
-                continue
-                
-            # Status filter
-            if artifact_status and artifact.status != artifact_status:
-                continue
-                
-            # Category filter
-            if artifact_category and (not artifact.category or artifact_category.lower() not in artifact.category.lower()):
-                continue
-                
-            filtered_artifacts.append(artifact)
-        
-        print(f"Found {len(filtered_artifacts)} artifacts after filtering")
+        print(f"Found {len(artifacts)} artifacts")
         
         # Convert to dictionaries for JSON serialization
-        result = [artifact_to_dict(artifact) for artifact in filtered_artifacts]
+        result = [artifact_to_dict(artifact) for artifact in artifacts]
         return jsonify(result)
     except Exception as e:
         print(f"Error listing artifacts: {e}")

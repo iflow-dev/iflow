@@ -356,3 +356,114 @@ class GitDatabase:
             pass
         
         return stats
+    
+    @property
+    def config(self) -> Dict[str, Any]:
+        """
+        Get the configuration from the config.yaml file in the repository.
+        
+        Returns:
+            Dictionary containing the configuration data
+        """
+        import yaml
+        
+        config_path = self.repo_path / "config.yaml"
+        
+        if not config_path.exists():
+            # Return default configuration if file doesn't exist
+            return self._get_default_config()
+        
+        try:
+            with open(config_path, 'r', encoding='utf-8') as f:
+                config = yaml.safe_load(f)
+                return config if config else self._get_default_config()
+        except Exception as e:
+            print(f"Error loading config from {config_path}: {e}")
+            # Return default configuration on error
+            return self._get_default_config()
+    
+    def _get_default_config(self) -> Dict[str, Any]:
+        """
+        Get default configuration when config.yaml is not available.
+        
+        Returns:
+            Dictionary containing default configuration
+        """
+        return {
+            "project": {
+                "name": "iflow",
+                "description": "Git-based artifact management system",
+                "version": "1.0.0"
+            },
+            "work_item_types": [
+                {
+                    "id": "requirement",
+                    "name": "Requirement",
+                    "description": "Functional or non-functional requirements",
+                    "color": "#60A5FA",
+                    "icon": "ion-flash-outline"
+                },
+                {
+                    "id": "task",
+                    "name": "Task",
+                    "description": "Work items that need to be completed",
+                    "color": "#34D399",
+                    "icon": "✅"
+                },
+                {
+                    "id": "bug",
+                    "name": "Bug",
+                    "description": "Issues or defects that need to be fixed",
+                    "color": "#F87171",
+                    "icon": "🐛"
+                },
+                {
+                    "id": "aspect",
+                    "name": "Aspect",
+                    "description": "Cross-cutting concerns and quality attributes",
+                    "color": "#A78BFA",
+                    "icon": "🔍"
+                }
+            ],
+            "repository": {
+                "artifacts_dir": "artifacts",
+                "backup_dir": "artifacts_backup",
+                "max_artifacts": 99999
+            },
+            "artifact_statuses": [
+                {
+                    "id": "open",
+                    "name": "Open",
+                    "description": "Artifact is open and ready for work",
+                    "color": "#10B981",
+                    "icon": "🟢"
+                },
+                {
+                    "id": "in_progress",
+                    "name": "In Progress",
+                    "description": "Work has started on this artifact",
+                    "color": "#F59E0B",
+                    "icon": "🟡"
+                },
+                {
+                    "id": "done",
+                    "name": "Done",
+                    "description": "Artifact is completed",
+                    "color": "#3B82F6",
+                    "icon": "✅"
+                },
+                {
+                    "id": "blocked",
+                    "name": "Blocked",
+                    "description": "Artifact is blocked and cannot proceed",
+                    "color": "#EF4444",
+                    "icon": "🔴"
+                }
+            ],
+            "ui": {
+                "default_view": "all",
+                "items_per_page": 20,
+                "enable_search": True,
+                "enable_filters": True
+            }
+        }
