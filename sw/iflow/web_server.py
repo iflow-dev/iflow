@@ -6,16 +6,17 @@ instead of using pywebview.
 """
 
 from flask import Flask, render_template_string, request, jsonify
-from core import Artifact, ArtifactType
-from database import GitDatabase
+from .core import Artifact, ArtifactType
+from .database import GitDatabase
 
 import os
 
 # Create Flask app
 app = Flask(__name__)
 
-# Global database instance - will be initialized when server starts
+# Global variables
 db = None
+page_title = "iflow - Project Artifact Manager"
 
 def init_database():
     """Initialize the database with the default path."""
@@ -67,7 +68,7 @@ def handle_exception(e):
 @app.route('/')
 def index():
     """Serve the main HTML page."""
-    return render_template_string(get_html_template())
+    return render_template_string(get_html_template(page_title))
 
 @app.route('/api/stats')
 def get_stats():
@@ -268,12 +269,18 @@ def artifact_to_dict(artifact):
         'metadata': artifact.metadata
     }
 
-def get_html_template():
+def get_html_template(title="iflow - Project Artifact Manager"):
     """Get the complete HTML template with embedded CSS and JS."""
     # Read the HTML file
     html_path = os.path.join(os.path.dirname(__file__), 'static', 'index.html')
     with open(html_path, 'r', encoding='utf-8') as f:
         html_content = f.read()
+    
+    # Update the title
+    html_content = html_content.replace('<title>iflow - Project Artifact Manager</title>', f'<title>{title}</title>')
+    
+    # Also update the header
+    html_content = html_content.replace('<h1>iflow - Project Artifact Manager</h1>', f'<h1>{title}</h1>')
     
     # Read CSS file
     css_path = os.path.join(os.path.dirname(__file__), 'static', 'styles.css')
@@ -318,12 +325,17 @@ if __name__ == "__main__":
     parser.add_argument("--port", type=int, default=5000, help="Port to run the server on")
     parser.add_argument("--database", type=str, default=".iflow-demo", help="Database path to use")
     parser.add_argument("--host", type=str, default="0.0.0.0", help="Host to bind to")
+    parser.add_argument("--title", type=str, default="iflow - Project Artifact Manager", help="Page title to display")
     
     args = parser.parse_args()
+    
+    # Set the global title
+    page_title = args.title
     
     print(f"Starting iflow web server...")
     print(f"Database: {args.database}")
     print(f"Host: {args.host}")
     print(f"Port: {args.port}")
+    print(f"Title: {args.title}")
     
     run_web_server(database_path=args.database, host=args.host, port=args.port, debug=False)

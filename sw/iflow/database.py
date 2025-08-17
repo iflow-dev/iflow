@@ -10,7 +10,7 @@ import json
 from typing import List, Optional, Dict, Any
 from pathlib import Path
 import git
-from core import Artifact, ArtifactType
+from .core import Artifact, ArtifactType
 
 
 class GitDatabase:
