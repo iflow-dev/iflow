@@ -76,10 +76,12 @@ function updateTypeFilterOptions() {
         workItemTypes.forEach(type => {
             const option = document.createElement('option');
             option.value = type.id;
-            // Convert Ionic icons to their visual symbols, keep emojis as-is
-            const displayIcon = convertIconToSymbol(type.icon);
-            option.textContent = `${displayIcon} ${type.name}`;
+            // For Ionic icons, we'll show the icon name; for emojis, show the emoji
+            // Note: HTML options cannot display ion-icon elements directly
+            const displayText = type.icon.startsWith('ion-') ? type.icon : type.icon;
+            option.textContent = `${displayText} ${type.name}`;
             option.style.color = type.color;
+            option.setAttribute('data-icon', type.icon);
             typeFilter.appendChild(option);
         });
     }
@@ -96,13 +98,210 @@ function updateTypeFilterOptions() {
         workItemTypes.forEach(type => {
             const option = document.createElement('option');
             option.value = type.id;
-            // Convert Ionic icons to their visual symbols, keep emojis as-is
-            const displayIcon = convertIconToSymbol(type.icon);
-            option.textContent = `${displayIcon} ${type.name}`;
+            // For Ionic icons, we'll show the icon name; for emojis, show the emoji
+            // Note: HTML options cannot display ion-icon elements directly
+            const displayText = type.icon.startsWith('ion-') ? type.icon : type.icon;
+            option.textContent = `${displayText} ${type.name}`;
             option.style.color = type.color;
+            option.setAttribute('data-icon', type.icon);
             artifactTypeSelect.appendChild(option);
         });
     }
+    
+    // Create custom dropdowns that can display Ionic icons
+    createCustomDropdowns();
+}
+
+function createCustomDropdowns() {
+    // Replace the type filter dropdown with a custom one
+    const typeFilter = document.getElementById('typeFilter');
+    if (typeFilter && !typeFilter.classList.contains('custom-dropdown')) {
+        createCustomDropdown(typeFilter, 'type', workItemTypes);
+    }
+    
+    // Replace the form dropdown with a custom one
+    const artifactTypeSelect = document.getElementById('artifactType');
+    if (artifactTypeSelect && !artifactTypeSelect.classList.contains('custom-dropdown')) {
+        createCustomDropdown(artifactTypeSelect, 'form', workItemTypes);
+    }
+}
+
+function createCustomDropdown(originalSelect, type, items) {
+    // Create custom dropdown container
+    const customDropdown = document.createElement('div');
+    customDropdown.className = 'custom-dropdown';
+    customDropdown.style.position = 'relative';
+    customDropdown.style.display = 'inline-block';
+    customDropdown.style.width = originalSelect.offsetWidth + 'px';
+    customDropdown.style.minWidth = '200px';
+    customDropdown.style.maxWidth = '300px';
+    
+    // Create the dropdown button
+    const dropdownButton = document.createElement('div');
+    dropdownButton.className = 'custom-dropdown-button';
+    dropdownButton.style.cssText = `
+        padding: 6px 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 32px;
+        font-size: 14px;
+        line-height: 1.2;
+    `;
+    
+    // Create the selected value display
+    const selectedValue = document.createElement('span');
+    selectedValue.className = 'custom-dropdown-selected';
+    selectedValue.textContent = type === 'type' ? 'All Types' : 'Select Type';
+    
+    // Create the dropdown arrow
+    const arrow = document.createElement('span');
+    arrow.textContent = '▼';
+    arrow.style.fontSize = '12px';
+    arrow.style.transition = 'transform 0.2s';
+    
+    dropdownButton.appendChild(selectedValue);
+    dropdownButton.appendChild(arrow);
+    
+    // Create the dropdown options container
+    const optionsContainer = document.createElement('div');
+    optionsContainer.className = 'custom-dropdown-options';
+    optionsContainer.style.cssText = `
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #ccc;
+        border-top: none;
+        border-radius: 0 0 4px 4px;
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        width: 100%;
+    `;
+    
+    // Add default option
+    const defaultOption = document.createElement('div');
+    defaultOption.className = 'custom-dropdown-option';
+    defaultOption.style.cssText = `
+        padding: 6px 10px;
+        cursor: pointer;
+        border-bottom: 1px solid #eee;
+        font-size: 14px;
+        line-height: 1.2;
+    `;
+    defaultOption.textContent = type === 'type' ? 'All Types' : 'Select Type';
+    defaultOption.setAttribute('data-value', '');
+    optionsContainer.appendChild(defaultOption);
+    
+    // Add item options
+    items.forEach(item => {
+        const option = document.createElement('div');
+        option.className = 'custom-dropdown-option';
+        option.style.cssText = `
+            padding: 6px 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            line-height: 1.2;
+        `;
+        
+        // Create icon element
+        if (item.icon.startsWith('ion-')) {
+            const icon = document.createElement('ion-icon');
+            icon.setAttribute('name', item.icon.replace('ion-', ''));
+            icon.style.fontSize = '16px';
+            icon.style.color = item.color;
+            option.appendChild(icon);
+        } else {
+            const iconSpan = document.createElement('span');
+            iconSpan.textContent = item.icon;
+            iconSpan.style.fontSize = '16px';
+            option.appendChild(iconSpan);
+        }
+        
+        // Add item name
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = item.name;
+        option.appendChild(nameSpan);
+        
+        option.setAttribute('data-value', item.id);
+        optionsContainer.appendChild(option);
+    });
+    
+    // Add event listeners
+    dropdownButton.addEventListener('click', () => {
+        const isOpen = optionsContainer.style.display === 'block';
+        optionsContainer.style.display = isOpen ? 'none' : 'block';
+        arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+    });
+    
+    // Handle option selection
+    optionsContainer.addEventListener('click', (e) => {
+        if (e.target.closest('.custom-dropdown-option')) {
+            const option = e.target.closest('.custom-dropdown-option');
+            const value = option.getAttribute('data-value');
+            
+            // Update selected value display
+            if (value === '') {
+                selectedValue.textContent = type === 'type' ? 'All Types' : 'Select Type';
+            } else {
+                const item = items.find(i => i.id === value);
+                selectedValue.innerHTML = '';
+                
+                if (item.icon.startsWith('ion-')) {
+                    const icon = document.createElement('ion-icon');
+                    icon.setAttribute('name', item.icon.replace('ion-', ''));
+                    icon.style.fontSize = '16px';
+                    icon.style.color = item.color;
+                    selectedValue.appendChild(icon);
+                } else {
+                    const iconSpan = document.createElement('span');
+                    iconSpan.textContent = item.icon;
+                    iconSpan.style.fontSize = '16px';
+                    selectedValue.appendChild(iconSpan);
+                }
+                
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = ` ${item.name}`;
+                selectedValue.appendChild(nameSpan);
+            }
+            
+            // Trigger the original select change event
+            originalSelect.value = value;
+            originalSelect.dispatchEvent(new Event('change'));
+            
+            // Close dropdown
+            optionsContainer.style.display = 'none';
+            arrow.style.transform = 'rotate(0deg)';
+        }
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!customDropdown.contains(e.target)) {
+            optionsContainer.style.display = 'none';
+            arrow.style.transform = 'rotate(0deg)';
+        }
+    });
+    
+    // Assemble the custom dropdown
+    customDropdown.appendChild(dropdownButton);
+    customDropdown.appendChild(optionsContainer);
+    
+    // Replace the original select
+    originalSelect.style.display = 'none';
+    originalSelect.parentNode.insertBefore(customDropdown, originalSelect);
 }
 
 function updateStatusFormOptions() {
