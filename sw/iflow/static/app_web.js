@@ -412,36 +412,42 @@ document.getElementById('artifactForm').addEventListener('submit', async functio
         status: document.getElementById('artifactStatus').value
     };
     
-    try {
-        let response;
-        if (editingArtifactId) {
-            // Update existing artifact
-            response = await fetch(`${API_BASE}/artifacts/${editingArtifactId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData)
-            });
-        } else {
-            // Create new artifact
-            response = await fetch(`${API_BASE}/artifacts`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData)
-            });
-        }
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        closeModal();
-        loadStats();
-        loadArtifacts();
-    } catch (error) {
+            try {
+            // Capture current filter state before editing
+            const currentFilterState = getCurrentFilterState();
+            
+            let response;
+            if (editingArtifactId) {
+                // Update existing artifact
+                response = await fetch(`${API_BASE}/artifacts/${editingArtifactId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+            } else {
+                // Create new artifact
+                response = await fetch(`${API_BASE}/artifacts`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+            }
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            closeModal();
+            loadStats();
+            
+            // Load artifacts and then reapply the filter state
+            await loadArtifacts();
+            applyFilterState(currentFilterState);
+        } catch (error) {
         console.error('Error saving artifact:', error);
         alert('Error saving artifact: ' + error.message);
     }
@@ -451,6 +457,9 @@ document.getElementById('artifactForm').addEventListener('submit', async functio
 async function deleteArtifact(artifactId) {
     if (confirm('Are you sure you want to delete this artifact?')) {
         try {
+            // Capture current filter state before deleting
+            const currentFilterState = getCurrentFilterState();
+            
             const response = await fetch(`${API_BASE}/artifacts/${artifactId}`, {
                 method: 'DELETE'
             });
@@ -460,7 +469,10 @@ async function deleteArtifact(artifactId) {
             }
             
             loadStats();
-            loadArtifacts();
+            
+            // Load artifacts and then reapply the filter state
+            await loadArtifacts();
+            applyFilterState(currentFilterState);
         } catch (error) {
             console.error('Error deleting artifact:', error);
             alert('Error deleting artifact: ' + error.message);
@@ -484,6 +496,35 @@ function refreshArtifacts() {
     
     loadStats();
     loadArtifacts();
+}
+
+// Filter State Management
+function getCurrentFilterState() {
+    const typeFilters = document.querySelectorAll('.filter-select');
+    const categoryFilter = document.querySelector('input[placeholder="Filter by category..."]');
+    const searchBox = document.querySelector('input[placeholder="Search artifacts..."]');
+    
+    return {
+        type: typeFilters.length >= 1 ? typeFilters[0].value : '',
+        status: typeFilters.length >= 2 ? typeFilters[1].value : '',
+        category: categoryFilter ? categoryFilter.value : '',
+        search: searchBox ? searchBox.value : ''
+    };
+}
+
+function applyFilterState(filterState) {
+    if (filterState.type) {
+        filterByType(filterState.type);
+    } else if (filterState.status) {
+        filterByStatus(filterState.status);
+    } else if (filterState.category) {
+        filterByCategory(filterState.category, true);
+    } else if (filterState.search) {
+        searchArtifacts(filterState.search);
+    } else {
+        // No filters active, show all artifacts
+        displayArtifacts(currentArtifacts);
+    }
 }
 
 // Event Listeners
