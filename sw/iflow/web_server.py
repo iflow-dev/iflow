@@ -12,13 +12,12 @@ from .database import GitDatabase
 import os
 
 # Create Flask app with static file serving
-import importlib.resources
-static_folder = importlib.resources.files('iflow') / 'static'
-app = Flask(__name__, static_folder=str(static_folder), static_url_path='/static')
+# For now, use a simple approach - Flask will look for static folder relative to the app
+app = Flask(__name__, static_folder='static', static_url_path='/static')
 
 # Global variables
 db = None
-page_title = "iflow - Project Artifact Manager"
+page_title = "iflow "
 
 def init_database():
     """Initialize the database with the default path."""
