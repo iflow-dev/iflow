@@ -12,8 +12,13 @@ from .database import GitDatabase
 import os
 
 # Create Flask app with static file serving
-# For now, use a simple approach - Flask will look for static folder relative to the app
-app = Flask(__name__, static_folder='static', static_url_path='/static')
+import os
+# Get the absolute path to the static folder in the installed package
+static_folder = os.path.join(os.path.dirname(__file__), 'static')
+print(f"DEBUG: __file__ = {__file__}")
+print(f"DEBUG: static_folder = {static_folder}")
+print(f"DEBUG: static_folder exists = {os.path.exists(static_folder)}")
+app = Flask(__name__, static_folder=static_folder, static_url_path='/static')
 
 # Global variables
 db = None
