@@ -70,16 +70,20 @@ class TileManager {
             <div class="artifact-content">
                 <div class="artifact-summary">${artifact.summary}</div>
                 <div class="artifact-description">${artifact.description || 'No description'}</div>
-                ${artifact.category ? `<div class="artifact-category"><a href="#" onclick="filterByCategory('${artifact.category}', true); return false;" class="category-link">${artifact.category}</a></div>` : ''}
                 <div class="artifact-meta">
                     <span>Created: ${new Date(artifact.created_at).toLocaleDateString()}</span>
                     <span>Updated: ${new Date(artifact.updated_at).toLocaleDateString()}</span>
                 </div>
             </div>
             <div class="artifact-actions">
-                <button class="btn btn-secondary" onclick="openEditModal('${artifact.artifact_id}')">Edit</button>
-                <button class="btn btn-danger" onclick="deleteArtifact('${artifact.artifact_id}')">Delete</button>
+                <button class="btn btn-primary" onclick="openEditModal('${artifact.artifact_id}')" title="Edit artifact">
+                    <ion-icon name="create-outline"></ion-icon>
+                </button>
+                <button class="btn btn-danger" onclick="deleteArtifact('${artifact.artifact_id}')" title="Delete artifact">
+                    <ion-icon name="trash-outline"></ion-icon>
+                </button>
             </div>
+            ${artifact.category ? `<div class="artifact-category-bottom"><a href="#" onclick="filterByCategory('${artifact.category}', true); return false;" class="category-link">${artifact.category}</a></div>` : ''}
         </div>
         `;
     }

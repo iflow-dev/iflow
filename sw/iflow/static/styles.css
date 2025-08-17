@@ -232,6 +232,67 @@ body {
     border-top: 1px solid #eee;
     display: flex;
     gap: 0.5rem;
+    justify-content: space-between;
+}
+
+.artifact-actions .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.artifact-actions .btn-primary {
+    background: #007bff;
+    color: white;
+}
+
+.artifact-actions .btn-primary:hover {
+    background: #0056b3;
+}
+
+.artifact-actions .btn-danger {
+    background: #dc3545;
+    color: white;
+}
+
+.artifact-actions .btn-danger:hover {
+    background: #c82333;
+}
+
+.artifact-actions ion-icon {
+    font-size: 1.2rem;
+}
+
+.artifact-category-bottom {
+    padding: 0.75rem 1rem;
+    background: #f8f9fa;
+    border-top: 1px solid #eee;
+    text-align: center;
+}
+
+.artifact-category-bottom .category-link {
+    color: #8B5CF6;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0.25rem 0.5rem;
+    background: #F3F4F6;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.artifact-category-bottom .category-link:hover {
+    color: #7C3AED;
+    background: #E5E7EB;
 }
 
 .modal {
