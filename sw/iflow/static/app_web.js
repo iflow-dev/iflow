@@ -324,80 +324,54 @@ function displayArtifacts(artifacts) {
 // Search and Filter
 async function searchArtifacts(query) {
     if (query.trim() === '') {
-        displayArtifacts(currentArtifacts);
+        // If no search query, apply other active filters
+        applyAllFilters();
         return;
     }
     
-    try {
-        const response = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const results = await response.json();
-        displayArtifacts(results);
-    } catch (error) {
-        console.error('Error searching artifacts:', error);
-    }
+    // Apply search filter locally and then apply all other active filters
+    applyAllFilters();
 }
 
 async function filterByType(type) {
     if (type === '') {
-        displayArtifacts(currentArtifacts);
+        // If no type filter, apply other active filters
+        applyAllFilters();
         return;
     }
     
-    try {
-        const response = await fetch(`${API_BASE}/artifacts?type=${encodeURIComponent(type)}`);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const filtered = await response.json();
-        displayArtifacts(filtered);
-    } catch (error) {
-        console.error('Error filtering artifacts:', error);
-    }
+    // Apply type filter locally and then apply all other active filters
+    applyAllFilters();
 }
 
 async function filterByCategory(category, exactMatch = false) {
     if (category.trim() === '') {
-        displayArtifacts(currentArtifacts);
+        // If no category filter, apply other active filters
+        applyAllFilters();
         return;
     }
     
-    let filtered;
+    // Update the category filter input box to show the selected category
     if (exactMatch) {
-        // Exact matching for category links
-        filtered = currentArtifacts.filter(artifact => 
-            artifact.category === category
-        );
-        
-        // Update the category filter input box to show the selected category
         const categoryFilter = document.querySelector('input[placeholder="Filter by category..."]');
         if (categoryFilter) {
             categoryFilter.value = category;
         }
-    } else {
-        // Partial matching for search box
-        filtered = currentArtifacts.filter(artifact => 
-            artifact.category && artifact.category.toLowerCase().includes(category.toLowerCase())
-        );
     }
     
-    displayArtifacts(filtered);
+    // Apply category filter locally and then apply all other active filters
+    applyAllFilters();
 }
 
 async function filterByStatus(status) {
     if (status === '') {
-        displayArtifacts(currentArtifacts);
+        // If no status filter, apply other active filters
+        applyAllFilters();
         return;
     }
     
-    const filtered = currentArtifacts.filter(artifact => 
-        artifact.status === status
-    );
-    displayArtifacts(filtered);
+    // Apply status filter locally and then apply all other active filters
+    applyAllFilters();
 }
 
 // Form Handling
@@ -513,18 +487,49 @@ function getCurrentFilterState() {
 }
 
 function applyFilterState(filterState) {
-    if (filterState.type) {
-        filterByType(filterState.type);
-    } else if (filterState.status) {
-        filterByStatus(filterState.status);
-    } else if (filterState.category) {
-        filterByCategory(filterState.category, true);
-    } else if (filterState.search) {
-        searchArtifacts(filterState.search);
+    if (filterState.type || filterState.status || filterState.category || filterState.search) {
+        applyAllFilters();
     } else {
         // No filters active, show all artifacts
         displayArtifacts(currentArtifacts);
     }
+}
+
+// New function to apply all active filters in combination
+function applyAllFilters() {
+    const filterState = getCurrentFilterState();
+    let filtered = [...currentArtifacts]; // Start with all artifacts
+    
+    // Apply type filter
+    if (filterState.type) {
+        filtered = filtered.filter(artifact => artifact.type === filterState.type);
+    }
+    
+    // Apply status filter
+    if (filterState.status) {
+        filtered = filtered.filter(artifact => artifact.status === filterState.status);
+    }
+    
+    // Apply category filter
+    if (filterState.category) {
+        filtered = filtered.filter(artifact => 
+            artifact.category && artifact.category.toLowerCase().includes(filterState.category.toLowerCase())
+        );
+    }
+    
+    // Apply search filter
+    if (filterState.search) {
+        filtered = filtered.filter(artifact => 
+            artifact.summary.toLowerCase().includes(filterState.search.toLowerCase()) ||
+            artifact.description.toLowerCase().includes(filterState.search.toLowerCase()) ||
+            (artifact.category && artifact.category.toLowerCase().includes(filterState.search.toLowerCase()))
+        );
+    }
+    
+    console.log(`Applied filters - Type: ${filterState.type}, Status: ${filterState.status}, Category: ${filterState.category}, Search: ${filterState.search}`);
+    console.log(`Filtered from ${currentArtifacts.length} to ${filtered.length} artifacts`);
+    
+    displayArtifacts(filtered);
 }
 
 // Event Listeners
@@ -534,3 +539,35 @@ window.onclick = function(event) {
         closeModal();
     }
 }
+
+// Add event listeners for filter changes
+document.addEventListener('DOMContentLoaded', function() {
+    // Add event listeners for filter dropdowns
+    const typeFilters = document.querySelectorAll('.filter-select');
+    if (typeFilters.length >= 1) {
+        typeFilters[0].addEventListener('change', function() {
+            applyAllFilters();
+        });
+    }
+    if (typeFilters.length >= 2) {
+        typeFilters[1].addEventListener('change', function() {
+            applyAllFilters();
+        });
+    }
+    
+    // Add event listener for category filter input
+    const categoryFilter = document.querySelector('input[placeholder="Filter by category..."]');
+    if (categoryFilter) {
+        categoryFilter.addEventListener('input', function() {
+            applyAllFilters();
+        });
+    }
+    
+    // Add event listener for search input
+    const searchBox = document.querySelector('input[placeholder="Search artifacts..."]');
+    if (searchBox) {
+        searchBox.addEventListener('input', function() {
+            applyAllFilters();
+        });
+    }
+});

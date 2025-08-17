@@ -112,21 +112,38 @@ def get_project_info():
 
 @app.route('/api/artifacts')
 def list_artifacts():
-    """List all artifacts, optionally filtered by type."""
+    """List all artifacts, optionally filtered by multiple criteria."""
     try:
         artifact_type = request.args.get('type')
-        print(f"Listing artifacts, type filter: {artifact_type}")
+        artifact_status = request.args.get('status')
+        artifact_category = request.args.get('category')
         
-        if artifact_type:
-            artifact_type_enum = ArtifactType(artifact_type)
-            artifacts = db.list_artifacts(artifact_type_enum)
-        else:
-            artifacts = db.list_artifacts()
+        print(f"Listing artifacts, filters - type: {artifact_type}, status: {artifact_status}, category: {artifact_category}")
         
-        print(f"Found {len(artifacts)} artifacts")
+        # Get all artifacts first
+        artifacts = db.list_artifacts()
+        
+        # Apply filters in memory for now (can be optimized later)
+        filtered_artifacts = []
+        for artifact in artifacts:
+            # Type filter
+            if artifact_type and artifact.type.value != artifact_type:
+                continue
+                
+            # Status filter
+            if artifact_status and artifact.status != artifact_status:
+                continue
+                
+            # Category filter
+            if artifact_category and (not artifact.category or artifact_category.lower() not in artifact.category.lower()):
+                continue
+                
+            filtered_artifacts.append(artifact)
+        
+        print(f"Found {len(filtered_artifacts)} artifacts after filtering")
         
         # Convert to dictionaries for JSON serialization
-        result = [artifact_to_dict(artifact) for artifact in artifacts]
+        result = [artifact_to_dict(artifact) for artifact in filtered_artifacts]
         return jsonify(result)
     except Exception as e:
         print(f"Error listing artifacts: {e}")
