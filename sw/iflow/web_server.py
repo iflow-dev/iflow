@@ -84,6 +84,19 @@ def get_work_item_types():
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/artifact-statuses')
+def get_artifact_statuses():
+    """Get available artifact statuses from configuration."""
+    try:
+        config = get_config()
+        artifact_statuses = config.get_artifact_statuses()
+        return jsonify(artifact_statuses)
+    except Exception as e:
+        print(f"Error getting artifact statuses: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/project-info')
 def get_project_info():
     """Get project information from configuration."""
@@ -142,6 +155,7 @@ def create_artifact():
             summary=data['summary'],
             description=data.get('description', ''),
             category=data.get('category', ''),
+            status=data.get('status', 'open'),
             artifact_id=data.get('artifact_id')
         )
         
@@ -172,6 +186,8 @@ def update_artifact(artifact_id):
             artifact.description = data['description']
         if 'category' in data:
             artifact.category = data['category']
+        if 'status' in data:
+            artifact.status = data['status']
         
         # Update timestamp
         artifact.update()
@@ -226,6 +242,7 @@ def artifact_to_dict(artifact):
         'summary': artifact.summary,
         'description': artifact.description,
         'category': artifact.category,
+        'status': artifact.status,
         'created_at': artifact.created_at.isoformat(),
         'updated_at': artifact.updated_at.isoformat(),
         'metadata': artifact.metadata

@@ -158,6 +158,17 @@ body {
     /* Border color will be set dynamically via JavaScript */
 }
 
+.artifact-status {
+    background: white;
+    color: #333;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border: 1px solid #ddd;
+    /* Color will be set dynamically via JavaScript */
+}
+
 .artifact-id {
     font-size: 0.8rem;
     color: #6c757d;

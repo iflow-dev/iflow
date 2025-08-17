@@ -81,6 +81,36 @@ class ProjectConfig:
                 "backup_dir": "artifacts_backup",
                 "max_artifacts": 99999
             },
+            "artifact_statuses": [
+                {
+                    "id": "open",
+                    "name": "Open",
+                    "description": "Artifact is open and ready for work",
+                    "color": "#10B981",
+                    "icon": "🟢"
+                },
+                {
+                    "id": "in_progress",
+                    "name": "In Progress",
+                    "description": "Work has started on this artifact",
+                    "color": "#F59E0B",
+                    "icon": "🟡"
+                },
+                {
+                    "id": "done",
+                    "name": "Done",
+                    "description": "Artifact is completed",
+                    "color": "#3B82F6",
+                    "icon": "✅"
+                },
+                {
+                    "id": "blocked",
+                    "name": "Blocked",
+                    "description": "Artifact is blocked and cannot proceed",
+                    "color": "#EF4444",
+                    "icon": "🔴"
+                }
+            ],
             "ui": {
                 "default_view": "all",
                 "items_per_page": 20,
@@ -135,6 +165,17 @@ class ProjectConfig:
         """Get UI configuration settings."""
         return self.config.get("ui", {})
     
+    def get_artifact_statuses(self) -> List[Dict[str, Any]]:
+        """Get list of available artifact statuses."""
+        return self.config.get("artifact_statuses", [])
+    
+    def get_artifact_status(self, status_id: str) -> Optional[Dict[str, Any]]:
+        """Get specific artifact status by ID."""
+        for status in self.get_artifact_statuses():
+            if status.get("id") == status_id:
+                return status
+        return None
+    
     def validate_artifact_type(self, artifact_type: str) -> bool:
         """Validate if an artifact type is supported."""
         return artifact_type in self.get_work_item_type_ids()
@@ -154,6 +195,23 @@ class ProjectConfig:
             "name": artifact_type.title(),
             "color": "#6B7280",
             "icon": "📄"
+        }
+    
+    def get_artifact_status_display_info(self, status_id: str) -> Dict[str, Any]:
+        """Get display information for an artifact status."""
+        status = self.get_artifact_status(status_id)
+        if status:
+            return {
+                "id": status.get("id", status_id),
+                "name": status.get("name", status_id),
+                "icon": status.get("icon", "⚪"),
+                "color": status.get("color", "#6B7280")
+            }
+        return {
+            "id": status_id,
+            "name": status_id,
+            "icon": "⚪",
+            "color": "#6B7280"
         }
     
     def reload_config(self) -> None:

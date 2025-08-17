@@ -8,6 +8,7 @@ let currentArtifacts = [];
 let editingArtifactId = null;
 let projectConfig = null;
 let workItemTypes = [];
+let artifactStatuses = [];
 
 // API base URL
 const API_BASE = '/api';
@@ -42,6 +43,16 @@ async function loadConfiguration() {
             updateTypeFilterOptions();
         } else {
             console.error('Failed to load work item types:', typesResponse.status);
+        }
+        
+        // Load artifact statuses
+        const statusesResponse = await fetch(`${API_BASE}/artifact-statuses`);
+        if (statusesResponse.ok) {
+            artifactStatuses = await statusesResponse.json();
+            console.log('Artifact statuses loaded:', artifactStatuses);
+            updateStatusFormOptions();
+        } else {
+            console.error('Failed to load artifact statuses:', statusesResponse.status);
         }
     } catch (error) {
         console.error('Error loading configuration:', error);
@@ -82,6 +93,24 @@ function updateTypeFilterOptions() {
     }
 }
 
+function updateStatusFormOptions() {
+    // Update the status form dropdown
+    const artifactStatusSelect = document.getElementById('artifactStatus');
+    if (artifactStatusSelect && artifactStatuses.length > 0) {
+        // Clear existing options
+        artifactStatusSelect.innerHTML = '';
+        
+        // Add options for each status
+        artifactStatuses.forEach(status => {
+            const option = document.createElement('option');
+            option.value = status.id;
+            option.textContent = `${status.icon} ${status.name}`;
+            option.style.color = status.color;
+            artifactStatusSelect.appendChild(option);
+        });
+    }
+}
+
 function updateProjectHeader() {
     if (projectConfig) {
         const header = document.querySelector('.header h1');
@@ -118,6 +147,25 @@ function getTypeDisplayInfo(typeId) {
     };
 }
 
+// Helper function to get status display information
+function getStatusDisplayInfo(statusId) {
+    if (artifactStatuses && artifactStatuses.length > 0) {
+        const statusInfo = artifactStatuses.find(status => status.id === statusId);
+        if (statusInfo) {
+            return {
+                "name": statusInfo.name,
+                "icon": statusInfo.icon,
+                "color": statusInfo.color
+            };
+        }
+    }
+    return {
+        "name": statusId,
+        "icon": "⚪",
+        "color": "#6B7280"
+    };
+}
+
 // Modal Management
 function openCreateModal() {
     editingArtifactId = null;
@@ -135,6 +183,7 @@ function openEditModal(artifactId) {
         document.getElementById('artifactSummary').value = artifact.summary;
         document.getElementById('artifactDescription').value = artifact.description || '';
         document.getElementById('artifactCategory').value = artifact.category || '';
+        document.getElementById('artifactStatus').value = artifact.status || 'open';
         document.getElementById('artifactModal').style.display = 'block';
     }
 }
@@ -226,11 +275,15 @@ function displayArtifacts(artifacts) {
     
     container.innerHTML = artifacts.map(artifact => {
         const typeInfo = getTypeDisplayInfo(artifact.type);
+        const statusInfo = getStatusDisplayInfo(artifact.status);
         return `
         <div class="artifact-card">
             <div class="artifact-header">
                 <span class="artifact-type" style="border-color: ${typeInfo.color}; color: ${typeInfo.color}">
                     ${typeInfo.icon} ${typeInfo.name}
+                </span>
+                <span class="artifact-status" style="color: ${statusInfo.color}">
+                    ${statusInfo.icon} ${statusInfo.name}
                 </span>
                 <span class="artifact-id">${artifact.artifact_id}</span>
             </div>
@@ -310,7 +363,8 @@ document.getElementById('artifactForm').addEventListener('submit', async functio
         type: document.getElementById('artifactType').value,
         summary: document.getElementById('artifactSummary').value,
         description: document.getElementById('artifactDescription').value,
-        category: document.getElementById('artifactCategory').value
+        category: document.getElementById('artifactCategory').value,
+        status: document.getElementById('artifactStatus').value
     };
     
     try {

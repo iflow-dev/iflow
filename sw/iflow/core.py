@@ -37,6 +37,7 @@ class Artifact:
         summary: str,
         description: str = "",
         category: str = "",
+        status: str = "open",
         artifact_id: Optional[str] = None,
         created_at: Optional[datetime] = None,
         updated_at: Optional[datetime] = None,
@@ -49,6 +50,7 @@ class Artifact:
         self.summary = summary
         self.description = description
         self.category = category
+        self.status = status
         self.created_at = created_at or datetime.now()
         self.updated_at = updated_at or datetime.now()
         self.metadata = metadata or {}
@@ -62,6 +64,7 @@ class Artifact:
                 "summary": self.summary,
                 "description": self.description,
                 "category": self.category,
+                "status": self.status,
                 "created_at": self.created_at.isoformat(),
                 "updated_at": self.updated_at.isoformat(),
                 "metadata": self.metadata
@@ -81,6 +84,7 @@ class Artifact:
             summary=artifact_data["summary"],
             description=artifact_data.get("description", ""),
             category=artifact_data.get("category", ""),
+            status=artifact_data.get("status", "open"),
             artifact_id=artifact_data["id"],
             created_at=datetime.fromisoformat(artifact_data["created_at"]),
             updated_at=datetime.fromisoformat(artifact_data["updated_at"]),
