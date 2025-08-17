@@ -149,8 +149,8 @@ class CustomDropdownManager {
             // Find all select elements that need custom dropdowns
             const typeFilter = document.getElementById('typeFilter');
             const statusFilter = document.getElementById('statusFilter');
-            const artifactTypeSelect = document.getElementById('artifactTypeSelect');
-            const artifactStatusSelect = document.getElementById('artifactStatusSelect');
+            const artifactTypeSelect = document.getElementById('artifactType');
+            const artifactStatusSelect = document.getElementById('artifactStatus');
             
             // Create custom dropdowns for filters
             if (typeFilter) {

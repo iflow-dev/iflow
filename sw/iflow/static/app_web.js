@@ -62,9 +62,16 @@ async function loadConfiguration() {
             updateStatusFormOptions();
             
             // Initialize dropdown manager with the loaded data
+            console.log('Initializing dropdown manager...');
             dropdownManager = new CustomDropdownManager();
+            console.log('Dropdown manager created:', dropdownManager);
+            
             if (dropdownManager.initializeData(workItemTypes, artifactStatuses)) {
-                dropdownManager.createCustomDropdowns();
+                console.log('Dropdown manager initialized successfully');
+                const result = dropdownManager.createCustomDropdowns();
+                console.log('Custom dropdowns creation result:', result);
+            } else {
+                console.error('Failed to initialize dropdown manager');
             }
         } else {
             console.error('Failed to load artifact statuses:', statusesResponse.status);
@@ -349,7 +356,9 @@ async function loadStats() {
         
         const stats = await response.json();
         console.log('Stats received:', stats);
+        console.log('Calling displayStats...');
         displayStats(stats);
+        console.log('displayStats completed');
     } catch (error) {
         console.error('Error loading stats:', error);
         console.error('Error details:', error.message, error.stack);
@@ -358,7 +367,9 @@ async function loadStats() {
 }
 
 function displayStats(stats) {
+    console.log('displayStats called with:', stats);
     const statsBar = document.getElementById('stats-bar');
+    console.log('Found stats-bar element:', statsBar);
     
     let projectVersion = '';
     if (projectConfig && projectConfig.version) {
@@ -402,7 +413,9 @@ async function loadArtifacts() {
         const artifacts = await response.json();
         console.log('Artifacts received:', artifacts);
         currentArtifacts = artifacts;
+        console.log('Calling displayArtifacts...');
         displayArtifacts(artifacts);
+        console.log('displayArtifacts completed');
     } catch (error) {
         console.error('Error loading artifacts:', error);
         console.error('Error details:', error.message, error.stack);
@@ -411,7 +424,9 @@ async function loadArtifacts() {
 }
 
 function displayArtifacts(artifacts) {
+    console.log('displayArtifacts called with:', artifacts);
     const container = document.getElementById('artifacts-container');
+    console.log('Found artifacts-container element:', container);
     
     if (artifacts.length === 0) {
         container.innerHTML = '<div class="loading">No artifacts found. Create your first artifact to get started!</div>';
