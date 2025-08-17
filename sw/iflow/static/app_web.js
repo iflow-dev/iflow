@@ -19,6 +19,7 @@ let currentFilterState = {
 // Initialize the managers
 let dropdownManager = null;
 let tileManager = null;
+let statisticsManager = null;
 
 // API base URL
 const API_BASE = '/api';
@@ -27,7 +28,9 @@ const API_BASE = '/api';
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('DOM loaded, starting to load data...');
     await loadConfiguration();
-    loadStats();
+    if (statisticsManager) {
+        statisticsManager.loadStats();
+    }
     loadArtifacts();
 });
 
@@ -65,6 +68,7 @@ async function loadConfiguration() {
             // Initialize managers with the loaded data
             dropdownManager = new CustomDropdownManager();
             tileManager = new TileManager();
+            statisticsManager = new StatisticsManager();
             
             if (dropdownManager.initializeData(workItemTypes, artifactStatuses)) {
                 dropdownManager.createCustomDropdowns();
@@ -72,6 +76,10 @@ async function loadConfiguration() {
             
             if (tileManager.initializeData(workItemTypes, artifactStatuses)) {
                 console.log('Tile manager initialized successfully');
+            }
+            
+            if (statisticsManager) {
+                statisticsManager.initialize(projectConfig);
             }
         } else {
             console.error('Failed to load artifact statuses:', statusesResponse.status);
@@ -268,57 +276,7 @@ function closeModal() {
     document.getElementById('artifactModal').style.display = 'none';
 }
 
-// Statistics Management
-async function loadStats() {
-    try {
-        console.log('loadStats called');
-        
-        const response = await fetch(`${API_BASE}/stats`);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const stats = await response.json();
-        console.log('Stats received:', stats);
-        displayStats(stats);
-    } catch (error) {
-        console.error('Error loading stats:', error);
-        console.error('Error details:', error.message, error.stack);
-        document.getElementById('stats-bar').innerHTML = '<div class="error">Error loading statistics: ' + error.message + '</div>';
-    }
-}
-
-function displayStats(stats) {
-    const statsBar = document.getElementById('stats-bar');
-    
-    let projectVersion = '';
-    if (projectConfig && projectConfig.version) {
-        projectVersion = `<div class="stat-item">
-            <div class="stat-number">v${projectConfig.version}</div>
-            <div class="stat-label">Version</div>
-        </div>`;
-    }
-    
-    statsBar.innerHTML = `
-        <div class="stat-item">
-            <div class="stat-number">${stats.total_artifacts}</div>
-            <div class="stat-label">Total Artifacts</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-number">${stats.total_commits}</div>
-            <div class="stat-label">Total Commits</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-number">${Object.keys(stats.by_type).length}</div>
-            <div class="stat-label">Artifact Types</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-number">${stats.last_commit ? '✓' : '✗'}</div>
-            <div class="stat-label">Git Status</div>
-        </div>
-        ${projectVersion}
-    `;
-}
+// Statistics Management is now handled by the StatisticsManager class
 
 // Artifact Management
 async function loadArtifacts() {
@@ -515,7 +473,9 @@ document.getElementById('artifactForm').addEventListener('submit', async functio
             }
             
             closeModal();
-            loadStats();
+            if (statisticsManager) {
+                statisticsManager.loadStats();
+            }
             
             // Load artifacts and then reapply the filter state
             await loadArtifacts();
@@ -541,7 +501,9 @@ async function deleteArtifact(artifactId) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             
-            loadStats();
+            if (statisticsManager) {
+                statisticsManager.loadStats();
+            }
             
             // Load artifacts and then reapply the filter state
             await loadArtifacts();
@@ -575,7 +537,9 @@ function refreshArtifacts() {
         search: ''
     };
     
-    loadStats();
+    if (statisticsManager) {
+        statisticsManager.loadStats();
+    }
     loadArtifacts();
 }
 
@@ -611,6 +575,11 @@ function cleanupManagers() {
     if (tileManager) {
         tileManager.cleanup();
         tileManager = null;
+    }
+    
+    if (statisticsManager) {
+        statisticsManager.cleanup();
+        statisticsManager = null;
     }
 }
 
