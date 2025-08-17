@@ -307,7 +307,7 @@ function displayArtifacts(artifacts) {
             <div class="artifact-content">
                 <div class="artifact-summary">${artifact.summary}</div>
                 <div class="artifact-description">${artifact.description || 'No description'}</div>
-                ${artifact.category ? `<div class="artifact-category">${artifact.category}</div>` : ''}
+                ${artifact.category ? `<div class="artifact-category"><a href="#" onclick="filterByCategory('${artifact.category}', true); return false;" class="category-link">${artifact.category}</a></div>` : ''}
                 <div class="artifact-meta">
                     <span>Created: ${new Date(artifact.created_at).toLocaleDateString()}</span>
                     <span>Updated: ${new Date(artifact.updated_at).toLocaleDateString()}</span>
@@ -360,15 +360,25 @@ async function filterByType(type) {
     }
 }
 
-async function filterByCategory(category) {
+async function filterByCategory(category, exactMatch = false) {
     if (category.trim() === '') {
         displayArtifacts(currentArtifacts);
         return;
     }
     
-    const filtered = currentArtifacts.filter(artifact => 
-        artifact.category && artifact.category.toLowerCase().includes(category.toLowerCase())
-    );
+    let filtered;
+    if (exactMatch) {
+        // Exact matching for category links
+        filtered = currentArtifacts.filter(artifact => 
+            artifact.category === category
+        );
+    } else {
+        // Partial matching for search box
+        filtered = currentArtifacts.filter(artifact => 
+            artifact.category && artifact.category.toLowerCase().includes(category.toLowerCase())
+        );
+    }
+    
     displayArtifacts(filtered);
 }
 

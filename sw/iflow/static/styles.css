@@ -203,6 +203,22 @@ body {
     display: inline-block;
 }
 
+.category-link {
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.category-link:hover {
+    color: #7C3AED;
+    text-decoration: underline;
+    background: #E5E7EB;
+    border-radius: 2px;
+    padding: 0.1rem 0.3rem;
+    margin: -0.1rem -0.3rem;
+}
+
 .artifact-meta {
     display: flex;
     justify-content: space-between;
