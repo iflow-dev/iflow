@@ -113,26 +113,34 @@ function updateTypeFilterOptions() {
 }
 
 function createCustomDropdowns() {
+    console.log('createCustomDropdowns called');
+    console.log('workItemTypes:', workItemTypes);
+    console.log('artifactStatuses:', artifactStatuses);
+    
     // Replace the type filter dropdown with a custom one
     const typeFilter = document.getElementById('typeFilter');
     if (typeFilter && !typeFilter.classList.contains('custom-dropdown')) {
+        console.log('Creating custom dropdown for type filter');
         createCustomDropdown(typeFilter, 'type', workItemTypes);
     }
     
     // Replace the status filter dropdown with a custom one
     const statusFilter = document.getElementById('statusFilter');
     if (statusFilter && !statusFilter.classList.contains('custom-dropdown')) {
+        console.log('Creating custom dropdown for status filter with artifactStatuses:', artifactStatuses);
         createCustomDropdown(statusFilter, 'status', artifactStatuses);
     }
     
     // Replace the form dropdowns with custom ones
     const artifactTypeSelect = document.getElementById('artifactType');
     if (artifactTypeSelect && !artifactTypeSelect.classList.contains('custom-dropdown')) {
+        console.log('Creating custom dropdown for artifact type form');
         createCustomDropdown(artifactTypeSelect, 'form', workItemTypes);
     }
     
     const artifactStatusSelect = document.getElementById('artifactStatus');
     if (artifactStatusSelect && !artifactStatusSelect.classList.contains('custom-dropdown')) {
+        console.log('Creating custom dropdown for artifact status form');
         createCustomDropdown(artifactStatusSelect, 'status-form', artifactStatuses);
     }
 }
@@ -644,8 +652,13 @@ function renderIcon(iconValue) {
 
 // Helper function to get status display information
 function getStatusDisplayInfo(statusId) {
+    console.log('getStatusDisplayInfo called with statusId:', statusId);
+    console.log('artifactStatuses array:', artifactStatuses);
+    console.log('artifactStatuses length:', artifactStatuses ? artifactStatuses.length : 'undefined');
+    
     if (artifactStatuses && artifactStatuses.length > 0) {
         const statusInfo = artifactStatuses.find(status => status.id === statusId);
+        console.log('Found statusInfo:', statusInfo);
         if (statusInfo) {
             return {
                 "name": statusInfo.name,
@@ -654,6 +667,7 @@ function getStatusDisplayInfo(statusId) {
             };
         }
     }
+    console.log('Returning fallback status info for:', statusId);
     return {
         "name": statusId,
         "icon": "⚪",
