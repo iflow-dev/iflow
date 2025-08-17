@@ -118,15 +118,15 @@ class IFlowApp:
                 </html>
                 """
                 
-                self.window = webview.create_window(
-                    title=title,
+        self.window = webview.create_window(
+            title=title,
                     html=html_content,
-                    js_api=self.api,
-                    width=1200,
-                    height=800,
-                    resizable=True,
-                    text_select=True
-                )
+            js_api=self.api,
+            width=1200,
+            height=800,
+            resizable=True,
+            text_select=True
+        )
         
         # Start the webview
         webview.start(debug=True)

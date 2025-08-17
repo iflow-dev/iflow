@@ -6,7 +6,6 @@ from enum import Enum
 from typing import Dict, Any, Optional
 import yaml
 from datetime import datetime
-import uuid
 
 
 class ArtifactType(Enum):
@@ -18,6 +17,7 @@ class ArtifactType(Enum):
     BUG = "bug"
     FEATURE = "feature"
     STORY = "story"
+    ASPECT = "aspect"
 
 
 class Artifact:
@@ -26,6 +26,9 @@ class Artifact:
     
     Artifacts are the core data structure in iflow, containing all project
     information like requirements, tasks, test cases, and issues.
+    
+    Artifact IDs are now 5-digit sequential identifiers that are unique
+    across all artifact types.
     """
     
     def __init__(
@@ -38,7 +41,9 @@ class Artifact:
         updated_at: Optional[datetime] = None,
         metadata: Optional[Dict[str, Any]] = None
     ):
-        self.artifact_id = artifact_id or str(uuid.uuid4())
+        # artifact_id will be set by the database when saving
+        # It will be a 5-digit number (e.g., "00001")
+        self.artifact_id = artifact_id or "00000"  # Placeholder
         self.type = artifact_type
         self.summary = summary
         self.description = description

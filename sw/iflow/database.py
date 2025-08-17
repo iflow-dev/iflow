@@ -1,5 +1,8 @@
 """
 Git-based database for storing and managing artifacts.
+
+All artifacts are stored in a flat structure within a git repository,
+using 5-digit sequential numbering for unique identification across all types.
 """
 
 import os
@@ -14,8 +17,8 @@ class GitDatabase:
     """
     Git-based database for storing artifacts with full history tracking.
     
-    All artifacts are stored in a flat structure within a git repository,
-    allowing for complete version control and history tracking.
+    All artifacts are stored in a flat structure using 5-digit sequential
+    numbering for unique identification across all artifact types.
     """
     
     def __init__(self, repo_path: str = ".iflow"):
@@ -49,6 +52,53 @@ class GitDatabase:
             self.repo = git.Repo.init(self.repo_path)
             self.artifacts_dir.mkdir()
     
+    def _get_next_artifact_number(self) -> str:
+        """
+        Get the next available 5-digit number for artifacts.
+        
+        Returns:
+            Next available 5-digit number as string (e.g., "00001")
+        """
+        if not self.artifacts_dir.exists():
+            return "00001"
+        
+        # Find the highest existing number across all artifacts
+        existing_numbers = []
+        for file_path in self.artifacts_dir.glob("*.yaml"):
+            filename = file_path.stem  # Remove .yaml extension
+            if filename.isdigit() and len(filename) <= 5:
+                existing_numbers.append(int(filename))
+        
+        if not existing_numbers:
+            return "00001"
+        
+        next_number = max(existing_numbers) + 1
+        return f"{next_number:05d}"  # Format as 5-digit string
+    
+    def _get_artifact_path(self, artifact_number: str) -> Path:
+        """
+        Get the file path for an artifact.
+        
+        Args:
+            artifact_number: The 5-digit number
+            
+        Returns:
+            Path to the artifact file
+        """
+        return self.artifacts_dir / f"{artifact_number}.yaml"
+    
+    def _get_repo_relative_path(self, artifact_number: str) -> str:
+        """
+        Get the repository-relative path for an artifact (for Git operations).
+        
+        Args:
+            artifact_number: The 5-digit number
+            
+        Returns:
+            String path relative to repository root (e.g., "artifacts/00001.yaml")
+        """
+        return f"artifacts/{artifact_number}.yaml"
+    
     def save_artifact(self, artifact: Artifact) -> None:
         """
         Save an artifact to the database.
@@ -56,9 +106,19 @@ class GitDatabase:
         Args:
             artifact: The artifact to save
         """
-        # Create filename based on artifact ID and type
-        filename = f"{artifact.artifact_id}.yaml"
-        file_path = self.artifacts_dir / filename
+        # If artifact doesn't have a number, generate one
+        if '/' not in artifact.artifact_id:
+            artifact_number = self._get_next_artifact_number()
+            artifact.artifact_id = artifact_number
+        else:
+            # Extract number from existing ID (for backward compatibility)
+            artifact_number = artifact.artifact_id.split('/')[-1]
+        
+        # Create file path
+        file_path = self._get_artifact_path(artifact_number)
+        
+        # Check if this is an update or new artifact
+        is_update = file_path.exists()
         
         # Write artifact to file
         with open(file_path, 'w') as f:
@@ -72,11 +132,17 @@ class GitDatabase:
             raise RuntimeError(f"Failed to create file: {file_path}")
         
         # Add to git and commit
-        # Use absolute path for git operations
-        git_file_path = str(file_path.absolute())
+        # Use repository-relative path for Git operations
+        git_file_path = self._get_repo_relative_path(artifact_number)
         
         self.repo.index.add([git_file_path])
-        commit_message = f"Add {artifact.type.value}: {artifact.summary}"
+        
+        # Use appropriate commit message
+        if is_update:
+            commit_message = f"Update {artifact.type.value}: {artifact.summary}"
+        else:
+            commit_message = f"Add {artifact.type.value}: {artifact.summary}"
+        
         self.repo.index.commit(commit_message)
     
     def get_artifact(self, artifact_id: str) -> Optional[Artifact]:
@@ -84,13 +150,20 @@ class GitDatabase:
         Retrieve an artifact by ID.
         
         Args:
-            artifact_id: The unique identifier of the artifact
+            artifact_id: The unique identifier of the artifact (5-digit number)
             
         Returns:
             The artifact if found, None otherwise
         """
-        filename = f"{artifact_id}.yaml"
-        file_path = self.artifacts_dir / filename
+        # Handle both old format (type/number) and new format (number only)
+        if '/' in artifact_id:
+            # Old format: extract just the number
+            artifact_number = artifact_id.split('/')[-1]
+        else:
+            # New format: use the ID directly
+            artifact_number = artifact_id
+        
+        file_path = self._get_artifact_path(artifact_number)
         
         if not file_path.exists():
             return None
@@ -115,12 +188,14 @@ class GitDatabase:
         """
         artifacts = []
         
+        # List all artifacts from the flat directory
         for file_path in self.artifacts_dir.glob("*.yaml"):
             try:
                 with open(file_path, 'r') as f:
                     yaml_content = f.read()
                 artifact = Artifact.from_yaml(yaml_content)
                 
+                # Apply type filter if specified
                 if artifact_type is None or artifact.type == artifact_type:
                     artifacts.append(artifact)
                     
@@ -149,16 +224,29 @@ class GitDatabase:
         Delete an artifact from the database.
         
         Args:
-            artifact_id: The unique identifier of the artifact to delete
+            artifact_id: The unique identifier of the artifact (5-digit number)
         """
-        filename = f"{artifact_id}.yaml"
-        file_path = self.artifacts_dir / filename
+        # Handle both old format (type/number) and new format (number only)
+        if '/' in artifact_id:
+            # Old format: extract just the number
+            artifact_number = artifact_id.split('/')[-1]
+        else:
+            # New format: use the ID directly
+            artifact_number = artifact_id
+        
+        file_path = self._get_artifact_path(artifact_number)
         
         if not file_path.exists():
             raise ValueError(f"Artifact {artifact_id} does not exist")
         
         # Remove from git and commit
-        self.repo.index.remove([str(file_path)])
+        # Use repository-relative path for Git operations
+        git_file_path = self._get_repo_relative_path(artifact_number)
+        self.repo.index.remove([git_file_path])
+        
+        # Delete the actual file from filesystem
+        file_path.unlink()
+        
         commit_message = f"Delete artifact: {artifact_id}"
         self.repo.index.commit(commit_message)
     
@@ -187,20 +275,29 @@ class GitDatabase:
         Get the git history for a specific artifact.
         
         Args:
-            artifact_id: The unique identifier of the artifact
+            artifact_id: The unique identifier of the artifact (5-digit number)
             
         Returns:
             List of commit information for the artifact
         """
-        filename = f"{artifact_id}.yaml"
-        file_path = self.artifacts_dir / filename
+        # Handle both old format (type/number) and new format (number only)
+        if '/' in artifact_id:
+            # Old format: extract just the number
+            artifact_number = artifact_id.split('/')[-1]
+        else:
+            # New format: use the ID directly
+            artifact_number = artifact_id
+        
+        file_path = self._get_artifact_path(artifact_number)
         
         if not file_path.exists():
             return []
         
         try:
             # Get git log for the specific file
-            commits = list(self.repo.iter_commits(paths=str(file_path)))
+            # Use repository-relative path for Git operations
+            git_file_path = self._get_repo_relative_path(artifact_number)
+            commits = list(self.repo.iter_commits(paths=git_file_path))
             history = []
             
             for commit in commits:

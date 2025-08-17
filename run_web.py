@@ -15,11 +15,6 @@ if __name__ == "__main__":
     # Get database path from command line argument or use default
     database_path = sys.argv[1] if len(sys.argv) > 1 else ".iflow-demo"
     
-    print(f"Starting iflow web server...")
-    print(f"Database: {database_path}")
-    print(f"URL: http://127.0.0.1:5000")
-    print(f"Press Ctrl+C to stop")
-    
     try:
         run_web_server(database_path, host="127.0.0.1", port=8080, debug=True)
     except KeyboardInterrupt:
