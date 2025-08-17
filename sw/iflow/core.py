@@ -96,8 +96,8 @@ class Artifact:
             category=artifact_data.get("category", ""),
             status=artifact_data.get("status", "open"),
             artifact_id=artifact_data["id"],
-            created_at=datetime.fromisoformat(artifact_data["created_at"]),
-            updated_at=datetime.fromisoformat(artifact_data["updated_at"]),
+            created_at=datetime.fromisoformat(artifact_data["created_at"]).replace(tzinfo=None),
+            updated_at=datetime.fromisoformat(artifact_data["updated_at"]).replace(tzinfo=None),
             metadata=artifact_data.get("metadata", {})
         )
     

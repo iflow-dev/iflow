@@ -9,6 +9,12 @@ let editingArtifactId = null;
 let projectConfig = null;
 let workItemTypes = [];
 let artifactStatuses = [];
+let currentFilterState = {
+    type: '',
+    status: '',
+    category: '',
+    search: ''
+};
 
 // API base URL
 const API_BASE = '/api';
@@ -349,81 +355,114 @@ function displayArtifacts(artifacts) {
 
 // Search and Filter
 async function searchArtifacts(query) {
-    if (query.trim() === '') {
-        displayArtifacts(currentArtifacts);
-        return;
-    }
+    currentFilterState.search = query.trim();
     
-    try {
-        const response = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const results = await response.json();
-        displayArtifacts(results);
-    } catch (error) {
-        console.error('Error searching artifacts:', error);
-    }
+    // Apply all active filters
+    await applyCombinedFilters();
 }
 
 async function filterByType(type) {
-    if (type === '') {
-        displayArtifacts(currentArtifacts);
-        return;
-    }
+    // Store the type filter value for combination with other filters
+    currentFilterState.type = type;
     
-    try {
-        const response = await fetch(`${API_BASE}/artifacts?type=${encodeURIComponent(type)}`);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const filtered = await response.json();
-        displayArtifacts(filtered);
-    } catch (error) {
-        console.error('Error filtering artifacts:', error);
-    }
+    // Apply all active filters
+    await applyCombinedFilters();
 }
 
 async function filterByCategory(category, exactMatch = false) {
     if (category.trim() === '') {
-        displayArtifacts(currentArtifacts);
-        return;
-    }
-    
-    let filtered;
-    if (exactMatch) {
-        // Exact matching for category links
-        filtered = currentArtifacts.filter(artifact => 
-            artifact.category === category
-        );
+        currentFilterState.category = '';
+    } else {
+        currentFilterState.category = category;
         
         // Update the category filter input box to show the selected category
         const categoryFilter = document.querySelector('input[placeholder="Filter by category..."]');
         if (categoryFilter) {
             categoryFilter.value = category;
         }
-    } else {
-        // Partial matching for search box
-        filtered = currentArtifacts.filter(artifact => 
-            artifact.category && artifact.category.toLowerCase().includes(category.toLowerCase())
-        );
     }
     
-    displayArtifacts(filtered);
+    // Apply all active filters
+    await applyCombinedFilters();
 }
 
 async function filterByStatus(status) {
-    if (status === '') {
+    // Store the status filter value for combination with other filters
+    currentFilterState.status = status;
+    
+    // Apply all active filters
+    await applyCombinedFilters();
+}
+
+async function applyCombinedFilters() {
+    try {
+        let artifactsToFilter = currentArtifacts;
+        
+        // First, apply type filter if active (API call)
+        if (currentFilterState.type && currentFilterState.type !== '') {
+            const response = await fetch(`${API_BASE}/artifacts?type=${encodeURIComponent(currentFilterState.type)}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            artifactsToFilter = await response.json();
+        }
+        
+        // Then apply local filters (status, category, search)
+        let filtered = artifactsToFilter;
+        
+        if (currentFilterState.status && currentFilterState.status !== '') {
+            filtered = filtered.filter(artifact => artifact.status === currentFilterState.status);
+        }
+        
+        if (currentFilterState.category && currentFilterState.category !== '') {
+            filtered = filtered.filter(artifact => 
+                artifact.category && artifact.category.toLowerCase().includes(currentFilterState.category.toLowerCase())
+            );
+        }
+        
+        if (currentFilterState.search && currentFilterState.search !== '') {
+            filtered = filtered.filter(artifact => 
+                artifact.summary.toLowerCase().includes(currentFilterState.search.toLowerCase()) ||
+                (artifact.description && artifact.description.toLowerCase().includes(currentFilterState.search.toLowerCase())) ||
+                (artifact.category && artifact.category.toLowerCase().includes(currentFilterState.search.toLowerCase()))
+            );
+        }
+        
+        // Update DOM filter values to keep them in sync
+        updateFilterDOMValues();
+        
+        displayArtifacts(filtered);
+    } catch (error) {
+        console.error('Error applying combined filters:', error);
+        // Fallback to showing all artifacts
         displayArtifacts(currentArtifacts);
-        return;
+    }
+}
+
+function updateFilterDOMValues() {
+    // Update type filter dropdown
+    const typeFilter = document.getElementById('typeFilter');
+    if (typeFilter) {
+        typeFilter.value = currentFilterState.type;
     }
     
-    const filtered = currentArtifacts.filter(artifact => 
-        artifact.status === status
-    );
-    displayArtifacts(filtered);
+    // Update status filter dropdown
+    const statusFilter = document.getElementById('statusFilter');
+    if (statusFilter) {
+        statusFilter.value = currentFilterState.status;
+    }
+    
+    // Update category filter input
+    const categoryFilter = document.querySelector('input[placeholder="Filter by category..."]');
+    if (categoryFilter) {
+        categoryFilter.value = currentFilterState.category;
+    }
+    
+    // Update search input
+    const searchBox = document.querySelector('input[placeholder="Search artifacts..."]');
+    if (searchBox) {
+        searchBox.value = currentFilterState.search;
+    }
 }
 
 // Form Handling
@@ -520,37 +559,30 @@ function refreshArtifacts() {
     const searchBox = document.querySelector('input[placeholder="Search artifacts..."]');
     if (searchBox) searchBox.value = '';
     
+    // Reset filter state
+    currentFilterState = {
+        type: '',
+        status: '',
+        category: '',
+        search: ''
+    };
+    
     loadStats();
     loadArtifacts();
 }
 
 // Filter State Management
 function getCurrentFilterState() {
-    const typeFilters = document.querySelectorAll('.filter-select');
-    const categoryFilter = document.querySelector('input[placeholder="Filter by category..."]');
-    const searchBox = document.querySelector('input[placeholder="Search artifacts..."]');
-    
-    return {
-        type: typeFilters.length >= 1 ? typeFilters[0].value : '',
-        status: typeFilters.length >= 2 ? typeFilters[1].value : '',
-        category: categoryFilter ? categoryFilter.value : '',
-        search: searchBox ? searchBox.value : ''
-    };
+    // Return a copy of the current filter state
+    return { ...currentFilterState };
 }
 
 function applyFilterState(filterState) {
-    if (filterState.type) {
-        filterByType(filterState.type);
-    } else if (filterState.status) {
-        filterByStatus(filterState.status);
-    } else if (filterState.category) {
-        filterByCategory(filterState.category, true);
-    } else if (filterState.search) {
-        searchArtifacts(filterState.search);
-    } else {
-        // No filters active, show all artifacts
-        displayArtifacts(currentArtifacts);
-    }
+    // Restore the filter state
+    currentFilterState = { ...filterState };
+    
+    // Apply all active filters
+    applyCombinedFilters();
 }
 
 // Event Listeners
