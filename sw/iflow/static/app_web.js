@@ -237,7 +237,7 @@ function displayArtifacts(artifacts) {
             <div class="artifact-content">
                 <div class="artifact-summary">${artifact.summary}</div>
                 <div class="artifact-description">${artifact.description || 'No description'}</div>
-                ${artifact.category ? `<div class="artifact-category">Category: ${artifact.category}</div>` : ''}
+                ${artifact.category ? `<div class="artifact-category">${artifact.category}</div>` : ''}
                 <div class="artifact-meta">
                     <span>Created: ${new Date(artifact.created_at).toLocaleDateString()}</span>
                     <span>Updated: ${new Date(artifact.updated_at).toLocaleDateString()}</span>
