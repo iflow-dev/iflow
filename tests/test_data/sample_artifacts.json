@@ -1,0 +1,38 @@
+{
+  "test_artifacts": [
+    {
+      "type": "requirement",
+      "summary": "BDD Testing Implementation",
+      "description": "Implement BDD testing for the iflow system",
+      "category": "Testing",
+      "status": "open"
+    },
+    {
+      "type": "task",
+      "summary": "Create Test Features",
+      "description": "Create Gherkin feature files for testing",
+      "category": "Testing",
+      "status": "in_progress"
+    },
+    {
+      "type": "aspect",
+      "summary": "Test Automation Setup",
+      "description": "Set up radish BDD testing framework",
+      "category": "Testing",
+      "status": "done"
+    }
+  ],
+  "test_users": [
+    {
+      "username": "test_user",
+      "role": "tester",
+      "permissions": ["read", "write", "delete"]
+    }
+  ],
+  "test_categories": [
+    "Testing",
+    "Development",
+    "Documentation",
+    "Bug Fixes"
+  ]
+}

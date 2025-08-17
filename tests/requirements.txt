@@ -1,0 +1,18 @@
+# BDD Testing Dependencies
+radish-bdd>=0.13.0
+selenium>=4.0.0
+webdriver-manager>=3.8.0
+
+# Test Utilities
+pytest>=7.0.0
+pytest-html>=3.1.0
+pytest-xdist>=3.0.0
+
+# Web Testing Support
+requests>=2.28.0
+beautifulsoup4>=4.11.0
+
+# Development Tools
+black>=22.0.0
+flake8>=5.0.0
+pylint>=2.15.0
