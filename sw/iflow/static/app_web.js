@@ -656,6 +656,26 @@ function getStatusDisplayInfo(statusId) {
     console.log('artifactStatuses array:', artifactStatuses);
     console.log('artifactStatuses length:', artifactStatuses ? artifactStatuses.length : 'undefined');
     
+    // Handle empty or undefined statusId
+    if (!statusId || statusId === '') {
+        console.log('Empty statusId, returning default "open" status');
+        if (artifactStatuses && artifactStatuses.length > 0) {
+            const defaultStatus = artifactStatuses.find(status => status.id === 'open');
+            if (defaultStatus) {
+                return {
+                    "name": defaultStatus.name,
+                    "icon": defaultStatus.icon,
+                    "color": defaultStatus.color
+                };
+            }
+        }
+        return {
+            "name": "Open",
+            "icon": "🔓",
+            "color": "#10B981"
+        };
+    }
+    
     if (artifactStatuses && artifactStatuses.length > 0) {
         const statusInfo = artifactStatuses.find(status => status.id === statusId);
         console.log('Found statusInfo:', statusInfo);
@@ -669,7 +689,7 @@ function getStatusDisplayInfo(statusId) {
     }
     console.log('Returning fallback status info for:', statusId);
     return {
-        "name": statusId,
+        "name": statusId || "Unknown",
         "icon": "⚪",
         "color": "#6B7280"
     };
@@ -680,6 +700,13 @@ function openCreateModal() {
     editingArtifactId = null;
     document.getElementById('modalTitle').textContent = 'Create New Artifact';
     document.getElementById('artifactForm').reset();
+    
+    // Set default status to 'open' for new artifacts
+    const artifactStatusSelect = document.getElementById('artifactStatus');
+    if (artifactStatusSelect) {
+        artifactStatusSelect.value = 'open';
+    }
+    
     // Hide artifact ID display for new artifacts
     document.getElementById('artifactIdDisplay').style.display = 'none';
     document.getElementById('artifactModal').style.display = 'block';
@@ -943,7 +970,7 @@ document.getElementById('artifactForm').addEventListener('submit', async functio
         summary: document.getElementById('artifactSummary').value,
         description: document.getElementById('artifactDescription').value,
         category: document.getElementById('artifactCategory').value,
-        status: document.getElementById('artifactStatus').value
+        status: document.getElementById('artifactStatus').value || 'open'
     };
     
             try {
