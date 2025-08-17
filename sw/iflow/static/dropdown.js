@@ -195,7 +195,27 @@ class CustomDropdownManager {
         // Create the custom dropdown container
         const customDropdown = document.createElement('div');
         customDropdown.className = 'custom-dropdown';
-        customDropdown.style.cssText = CustomDropdownManager.CSS.DROPDOWN_CONTAINER;
+        
+        // Set width based on dropdown type - filters should maintain original width
+        let containerWidth = '100%';
+        if (type === 'type' || type === 'status') {
+            // Filter dropdowns - use original select width
+            const originalWidth = originalSelect.offsetWidth;
+            if (originalWidth > 0) {
+                containerWidth = originalWidth + 'px';
+            } else {
+                // Fallback width for filter dropdowns
+                containerWidth = '180px';
+            }
+        }
+        
+        customDropdown.style.cssText = CustomDropdownManager.CSS.DROPDOWN_CONTAINER.replace('width: 100%', `width: ${containerWidth}`);
+        
+        // Add additional styling for filter dropdowns
+        if (type === 'type' || type === 'status') {
+            customDropdown.style.minWidth = '150px';
+            customDropdown.style.maxWidth = '250px';
+        }
         
         // Create the dropdown button
         const dropdownButton = document.createElement('div');
