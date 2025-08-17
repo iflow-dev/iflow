@@ -57,7 +57,7 @@ class TileManager {
         const statusInfo = this.getStatusDisplayInfo(artifact.status);
         
         return `
-        <div class="artifact-card">
+        <div class="artifact-card" style="border: 2px solid ${typeInfo.color}">
             <div class="artifact-header">
                 <span class="artifact-type" style="border-color: ${typeInfo.color}; color: ${typeInfo.color}">
                     ${this.renderIcon(typeInfo.icon)} ${typeInfo.name}
@@ -70,15 +70,18 @@ class TileManager {
             <div class="artifact-content">
                 <div class="artifact-summary">${artifact.summary}</div>
                 <div class="artifact-description">${artifact.description || 'No description'}</div>
-                ${artifact.category ? `<div class="artifact-category"><a href="#" onclick="filterByCategory('${artifact.category}', true); return false;" class="category-link">${artifact.category}</a></div>` : ''}
-                <div class="artifact-meta">
-                    <span>Created: ${new Date(artifact.created_at).toLocaleDateString()}</span>
-                    <span>Updated: ${new Date(artifact.updated_at).toLocaleDateString()}</span>
+            </div>
+            <div class="artifact-bottom">
+                ${artifact.category ? `<div class="artifact-category-left"><a href="#" onclick="filterByCategory('${artifact.category}', true); return false;" class="category-link">${artifact.category}</a></div>` : '<div class="artifact-category-left"></div>'}
+                <div class="artifact-actions">
+                    <button class="btn btn-transparent" onclick="openEditModal('${artifact.artifact_id}')" title="Edit artifact">
+                        <ion-icon name="create-outline"></ion-icon>
+                    </button>
                 </div>
             </div>
-            <div class="artifact-actions">
-                <button class="btn btn-secondary" onclick="openEditModal('${artifact.artifact_id}')">Edit</button>
-                <button class="btn btn-danger" onclick="deleteArtifact('${artifact.artifact_id}')">Delete</button>
+            <div class="artifact-dates-line">
+                <div class="artifact-dates-left">Created: ${new Date(artifact.created_at).toLocaleDateString()}</div>
+                <div class="artifact-dates-right">Updated: ${new Date(artifact.updated_at).toLocaleDateString()}</div>
             </div>
         </div>
         `;
