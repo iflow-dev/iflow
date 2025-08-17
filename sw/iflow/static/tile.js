@@ -75,12 +75,14 @@ class TileManager {
                     <span>Updated: ${new Date(artifact.updated_at).toLocaleDateString()}</span>
                 </div>
             </div>
-            <div class="artifact-actions">
-                <button class="btn btn-transparent" onclick="openEditModal('${artifact.artifact_id}')" title="Edit artifact">
-                    <ion-icon name="create-outline"></ion-icon>
-                </button>
+            <div class="artifact-bottom">
+                ${artifact.category ? `<div class="artifact-category-left"><a href="#" onclick="filterByCategory('${artifact.category}', true); return false;" class="category-link">${artifact.category}</a></div>` : '<div class="artifact-category-left"></div>'}
+                <div class="artifact-actions">
+                    <button class="btn btn-transparent" onclick="openEditModal('${artifact.artifact_id}')" title="Edit artifact">
+                        <ion-icon name="create-outline"></ion-icon>
+                    </button>
+                </div>
             </div>
-            ${artifact.category ? `<div class="artifact-category-bottom"><a href="#" onclick="filterByCategory('${artifact.category}', true); return false;" class="category-link">${artifact.category}</a></div>` : ''}
         </div>
         `;
     }
