@@ -148,12 +148,14 @@ body {
 }
 
 .artifact-type {
-    background: #667eea;
-    color: white;
+    background: white;
+    color: #333;
     padding: 0.25rem 0.5rem;
     border-radius: 4px;
     font-size: 0.8rem;
     font-weight: 500;
+    border: 2px solid;
+    /* Border color will be set dynamically via JavaScript */
 }
 
 .artifact-id {
