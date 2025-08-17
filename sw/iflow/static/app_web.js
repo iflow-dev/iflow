@@ -6,6 +6,8 @@
 // Global state
 let currentArtifacts = [];
 let editingArtifactId = null;
+let projectConfig = null;
+let workItemTypes = [];
 
 // API base URL
 const API_BASE = '/api';
@@ -13,9 +15,100 @@ const API_BASE = '/api';
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, starting to load data...');
+    loadConfiguration();
     loadStats();
     loadArtifacts();
 });
+
+// Configuration Management
+async function loadConfiguration() {
+    try {
+        console.log('Loading project configuration...');
+        
+        // Load project info
+        const projectResponse = await fetch(`${API_BASE}/project-info`);
+        if (projectResponse.ok) {
+            projectConfig = await projectResponse.json();
+            console.log('Project config loaded:', projectConfig);
+            updateProjectHeader();
+        }
+        
+        // Load work item types
+        const typesResponse = await fetch(`${API_BASE}/work-item-types`);
+        if (typesResponse.ok) {
+            workItemTypes = await typesResponse.json();
+            console.log('Work item types loaded:', workItemTypes);
+            updateTypeFilterOptions();
+        }
+    } catch (error) {
+        console.error('Error loading configuration:', error);
+    }
+}
+
+function updateTypeFilterOptions() {
+    // Update the filter dropdown
+    const typeFilter = document.querySelector('.filter-select');
+    if (typeFilter && workItemTypes.length > 0) {
+        // Clear existing options
+        typeFilter.innerHTML = '<option value="">All Types</option>';
+        
+        // Add options for each work item type
+        workItemTypes.forEach(type => {
+            const option = document.createElement('option');
+            option.value = type.id;
+            option.textContent = `${type.icon} ${type.name}`;
+            option.style.color = type.color;
+            typeFilter.appendChild(option);
+        });
+    }
+    
+    // Update the form dropdown
+    const artifactTypeSelect = document.getElementById('artifactType');
+    if (artifactTypeSelect && workItemTypes.length > 0) {
+        // Clear existing options
+        artifactTypeSelect.innerHTML = '';
+        
+        // Add options for each work item type
+        workItemTypes.forEach(type => {
+            const option = document.createElement('option');
+            option.value = type.id;
+            option.textContent = `${type.icon} ${type.name}`;
+            option.style.color = type.color;
+            artifactTypeSelect.appendChild(option);
+        });
+    }
+}
+
+function updateProjectHeader() {
+    if (projectConfig) {
+        const header = document.querySelector('.header h1');
+        if (header) {
+            header.textContent = `${projectConfig.name} - ${projectConfig.description}`;
+        }
+    }
+}
+
+// Helper function to get type display information
+function getTypeDisplayInfo(typeId) {
+    if (workItemTypes && workItemTypes.length > 0) {
+        const typeInfo = workItemTypes.find(type => type.id === typeId);
+        if (typeInfo) {
+            return {
+                id: typeInfo.id,
+                name: typeInfo.name,
+                color: typeInfo.color,
+                icon: typeInfo.icon
+            };
+        }
+    }
+    // Fallback for unknown types
+    return {
+        id: typeId,
+        name: typeId.charAt(0).toUpperCase() + typeId.slice(1),
+        color: "#6B7280",
+        icon: "📄"
+    };
+}
 
 // Modal Management
 function openCreateModal() {
@@ -63,6 +156,15 @@ async function loadStats() {
 
 function displayStats(stats) {
     const statsBar = document.getElementById('stats-bar');
+    
+    let projectVersion = '';
+    if (projectConfig && projectConfig.version) {
+        projectVersion = `<div class="stat-item">
+            <div class="stat-number">v${projectConfig.version}</div>
+            <div class="stat-label">Version</div>
+        </div>`;
+    }
+    
     statsBar.innerHTML = `
         <div class="stat-item">
             <div class="stat-number">${stats.total_artifacts}</div>
@@ -80,6 +182,7 @@ function displayStats(stats) {
             <div class="stat-number">${stats.last_commit ? '✓' : '✗'}</div>
             <div class="stat-label">Git Status</div>
         </div>
+        ${projectVersion}
     `;
 }
 
@@ -112,10 +215,14 @@ function displayArtifacts(artifacts) {
         return;
     }
     
-    container.innerHTML = artifacts.map(artifact => `
+    container.innerHTML = artifacts.map(artifact => {
+        const typeInfo = getTypeDisplayInfo(artifact.type);
+        return `
         <div class="artifact-card">
             <div class="artifact-header">
-                <span class="artifact-type">${artifact.type}</span>
+                <span class="artifact-type" style="border-color: ${typeInfo.color}; color: ${typeInfo.color}">
+                    ${typeInfo.icon} ${typeInfo.name}
+                </span>
                 <span class="artifact-id">${artifact.artifact_id}</span>
             </div>
             <div class="artifact-content">
@@ -131,7 +238,7 @@ function displayArtifacts(artifacts) {
                 <button class="btn btn-danger" onclick="deleteArtifact('${artifact.artifact_id}')">Delete</button>
             </div>
         </div>
-    `).join('');
+    `}).join('');
 }
 
 // Search and Filter

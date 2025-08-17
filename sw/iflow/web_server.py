@@ -8,6 +8,7 @@ instead of using pywebview.
 from flask import Flask, render_template_string, request, jsonify
 from .core import Artifact, ArtifactType
 from .database import GitDatabase
+from .config import get_config
 import os
 
 # Create Flask app
@@ -66,6 +67,32 @@ def get_stats():
         return jsonify(stats)
     except Exception as e:
         print(f"Error getting stats: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/work-item-types')
+def get_work_item_types():
+    """Get available work item types from configuration."""
+    try:
+        config = get_config()
+        work_item_types = config.get_work_item_types()
+        return jsonify(work_item_types)
+    except Exception as e:
+        print(f"Error getting work item types: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/project-info')
+def get_project_info():
+    """Get project information from configuration."""
+    try:
+        config = get_config()
+        project_info = config.get_project_info()
+        return jsonify(project_info)
+    except Exception as e:
+        print(f"Error getting project info: {e}")
         import traceback
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
