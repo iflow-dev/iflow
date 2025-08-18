@@ -1,5 +1,9 @@
 from radish import given, when, then, step
 from controls import Title
+import logging
+
+# Set up logging
+log = logging.getLogger(__name__)
 
 @when("I create a new requirement")
 def i_create_a_new_requirement(step):
@@ -80,7 +84,7 @@ def i_see_new_artifact_in_list(step):
         # Look for any tile containing the summary text
         tile = Tile(summary_text)
         tile.locate(world.driver, timeout=10)
-        print(f"Found artifact with summary: {summary_text}")
+        log.debug(f"Found artifact with summary: {summary_text}")
     except Exception as e:
         raise AssertionError(f"Artifact with summary '{summary_text}' not found in the list: {e}")
 
@@ -144,7 +148,7 @@ def i_see_zero_search_results(step):
         artifact_cards = world.driver.find_elements(By.CSS_SELECTOR, ".artifact-card")
         if len(artifact_cards) > 0:
             raise AssertionError(f"Expected 0 search results, but found {len(artifact_cards)} artifacts")
-        print("Search returned 0 results as expected")
+        log.debug("Search returned 0 results as expected")
     except Exception as e:
         # If no elements found, that's what we expect
-        print("No artifact cards found - search returned 0 results")
+        log.debug("No artifact cards found - search returned 0 results")
