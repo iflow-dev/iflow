@@ -13,7 +13,8 @@ let currentFilterState = {
     type: '',
     status: '',
     category: '',
-    search: ''
+    search: '',
+    flagged: false
 };
 
 // Initialize the managers
@@ -275,6 +276,12 @@ function openModalWithConfig() {
         artifactStatusSelect.value = 'open';
     }
     
+    // Reset flag checkbox for new artifacts
+    const artifactFlaggedCheckbox = document.getElementById('artifactFlagged');
+    if (artifactFlaggedCheckbox) {
+        artifactFlaggedCheckbox.checked = false;
+    }
+    
     // Hide artifact ID display for new artifacts
     document.getElementById('artifactIdDisplay').style.display = 'none';
     document.getElementById('artifactModal').style.display = 'block';
@@ -290,6 +297,7 @@ function openEditModal(artifactId) {
         document.getElementById('artifactSummary').value = artifact.summary;
         document.getElementById('artifactDescription').value = artifact.description || '';
         document.getElementById('artifactCategory').value = artifact.category || '';
+        document.getElementById('artifactFlagged').checked = artifact.flagged || false;
         
         // Set values on custom dropdowns
         const artifactTypeSelect = document.getElementById('artifactType');
@@ -459,6 +467,11 @@ async function applyCombinedFilters() {
             );
         }
         
+        // Apply flag filter
+        if (currentFilterState.flagged) {
+            filtered = filtered.filter(artifact => artifact.flagged === true);
+        }
+        
         // Update DOM filter values to keep them in sync
         updateFilterDOMValues();
         
@@ -520,7 +533,8 @@ document.getElementById('artifactForm').addEventListener('submit', async functio
         summary: document.getElementById('artifactSummary').value,
         description: document.getElementById('artifactDescription').value,
         category: document.getElementById('artifactCategory').value,
-        status: document.getElementById('artifactStatus').value || 'open'
+        status: document.getElementById('artifactStatus').value || 'open',
+        flagged: document.getElementById('artifactFlagged').checked
     };
     
             try {
@@ -619,7 +633,8 @@ function refreshArtifacts() {
         type: '',
         status: '',
         category: '',
-        search: ''
+        search: '',
+        flagged: false
     };
     
     if (statisticsManager) {
@@ -675,3 +690,78 @@ function cleanupManagers() {
 
 // Page unload cleanup
 window.addEventListener('beforeunload', cleanupManagers);
+
+// Flag functionality
+async function toggleArtifactFlag(artifactId) {
+    try {
+        console.log(`Toggling flag for artifact ${artifactId}`);
+        
+        // Find the current artifact to get its current flag state
+        const artifact = currentArtifacts.find(a => a.artifact_id === artifactId);
+        if (!artifact) {
+            console.error(`Artifact ${artifactId} not found`);
+            return;
+        }
+        
+        const newFlagState = !artifact.flagged;
+        
+        // Update the artifact via API
+        const response = await fetch(`${API_BASE}/artifacts/${artifactId}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                flagged: newFlagState
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        // Update the local artifact state
+        artifact.flagged = newFlagState;
+        
+        // Refresh the display
+        if (tileManager) {
+            tileManager.refreshTiles();
+        }
+        
+        console.log(`Artifact ${artifactId} flag toggled to ${newFlagState}`);
+    } catch (error) {
+        console.error('Error toggling artifact flag:', error);
+        alert('Error toggling artifact flag: ' + error.message);
+    }
+}
+
+async function toggleFlagFilter() {
+    try {
+        // Toggle the flag filter state
+        currentFilterState.flagged = !currentFilterState.flagged;
+        
+        // Update the filter button appearance
+        const flagFilterBtn = document.getElementById('flagFilter');
+        if (flagFilterBtn) {
+            const icon = flagFilterBtn.querySelector('ion-icon');
+            if (currentFilterState.flagged) {
+                // Active filter - red flag
+                icon.name = 'flag';
+                flagFilterBtn.style.background = '#dc3545';
+                flagFilterBtn.style.color = 'white';
+            } else {
+                // Inactive filter - grey flag
+                icon.name = 'flag-outline';
+                flagFilterBtn.style.background = '#6c757d';
+                flagFilterBtn.style.color = 'white';
+            }
+        }
+        
+        // Apply the filter
+        await applyCombinedFilters();
+        
+        console.log(`Flag filter toggled to: ${currentFilterState.flagged}`);
+    } catch (error) {
+        console.error('Error toggling flag filter:', error);
+    }
+}
