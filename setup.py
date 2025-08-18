@@ -16,7 +16,7 @@ def read_readme():
 
 setup(
     name="iflow",
-    version="0.2.0",
+    version="0.3.0",
     description="A tool for managing project artifacts like requirements, tasks, test cases, and issues",
     long_description=read_readme(),
     long_description_content_type="text/markdown",
