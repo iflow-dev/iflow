@@ -8,6 +8,7 @@ instead of using pywebview.
 from flask import Flask, render_template_string, request, jsonify
 from .core import Artifact, ArtifactType
 from .database import GitDatabase
+from .version import get_version_info
 
 import os
 
@@ -127,9 +128,23 @@ def get_artifact_statuses():
 
 @app.route('/api/project-info')
 def get_project_info():
-    """Get project information from configuration."""
+    """Get project information from centralized version management."""
     try:
-        project_info = db.config.get("project", {})
+        # Get version from centralized version management
+        version_info = get_version_info()
+        
+        # Get other project info from database config (excluding version)
+        db_project_info = db.config.get("project", {})
+        
+        # Combine version info with database project info, prioritizing centralized version
+        project_info = {
+            "name": db_project_info.get("name", "iflow"),
+            "description": db_project_info.get("description", "Git-based artifact management system"),
+            "version": version_info["version"],
+            "full_version": version_info["full_version"],
+            "version_source": version_info["source"]
+        }
+        
         return jsonify(project_info)
     except Exception as e:
         print(f"Error getting project info: {e}")
@@ -215,6 +230,8 @@ def update_artifact(artifact_id):
             artifact.category = data['category']
         if 'status' in data:
             artifact.status = data['status']
+        if 'flagged' in data:
+            artifact.flagged = data['flagged']
         
         # Update timestamp
         artifact.update()
@@ -229,6 +246,40 @@ def update_artifact(artifact_id):
         return jsonify(result)
     except Exception as e:
         print(f"Error updating artifact {artifact_id}: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/artifacts/<artifact_id>', methods=['PATCH'])
+def patch_artifact(artifact_id):
+    """Partially update an artifact (for flag updates)."""
+    try:
+        print(f"Patching artifact: {artifact_id}")
+        artifact = db.get_artifact(artifact_id)
+        if not artifact:
+            print(f"Artifact not found: {artifact_id}")
+            return jsonify({'error': 'Artifact not found'}), 404
+        
+        data = request.get_json()
+        print(f"Patch data: {data}")
+        
+        # Update specific fields
+        if 'flagged' in data:
+            artifact.flagged = data['flagged']
+        
+        # Update timestamp
+        artifact.update()
+        
+        print(f"Artifact patched, saving to database...")
+        # Save to database
+        db.save_artifact(artifact)
+        print(f"Artifact saved successfully")
+        
+        result = artifact_to_dict(artifact)
+        print(f"Returning result: {result}")
+        return jsonify(result)
+    except Exception as e:
+        print(f"Error patching artifact {artifact_id}: {e}")
         import traceback
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
@@ -272,7 +323,8 @@ def artifact_to_dict(artifact):
         'status': artifact.status,
         'created_at': artifact.created_at.isoformat(),
         'updated_at': artifact.updated_at.isoformat(),
-        'metadata': artifact.metadata
+        'metadata': artifact.metadata,
+        'flagged': artifact.flagged
     }
 
 def get_html_template(title="iflow - Project Artifact Manager"):

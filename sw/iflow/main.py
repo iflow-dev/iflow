@@ -7,6 +7,7 @@ import sys
 import argparse
 from pathlib import Path
 from .app import IFlowApp
+from .version import get_version
 
 
 def main():
@@ -31,7 +32,7 @@ Examples:
     parser.add_argument(
         '--version', '-v',
         action='version',
-        version='iflow 0.2.0'
+        version=f'iflow {get_version()}'
     )
     
     args = parser.parse_args()

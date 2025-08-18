@@ -1,11 +1,12 @@
 """
-iflow - A tool for managing project artifacts like requirements, tasks, test cases, and issues.
+iflow - Project Artifact Manager
 
-iflow is a Python package that provides a web-based application using pywebview
-for managing project artifacts with git-based storage and YAML-like structure.
+A Git-based project artifact management system that stores requirements,
+tasks, test cases, and other project artifacts in a version-controlled
+repository.
 """
 
-__version__ = "0.2.0"
+__version__ = "0.4.0a1"
 __author__ = "iflow team"
 
 from .core import Artifact, ArtifactType

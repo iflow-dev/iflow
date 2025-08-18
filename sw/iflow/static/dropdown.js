@@ -100,11 +100,15 @@ class CustomDropdownManager {
     
     // Handle option selection
     handleOptionSelect(dropdownElement, optionElement) {
+        console.log('=== handleOptionSelect called ===');
+        console.log('dropdownElement:', dropdownElement);
+        console.log('optionElement:', optionElement);
+        
         const value = optionElement.getAttribute('data-value');
         const originalSelect = dropdownElement._originalSelect;
         
-        console.log('handleOptionSelect called with value:', value);
-        console.log('originalSelect:', originalSelect);
+        console.log('Selected value:', value);
+        console.log('Original select element:', originalSelect);
         
         if (originalSelect) {
             originalSelect.value = value;
@@ -113,13 +117,17 @@ class CustomDropdownManager {
             const event = new Event('change', { bubbles: true });
             originalSelect.dispatchEvent(event);
             console.log('Dispatched change event on originalSelect');
+        } else {
+            console.error('No original select element found!');
         }
         
         // Update the visual display
-        this.setCustomDropdownValue(dropdownElement, value);
+        const displayUpdated = this.setCustomDropdownValue(dropdownElement, value);
+        console.log('Display update result:', displayUpdated);
         
         // Close the dropdown
         this.closeAllDropdowns();
+        console.log('=== handleOptionSelect completed ===');
     }
 
     // Initialize dropdown data
@@ -787,22 +795,30 @@ class CustomDropdownManager {
             this.handleDropdownToggle(dropdownElement);
         });
         
-        // Handle option selection
-        const options = optionsContainer.querySelectorAll('.custom-dropdown-option');
-        options.forEach(option => {
-            option.addEventListener('click', (e) => {
-                e.stopPropagation();
+        // Use event delegation for option selection - this is more reliable
+        optionsContainer.addEventListener('click', (e) => {
+            e.stopPropagation();
+            
+            // Check if the clicked element is an option
+            const option = e.target.closest('.custom-dropdown-option');
+            if (option) {
                 this.handleOptionSelect(dropdownElement, option);
-            });
-            
-            // Hover effects
-            option.addEventListener('mouseenter', () => {
+            }
+        });
+        
+        // Add hover effects using event delegation
+        optionsContainer.addEventListener('mouseover', (e) => {
+            const option = e.target.closest('.custom-dropdown-option');
+            if (option) {
                 option.style.backgroundColor = '#f3f4f6';
-            });
-            
-            option.addEventListener('mouseleave', () => {
+            }
+        });
+        
+        optionsContainer.addEventListener('mouseout', (e) => {
+            const option = e.target.closest('.custom-dropdown-option');
+            if (option) {
                 option.style.backgroundColor = 'white';
-            });
+            }
         });
     }
 

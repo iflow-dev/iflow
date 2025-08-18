@@ -11,6 +11,7 @@ from typing import List, Optional, Dict, Any
 from pathlib import Path
 import git
 from .core import Artifact, ArtifactType
+from .version import get_version
 
 
 class GitDatabase:
@@ -418,7 +419,7 @@ class GitDatabase:
             "project": {
                 "name": "iflow",
                 "description": "Git-based artifact management system",
-                "version": "0.2.0"
+                "version": get_version()
             },
             "work_item_types": [
                 {
