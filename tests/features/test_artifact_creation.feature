@@ -6,6 +6,7 @@ Feature: Test Artifact Creation
 
   Scenario: Create New Artifact from Search View
     Given I go to home
+    # TODO: Then I see 1 artifact
     When I create a new requirement
     Then I see the artifact creation form
     When I set the type to "requirement"
@@ -13,6 +14,8 @@ Feature: Test Artifact Creation
     When I set the description to "This is a test requirement created during BDD test execution"
     When I set the status to "open"
     When I save the new artifact
+    # TODO: Then I see 2 artifacts
+    # TODO: replace step below
     Then I see the new artifact in the list
     Then I do not see the artifact creation form
     # Note: The artifact ID is saved in world for use in subsequent scenarios
