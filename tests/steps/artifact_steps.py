@@ -38,7 +38,7 @@ def i_am_logged_in_as_user(step):
 @step("I click the \"{button_text}\" button")
 def i_click_button(step, button_text):
     """Click a button with the specified text."""
-    world = step.context.world
+    from radish import world
     button = world.driver.find_element(By.XPATH, f"//button[contains(text(), '{button_text}')]")
     button.click()
 
