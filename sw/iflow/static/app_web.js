@@ -209,6 +209,12 @@ function openCreateModal() {
     document.getElementById('modalTitle').textContent = 'Create New Artifact';
     document.getElementById('artifactForm').reset();
     
+    // Set submit button text to "Create"
+    const submitButton = document.querySelector('#artifactForm button[type="submit"]');
+    if (submitButton) {
+        submitButton.textContent = 'Create';
+    }
+    
     // Debug: Log the current state
     console.log('openCreateModal: workItemTypes.length =', workItemTypes.length);
     console.log('openCreateModal: artifactStatuses.length =', artifactStatuses.length);
@@ -292,6 +298,12 @@ function openEditModal(artifactId) {
     const artifact = currentArtifacts.find(a => a.artifact_id === artifactId);
     if (artifact) {
         document.getElementById('modalTitle').textContent = 'Edit Artifact';
+        
+        // Set submit button text to "Save"
+        const submitButton = document.querySelector('#artifactForm button[type="submit"]');
+        if (submitButton) {
+            submitButton.textContent = 'Save';
+        }
         
         // Set values on form fields
         document.getElementById('artifactSummary').value = artifact.summary;
