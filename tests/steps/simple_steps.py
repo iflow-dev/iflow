@@ -31,8 +31,18 @@ def i_am_on_main_page(step):
 
 @given("I am on the search page")
 def i_am_on_search_page(step):
-    """Check that we are on the search page (expects previous step to have navigated)."""
+    """Navigate to the search page and verify we are there."""
     from radish import world
+    
+    # Navigate to the search page (same as home for now, since search is on the main page)
+    base_url = world.base_url
+    world.driver.get(base_url)
+    
+    # Wait for the page to load
+    wait = WebDriverWait(world.driver, 10)
+    wait.until(EC.presence_of_element_located((By.CLASS_NAME, "artifacts-container")))
+    
+    # Verify we're on the iflow page
     title = Title("iflow")
     title.locate(world.driver)
 

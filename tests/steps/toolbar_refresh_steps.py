@@ -13,8 +13,8 @@ def i_click_refresh_button_in_toolbar(step):
     """Click the refresh button in the toolbar."""
     from radish import world
     
-    # Find the refresh button by its icon
-    refresh_button = Button("refresh button", "//button[.//ion-icon[@name='refresh-outline']]")
+    # Use the enhanced Button class with icon support
+    refresh_button = Button(icon="refresh-outline", context="toolbar")
     refresh_button.click(world.driver)
     
     # Wait a moment for the refresh to complete
