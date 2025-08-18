@@ -24,6 +24,7 @@ setup(
     author="Claudio Klingler",
     packages=find_packages(where="sw"),
     package_dir={"": "sw"},
+    include_package_data=True,
     install_requires=[
         "flask>=2.0.0",
         "pyyaml>=5.0",
