@@ -24,6 +24,10 @@ setup(
     author="iflow team",
     packages=find_packages(where="sw"),
     package_dir={"": "sw"},
+    package_data={
+        "iflow": ["static/*"],
+    },
+    include_package_data=True,
     install_requires=[
         "flask",
         "gitpython",
