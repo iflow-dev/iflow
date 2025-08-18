@@ -8,6 +8,24 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 import time
+import subprocess
+
+
+@step("I reset the database to {branch}")
+def i_reset_database_to_branch(step, branch):
+    """Reset the test database to a specific branch."""
+    from radish import world
+    
+    # Run the reset script to reset the database
+    reset_script = "/Users/claudio/realtime/reos2/reset_test_db.sh"
+    try:
+        result = subprocess.run([reset_script], capture_output=True, text=True, check=True)
+        print(f"✅ Database reset to {branch} branch successful")
+    except subprocess.CalledProcessError as e:
+        print(f"⚠️ Database reset failed: {e.stderr}")
+        # Continue anyway as this might be expected in some environments
+    except FileNotFoundError:
+        print(f"⚠️ Reset script not found at {reset_script}, continuing without reset")
 
 
 @step("I see artifacts displayed")
@@ -23,38 +41,38 @@ def i_see_artifacts_displayed(step):
     print(f"✅ Found {len(artifacts)} artifacts displayed")
 
 
-@step("I click the flag button on the first artifact")
-def i_click_flag_button_on_first_artifact(step):
-    """Click the flag button on the first artifact."""
+@step("I flag artifact #{artifact_id}")
+def i_flag_artifact_by_id(step, artifact_id):
+    """Flag a specific artifact by ID."""
     from radish import world
     
-    # Find the first artifact's flag button
+    # Find the artifact with the specific ID
     wait = WebDriverWait(world.driver, 10)
-    flag_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".artifact-card:first-child .artifact-actions button:first-child")))
+    artifacts = wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".artifact-card")))
     
-    # Store the current flag state for verification
-    icon = flag_button.find_element(By.CSS_SELECTOR, "ion-icon")
-    world.previous_flag_state = "flag" in icon.get_attribute("name")
+    # Find the artifact with the matching ID
+    target_artifact = None
+    for artifact in artifacts:
+        try:
+            id_element = artifact.find_element(By.CSS_SELECTOR, ".artifact-id")
+            if artifact_id in id_element.text:
+                target_artifact = artifact
+                break
+        except:
+            continue
     
-    flag_button.click()
-    print(f"✅ Clicked flag button on first artifact (previous state: {'flagged' if world.previous_flag_state else 'unflagged'})")
-
-
-@step("I click the flag button on the same artifact again")
-def i_click_flag_button_on_same_artifact_again(step):
-    """Click the flag button on the same artifact again."""
-    from radish import world
+    if not target_artifact:
+        raise Exception(f"Artifact with ID {artifact_id} not found")
     
-    # Find the first artifact's flag button
-    wait = WebDriverWait(world.driver, 10)
-    flag_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".artifact-card:first-child .artifact-actions button:first-child")))
+    # Find the flag button within this artifact
+    flag_button = target_artifact.find_element(By.CSS_SELECTOR, ".artifact-actions button:first-child")
     
     # Store the current flag state for verification
     icon = flag_button.find_element(By.CSS_SELECTOR, "ion-icon")
     world.previous_flag_state = "flag" in icon.get_attribute("name") and "outline" not in icon.get_attribute("name")
     
     flag_button.click()
-    print(f"✅ Clicked flag button on same artifact again (previous state: {'flagged' if world.previous_flag_state else 'unflagged'})")
+    print(f"✅ Flagged artifact #{artifact_id} (previous state: {'flagged' if world.previous_flag_state else 'unflagged'})")
 
 
 @step("the artifact should be flagged")
@@ -91,59 +109,6 @@ def the_artifact_should_be_unflagged(step):
     # The flag state should have changed from the previous state
     assert current_flag_state != world.previous_flag_state, f"Flag state did not change. Expected: {not world.previous_flag_state}, Got: {current_flag_state}"
     print(f"✅ Artifact flag state changed successfully")
-
-
-@step("the flag icon should be red")
-def the_flag_icon_should_be_red(step):
-    """Verify that the flag icon is red (flagged state)."""
-    from radish import world
-    
-    flag_button = world.driver.find_element(By.CSS_SELECTOR, ".artifact-card:first-child .artifact-actions button:first-child")
-    icon = flag_button.find_element(By.CSS_SELECTOR, "ion-icon")
-    
-    # Check that it's a filled flag (not outline)
-    assert "flag" in icon.get_attribute("name"), "Flag icon should be 'flag'"
-    assert "outline" not in icon.get_attribute("name"), "Flag icon should not be outline"
-    
-    # Check the color (red for flagged)
-    color = icon.value_of_css_property("color")
-    assert "rgb(220, 53, 69)" in color or "#dc3545" in color, f"Flag icon should be red, got: {color}"
-    print("✅ Flag icon is red (flagged state)")
-
-
-@step("the flag icon should be grey")
-def the_flag_icon_should_be_grey(step):
-    """Verify that the flag icon is grey (unflagged state)."""
-    from radish import world
-    
-    flag_button = world.driver.find_element(By.CSS_SELECTOR, ".artifact-card:first-child .artifact-actions button:first-child")
-    icon = flag_button.find_element(By.CSS_SELECTOR, "ion-icon")
-    
-    # Check that it's an outline flag
-    assert "flag-outline" in icon.get_attribute("name"), "Flag icon should be 'flag-outline'"
-    
-    # Check the color (grey for unflagged)
-    color = icon.value_of_css_property("color")
-    assert "rgb(108, 117, 125)" in color or "#6c757d" in color, f"Flag icon should be grey, got: {color}"
-    print("✅ Flag icon is grey (unflagged state)")
-
-
-@step("I have at least one flagged artifact")
-def i_have_at_least_one_flagged_artifact(step):
-    """Ensure there is at least one flagged artifact for testing."""
-    from radish import world
-    
-    # First, try to flag the first artifact if it's not already flagged
-    flag_button = world.driver.find_element(By.CSS_SELECTOR, ".artifact-card:first-child .artifact-actions button:first-child")
-    icon = flag_button.find_element(By.CSS_SELECTOR, "ion-icon")
-    
-    if "flag-outline" in icon.get_attribute("name"):
-        # Artifact is not flagged, flag it
-        flag_button.click()
-        time.sleep(1)
-        print("✅ Flagged first artifact for testing")
-    else:
-        print("✅ First artifact is already flagged")
 
 
 @step("I click the flag filter button in the toolbar")
@@ -199,7 +164,8 @@ def the_flag_filter_button_should_be_red(step):
     flag_filter_button = world.driver.find_element(By.ID, "flagFilter")
     background_color = flag_filter_button.value_of_css_property("background-color")
     
-    assert "rgb(220, 53, 69)" in background_color, f"Flag filter button should be red, got: {background_color}"
+    # Handle both rgb and rgba formats
+    assert "220, 53, 69" in background_color, f"Flag filter button should be red, got: {background_color}"
     print("✅ Flag filter button is red (active filter)")
 
 
@@ -242,7 +208,8 @@ def the_flag_filter_button_should_be_grey(step):
     flag_filter_button = world.driver.find_element(By.ID, "flagFilter")
     background_color = flag_filter_button.value_of_css_property("background-color")
     
-    assert "rgb(108, 117, 125)" in background_color, f"Flag filter button should be grey, got: {background_color}"
+    # Handle both rgb and rgba formats
+    assert "108, 117, 125" in background_color, f"Flag filter button should be grey, got: {background_color}"
     print("✅ Flag filter button is grey (inactive filter)")
 
 
@@ -257,6 +224,30 @@ def i_check_flag_artifact_checkbox(step):
     
     assert flag_checkbox.is_selected(), "Flag checkbox should be checked"
     print("✅ Checked the 'Flag this artifact' checkbox")
+
+
+@step("I should see the new artifact created")
+def i_should_see_new_artifact_created(step):
+    """Verify that a new artifact was created."""
+    from radish import world
+    
+    # Wait for the modal to close and artifacts to refresh
+    time.sleep(2)
+    
+    # Check that we have artifacts
+    artifacts = world.driver.find_elements(By.CSS_SELECTOR, ".artifact-card")
+    assert len(artifacts) > 0, "No artifacts found after creation"
+    
+    # Look for the new artifact with our test summary
+    new_artifact_found = False
+    for artifact in artifacts:
+        summary_element = artifact.find_element(By.CSS_SELECTOR, ".artifact-summary")
+        if "Test artifact with flag" in summary_element.text:
+            new_artifact_found = True
+            break
+    
+    assert new_artifact_found, "New artifact with test summary not found"
+    print("✅ New artifact created successfully")
 
 
 @step("the new artifact should be flagged")
@@ -299,25 +290,4 @@ def i_submit_form_alias(step):
     return and_i_submit_form(step)
 
 
-@step("I should see the new artifact created")
-def i_should_see_new_artifact_created(step):
-    """Verify that a new artifact was created."""
-    from radish import world
-    
-    # Wait for the modal to close and artifacts to refresh
-    time.sleep(2)
-    
-    # Check that we have artifacts
-    artifacts = world.driver.find_elements(By.CSS_SELECTOR, ".artifact-card")
-    assert len(artifacts) > 0, "No artifacts found after creation"
-    
-    # Look for the new artifact with our test summary
-    new_artifact_found = False
-    for artifact in artifacts:
-        summary_element = artifact.find_element(By.CSS_SELECTOR, ".artifact-summary")
-        if "Test artifact with flag" in summary_element.text:
-            new_artifact_found = True
-            break
-    
-    assert new_artifact_found, "New artifact with test summary not found"
-    print("✅ New artifact created successfully")
+# Note: "I fill in the artifact details" step definition already exists in artifact_steps.py

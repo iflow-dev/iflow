@@ -46,9 +46,12 @@ def i_click_button(step, button_text):
 def i_fill_in_artifact_details(step):
     """Fill in the artifact form with the data table."""
     from radish import world
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
     
     # Wait for modal to appear
-    world.wait.until(EC.visibility_of_element_located((By.ID, "artifactModal")))
+    wait = WebDriverWait(world.driver, 10)
+    wait.until(EC.visibility_of_element_located((By.ID, "artifactModal")))
     
     # Get the data table from the step
     data = step.table
