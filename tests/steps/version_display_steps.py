@@ -8,6 +8,7 @@ from selenium.webdriver.support import expected_conditions as EC
 def i_see_version_in_header(step):
     """Verify that version information is displayed in the header."""
     from radish import world
+    import time
     
     try:
         # Wait for the header version element to be present
@@ -15,8 +16,18 @@ def i_see_version_in_header(step):
             EC.presence_of_element_located((By.ID, "header-version"))
         )
         
+        # Wait for the version text to be populated (up to 10 seconds)
+        max_wait = 10
+        start_time = time.time()
+        version_text = ""
+        
+        while time.time() - start_time < max_wait:
+            version_text = header_version.text.strip()
+            if version_text:
+                break
+            time.sleep(0.5)
+        
         # Check that the version text is not empty
-        version_text = header_version.text.strip()
         assert version_text, "Version information should be displayed in header"
         assert version_text.startswith('v'), f"Version should start with 'v', got: {version_text}"
         
