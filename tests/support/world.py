@@ -62,19 +62,14 @@ def before_all(*args, **kwargs):
     
     # Set base URL for the application
     import os
-    base_url = os.getenv('IFLOW_BASE_URL', 'http://localhost:8081')
+    base_url = os.getenv('IFLOW_BASE_URL')
+    if not base_url:
+        raise ValueError("IFLOW_BASE_URL environment variable must be set")
     print(f"Testing against: {base_url}")
     
-    # Store in context if available
-    if args and len(args) > 0:
-        context = args[0]
-        if hasattr(context, '__dict__'):
-            context.base_url = base_url
-            print(f"Base URL set in context: {context.base_url}")
-        else:
-            print("Context is not a proper object, cannot set base_url")
-    else:
-        print("No context available in before_all")
+    # Store base URL directly in world object for easy access
+    world.base_url = base_url
+    print(f"Base URL set in world: {world.base_url}")
 
 @after.all
 def after_all(*args, **kwargs):

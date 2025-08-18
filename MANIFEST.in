@@ -2,3 +2,4 @@ include sw/iflow/static/*
 include sw/iflow/static/*/*
 recursive-include sw/iflow/static *
 
+

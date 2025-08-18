@@ -206,6 +206,49 @@ function openCreateModal() {
     document.getElementById('modalTitle').textContent = 'Create New Artifact';
     document.getElementById('artifactForm').reset();
     
+    // Debug: Log the current state
+    console.log('openCreateModal: workItemTypes.length =', workItemTypes.length);
+    console.log('openCreateModal: artifactStatuses.length =', artifactStatuses.length);
+    
+    // Check if configuration is loaded
+    if (workItemTypes.length === 0 || artifactStatuses.length === 0) {
+        console.log('Configuration not loaded yet, waiting for it...');
+        // Wait for configuration to be loaded using polling
+        const checkConfig = () => {
+            if (workItemTypes.length > 0 && artifactStatuses.length > 0) {
+                console.log('Configuration loaded, now opening modal...');
+                openModalWithConfig();
+            } else {
+                console.log('Still waiting for configuration...');
+                setTimeout(checkConfig, 100);
+            }
+        };
+        checkConfig();
+        return; // Exit early, modal will be opened by checkConfig
+    }
+    
+    // Configuration is already loaded, open modal immediately
+    openModalWithConfig();
+}
+
+function openModalWithConfig() {
+    console.log('Opening modal with configuration loaded');
+    
+    // Ensure dropdown options are populated before opening modal
+    if (workItemTypes.length > 0) {
+        console.log('Populating type dropdown options...');
+        updateTypeFilterOptions();
+    } else {
+        console.error('Failed to load workItemTypes');
+    }
+    
+    if (artifactStatuses.length > 0) {
+        console.log('Populating status dropdown options...');
+        updateStatusFormOptions();
+    } else {
+        console.error('Failed to load artifactStatuses');
+    }
+    
     // Set default status to 'open' for new artifacts
     const artifactStatusSelect = document.getElementById('artifactStatus');
     if (artifactStatusSelect) {

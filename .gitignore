@@ -191,3 +191,6 @@ yarn-error.log*
 # Compiled CSS/JS
 *.css.map
 *.js.map
+.iflow-demo/
+.iflow-test/
+.iflow/

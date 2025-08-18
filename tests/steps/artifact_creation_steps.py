@@ -23,6 +23,14 @@ def i_see_artifact_creation_form(step):
     if not hasattr(world, 'editor') or not world.editor.is_open():
         raise AssertionError("Artifact creation form is not displayed")
 
+@step(r"I set the type to {artifact_type:QuotedString}")
+def i_set_type_to(step, artifact_type):
+    """Set the type field to the specified value."""
+    from radish import world
+    
+    # Use the Editor control to set the type
+    world.editor.set_type(artifact_type)
+
 @step(r"I set the summary to {summary:QuotedString}")
 def i_set_summary_to(step, summary):
     """Set the summary field to the specified value."""
@@ -110,12 +118,14 @@ def i_search_for_artifacts_with(step, search_text):
     from radish import world
     
     # Find the search input field and enter the search text
-    search_input = world.driver.find_element_by_id("search-input")
+    from selenium.webdriver.common.keys import Keys
+    from selenium.webdriver.common.by import By
+    
+    search_input = world.driver.find_element(By.ID, "search-input")
     search_input.clear()
     search_input.send_keys(search_text)
     
     # Press Enter to trigger the search
-    from selenium.webdriver.common.keys import Keys
     search_input.send_keys(Keys.RETURN)
 
 @step("I see 0 search results")
@@ -130,7 +140,8 @@ def i_see_zero_search_results(step):
     # Look for any artifact cards in the results
     try:
         # Check if there are any artifact cards visible
-        artifact_cards = world.driver.find_elements_by_css_selector(".artifact-card")
+        from selenium.webdriver.common.by import By
+        artifact_cards = world.driver.find_elements(By.CSS_SELECTOR, ".artifact-card")
         if len(artifact_cards) > 0:
             raise AssertionError(f"Expected 0 search results, but found {len(artifact_cards)} artifacts")
         print("Search returned 0 results as expected")

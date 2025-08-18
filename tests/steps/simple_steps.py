@@ -10,7 +10,7 @@ from controls import Title
 def i_go_to_home(step):
     """Navigate to the home page (base URL)."""
     from radish import world
-    base_url = getattr(step.context, 'base_url', 'http://localhost:8081')
+    base_url = world.base_url
     world.driver.get(base_url)
     
     # check the driver url after navigation (allow for redirects)

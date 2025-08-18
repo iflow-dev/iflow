@@ -15,7 +15,7 @@
     
     <div class="container">
         <div class="toolbar">
-            <button class="btn" onclick="openCreateModal()">+ New Artifact</button>
+            <button class="btn" onclick="openCreateModal().catch(console.error)">Create</button>
             <input type="text" id="search-input" class="search-box" placeholder="Search artifacts...">
             <select class="filter-select" id="typeFilter" onchange="filterByType(this.value)">
                 <option value="">All Types</option>
@@ -74,7 +74,7 @@
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-                    <button type="submit" class="btn">Save Artifact</button>
+                    <button type="submit" class="btn">Create</button>
                 </div>
             </form>
         </div>

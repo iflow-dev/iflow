@@ -75,6 +75,11 @@ class Editor(ControlBase):
         
         # Wait for modal to be visible using locate()
         self.locate(self.driver)
+        
+        # Wait for JavaScript to populate dropdown options
+        import time
+        time.sleep(3)
+        
         return self
     
     def close(self):
@@ -291,14 +296,134 @@ class InputField(ControlBase):
         # Handle different element types
         tag_name = element.tag_name.lower()
         if tag_name == 'select':
-            # For select elements, use select_by_value
-            from selenium.webdriver.support.ui import Select
-            select = Select(element)
-            select.select_by_value(value)
+            # Check if this is a custom dropdown (div-based) or standard select
+            try:
+                # Look for custom dropdown structure
+                custom_dropdown = element.find_element(By.XPATH, "..//div[contains(@class, 'custom-dropdown')]")
+                if custom_dropdown:
+                    print(f"Found custom dropdown, using custom dropdown method for '{value}'")
+                    return self._set_custom_dropdown_value(driver, custom_dropdown, value)
+            except:
+                pass
+            
+            # Fall back to standard select handling
+            return self._set_standard_select_value(driver, element, value)
         else:
             # For input/textarea elements, clear and send keys
             element.clear()
             element.send_keys(value)
+        
+        return element
+    
+    def _set_custom_dropdown_value(self, driver, dropdown_element, value):
+        """Set value for custom dropdown (div-based)."""
+        from selenium.webdriver.common.by import By
+        import time
+        
+        try:
+            # Step 1: Click on the dropdown button to open it
+            dropdown_button = dropdown_element.find_element(By.CLASS_NAME, "custom-dropdown-button")
+            dropdown_button.click()
+            print(f"Clicked dropdown button to open options")
+            
+            # Step 2: Wait 0.5 seconds for options to appear
+            time.sleep(0.5)
+            print(f"Waited 0.5 seconds for dropdown options")
+            
+            # Step 3: Find and click the specific option
+            options_container = dropdown_element.find_element(By.CLASS_NAME, "custom-dropdown-options")
+            option = options_container.find_element(By.CSS_SELECTOR, f'[data-value="{value}"]')
+            option.click()
+            print(f"Successfully selected '{value}' from custom dropdown")
+            
+            # Step 4: Wait for the dropdown to close and value to be set
+            time.sleep(0.5)
+            
+            # Step 5: Verify the value was set and dropdown is closed
+            try:
+                selected_text = dropdown_element.find_element(By.CLASS_NAME, "custom-dropdown-selected").text
+                print(f"Dropdown now shows: '{selected_text}'")
+                
+                # Check if dropdown options are still visible (dropdown should be closed)
+                try:
+                    options_container = dropdown_element.find_element(By.CLASS_NAME, "custom-dropdown-options")
+                    if options_container.is_displayed():
+                        print("Dropdown is still open, clicking outside to close it...")
+                        # Click on the dropdown button again to close it
+                        dropdown_button.click()
+                        time.sleep(0.2)
+                except:
+                    print("Dropdown is properly closed")
+                    
+            except Exception as e:
+                print(f"Could not verify selected text: {e}")
+            
+            return dropdown_element
+            
+        except Exception as e:
+            print(f"Custom dropdown method failed: {e}")
+            raise Exception(f"Failed to select '{value}' from custom dropdown: {e}")
+    
+    def _set_standard_select_value(self, driver, element, value):
+        """Set value for standard HTML select element."""
+        import time
+        from selenium.webdriver.common.by import By
+        
+        # Wait for dropdown options to be populated
+        max_wait = 10  # Wait up to 10 seconds
+        wait_time = 0
+        while wait_time < max_wait:
+            try:
+                # Check if there are any options with values (not just the default "Select Type" option)
+                options = element.find_elements(By.CSS_SELECTOR, 'option[value]')
+                if len(options) > 1:  # More than just the default option
+                    print(f"Dropdown options populated after {wait_time}s, found {len(options)} options")
+                    break
+                time.sleep(0.5)
+                wait_time += 0.5
+            except Exception as e:
+                print(f"Error checking dropdown options: {e}")
+                time.sleep(0.5)
+                wait_time += 0.5
+        
+        if wait_time >= max_wait:
+            print("Warning: Dropdown options not populated after waiting")
+        
+        # Now try to select the value using multiple methods
+        success = False
+        
+        # Method 1: Try Select class
+        if not success:
+            try:
+                from selenium.webdriver.support.ui import Select
+                select = Select(element)
+                select.select_by_value(value)
+                print(f"Successfully selected '{value}' using Select class")
+                success = True
+            except Exception as e:
+                print(f"Select class method failed: {e}")
+        
+        # Method 2: Try JavaScript
+        if not success:
+            try:
+                driver.execute_script(f"arguments[0].value = '{value}';", element)
+                print(f"Successfully selected '{value}' using JavaScript")
+                success = True
+            except Exception as e:
+                print(f"JavaScript method failed: {e}")
+        
+        # Method 3: Try clicking the option directly
+        if not success:
+            try:
+                option = element.find_element(By.CSS_SELECTOR, f'option[value="{value}"]')
+                option.click()
+                print(f"Successfully selected '{value}' using click method")
+                success = True
+            except Exception as e:
+                print(f"Click method failed: {e}")
+        
+        if not success:
+            raise Exception(f"All methods failed to select '{value}' from dropdown")
         
         return element
     
