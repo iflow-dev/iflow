@@ -1,11 +1,12 @@
 # iflow Environment Setup
 
 ## Overview
-The iflow project now has three separate environments with proper isolation:
+The iflow project now has four separate environments with proper isolation:
 
 1. **Development Environment** - Runs from source code
 2. **QA Environment** - Runs from installed package in dedicated virtual environment
 3. **Production Environment** - Runs from installed package in dedicated virtual environment
+4. **Integration Environment** - Runs from installed package for testing multiple PRs together
 
 ## Environment Details
 
@@ -66,6 +67,27 @@ source venv/bin/activate
 python -m iflow.web_server --port 9000 --database /opt/iflow/prod/.iflow-demo --host 0.0.0.0
 ```
 
+### 4. Integration Environment
+- **Working Directory**: `/Users/claudio/realtime/reos2/environments/integration/`
+- **Port**: 8082
+- **Database**: `.iflow-test` (cloned from GitHub repository)
+- **Python Environment**: Dedicated virtual environment at `environments/integration/venv/`
+- **Code Source**: Installed iflow package (`pip install .`)
+- **Purpose**: Testing multiple pull requests together before merging to main
+
+**Start Command**:
+```bash
+cd environments/integration
+./start_integration.sh
+```
+
+**Manual Start**:
+```bash
+cd environments/integration
+source venv/bin/activate
+python -m iflow.web_server --port 8082 --database .iflow-test --host 0.0.0.0 --title "iflow - Integration Environment"
+```
+
 ## Environment Isolation Benefits
 
 1. **Code Isolation**: Changes to source code in development don't affect QA/Production
@@ -107,6 +129,7 @@ These scripts:
 - ✅ Development Environment: Running on port 8080
 - ✅ QA Environment: Running on port 8081
 - ✅ Production Environment: Running on port 9000
+- ✅ Integration Environment: Created and ready for use on port 8082
 - ✅ All environments serving web interface correctly
 - ✅ Static files properly included in installed packages
 - ✅ Environment isolation working as intended
