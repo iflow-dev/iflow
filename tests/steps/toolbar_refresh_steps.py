@@ -13,12 +13,9 @@ def i_click_refresh_button_in_toolbar(step):
     """Click the refresh button in the toolbar."""
     from radish import world
     
-    # Find the refresh button by its icon using XPath directly
-    refresh_button = world.driver.find_element(
-        By.XPATH, 
-        "//button[.//ion-icon[@name='refresh-outline']]"
-    )
-    refresh_button.click()
+    # Use the enhanced Button class with icon support
+    refresh_button = Button(icon="refresh-outline", context="toolbar")
+    refresh_button.click(world.driver)
     
     # Wait a moment for the refresh to complete
     import time
