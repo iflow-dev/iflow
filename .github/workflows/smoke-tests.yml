@@ -2,9 +2,9 @@ name: Smoke Tests
 
 on:
   pull_request:
-    branches: [ master, main ]
+    branches: [ master, main, branches/testing ]
   push:
-    branches: [ master, main ]
+    branches: [ master, main, branches/testing ]
 
 jobs:
   smoke-tests:
@@ -49,32 +49,15 @@ jobs:
         
     - name: Set up test database
       run: |
-        # Create test database directory
-        mkdir -p .iflow-test
+        # Checkout the test database from a predefined branch
+        git clone https://github.com/iflow-dev/iflow-test-db.git .iflow-test
         cd .iflow-test
-        git init
         
-        # Create base artifact for testing
-        mkdir -p artifacts
-        cat > artifacts/00001.yaml << 'EOF'
-        artifact_id: "00001"
-        type: "requirement"
-        summary: "Test requirement for filter functionality"
-        description: "This is a test requirement to verify that the filter combination system works properly in the test environment."
-        category: "testing.filter"
-        status: "open"
-        created_at: "2025-08-17T10:00:00Z"
-        updated_at: "2025-08-17T10:00:00Z"
-        flagged: false
-        metadata: {}
-        EOF
-        
-        # Commit the base artifact
-        git add .
-        git config user.name "GitHub Actions"
-        git config user.email "actions@github.com"
-        git commit -m "Add base test artifact"
-        git tag base
+        # Verify the test database has the required artifacts
+        if [ ! -f "artifacts/00001.yaml" ]; then
+          echo "❌ Test database missing required artifact 00001.yaml"
+          exit 1
+        fi
         
         echo "✅ Test database setup complete"
         
