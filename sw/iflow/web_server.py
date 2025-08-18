@@ -8,6 +8,7 @@ instead of using pywebview.
 from flask import Flask, render_template_string, request, jsonify
 from .core import Artifact, ArtifactType
 from .database import GitDatabase
+from .version import get_version_info
 
 import os
 
@@ -127,9 +128,23 @@ def get_artifact_statuses():
 
 @app.route('/api/project-info')
 def get_project_info():
-    """Get project information from configuration."""
+    """Get project information from centralized version management."""
     try:
-        project_info = db.config.get("project", {})
+        # Get version from centralized version management
+        version_info = get_version_info()
+        
+        # Get other project info from database config (excluding version)
+        db_project_info = db.config.get("project", {})
+        
+        # Combine version info with database project info, prioritizing centralized version
+        project_info = {
+            "name": db_project_info.get("name", "iflow"),
+            "description": db_project_info.get("description", "Git-based artifact management system"),
+            "version": version_info["version"],
+            "full_version": version_info["full_version"],
+            "version_source": version_info["source"]
+        }
+        
         return jsonify(project_info)
     except Exception as e:
         print(f"Error getting project info: {e}")

@@ -1,8 +1,8 @@
 """
-Configuration management for iflow project.
+Configuration management for iflow.
 
-Handles reading and managing project configuration from config.yaml,
-including work item types, repository settings, and UI preferences.
+This module provides configuration management for the iflow application,
+including project settings, artifact types, and UI configuration.
 """
 
 import os
@@ -10,6 +10,7 @@ import yaml
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 from .core import ArtifactType
+from .version import get_version
 
 
 class ProjectConfig:
@@ -44,7 +45,7 @@ class ProjectConfig:
             "project": {
                 "name": "iflow",
                 "description": "Git-based artifact management system",
-                "version": "0.3.0"
+                "version": get_version()
             },
             "work_item_types": [
                 {
