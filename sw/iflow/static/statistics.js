@@ -46,13 +46,8 @@ class StatisticsManager {
             return;
         }
 
-        let projectVersion = '';
-        if (this.projectConfig && this.projectConfig.version) {
-            projectVersion = `<div class="stat-item">
-                <div class="stat-number">v${this.projectConfig.version}</div>
-                <div class="stat-label">Version</div>
-            </div>`;
-        }
+        // Display version in header instead of stats bar
+        this.displayVersionInHeader();
         
         // Format last tag display
         let lastTagDisplay = '';
@@ -91,7 +86,6 @@ class StatisticsManager {
                 <div class="stat-number">${stats.last_commit ? '✓' : '✗'}</div>
                 <div class="stat-label">Git Status</div>
             </div>
-            ${projectVersion}
         `;
     }
 
@@ -122,6 +116,14 @@ class StatisticsManager {
 
     getLastCommit() {
         return this.currentStats ? this.currentStats.last_commit : null;
+    }
+
+    displayVersionInHeader() {
+        const headerVersionElement = document.getElementById('header-version');
+        if (headerVersionElement && this.projectConfig && this.projectConfig.version) {
+            const versionText = `v${this.projectConfig.version}`;
+            headerVersionElement.textContent = versionText;
+        }
     }
 
     cleanup() {

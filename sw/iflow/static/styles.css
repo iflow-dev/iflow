@@ -24,6 +24,12 @@ body {
     font-weight: 300;
 }
 
+.header-version {
+    font-size: 0.8rem;
+    opacity: 0.8;
+    margin-top: 0.25rem;
+}
+
 .container {
     max-width: 1400px;
     margin: 0 auto;
