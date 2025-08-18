@@ -1,0 +1,118 @@
+name: Smoke Tests
+
+on:
+  pull_request:
+    branches: [ master, main ]
+  push:
+    branches: [ master, main ]
+
+jobs:
+  smoke-tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout iflow repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y git wget unzip
+        
+    - name: Install Chrome and ChromeDriver
+      run: |
+        # Install Chrome
+        wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+        echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+        sudo apt-get update
+        sudo apt-get install -y google-chrome-stable
+        
+        # Install ChromeDriver
+        CHROME_VERSION=$(google-chrome --version | cut -d ' ' -f 3 | cut -d '.' -f 1)
+        CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_VERSION")
+        wget -O /tmp/chromedriver.zip "https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip"
+        unzip /tmp/chromedriver.zip -d /usr/local/bin/
+        chmod +x /usr/local/bin/chromedriver
+        
+        echo "✅ Chrome and ChromeDriver installed"
+        
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install radish-bdd selenium typer
+        
+    - name: Set up test database
+      run: |
+        # Create test database directory
+        mkdir -p .iflow-test
+        cd .iflow-test
+        git init
+        
+        # Create base artifact for testing
+        mkdir -p artifacts
+        cat > artifacts/00001.yaml << 'EOF'
+        artifact_id: "00001"
+        type: "requirement"
+        summary: "Test requirement for filter functionality"
+        description: "This is a test requirement to verify that the filter combination system works properly in the test environment."
+        category: "testing.filter"
+        status: "open"
+        created_at: "2025-08-17T10:00:00Z"
+        updated_at: "2025-08-17T10:00:00Z"
+        flagged: false
+        metadata: {}
+        EOF
+        
+        # Commit the base artifact
+        git add .
+        git config user.name "GitHub Actions"
+        git config user.email "actions@github.com"
+        git commit -m "Add base test artifact"
+        git tag base
+        
+        echo "✅ Test database setup complete"
+        
+    - name: Install iflow package
+      run: |
+        pip install -e .
+        
+    - name: Start iflow server
+      run: |
+        # Start the server in the background
+        python -m iflow.web_server \
+          --port 8080 \
+          --database .iflow-test \
+          --host 0.0.0.0 \
+          --title "iflow - Test Server" &
+        
+        # Wait for server to start
+        sleep 5
+        
+        # Verify server is running
+        curl -f http://localhost:8080/api/project-info || exit 1
+        echo "✅ iflow server started successfully"
+        
+    - name: Run smoke tests
+      run: |
+        # Set environment variable for tests
+        export IFLOW_BASE_URL="http://localhost:8080"
+        export PYTHONPATH="tests:$PYTHONPATH"
+        
+        # Run smoke tests
+        echo "Running smoke tests..."
+        radish -b tests tests/features/ --tags smoke
+        
+        echo "✅ Smoke tests completed successfully"
+        
+    - name: Cleanup
+      if: always()
+      run: |
+        # Stop the server
+        pkill -f "python -m iflow.web_server" || true
+        echo "✅ Cleanup completed"
