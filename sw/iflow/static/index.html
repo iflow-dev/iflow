@@ -25,7 +25,9 @@
                 <option value="">All Statuses</option>
             </select>
             <input type="text" class="search-box" placeholder="Filter by category..." onkeyup="filterByCategory(this.value)">
-            <button class="btn btn-secondary" onclick="refreshArtifacts()">Refresh</button>
+            <button class="btn btn-secondary btn-icon" onclick="refreshArtifacts()" title="Refresh artifacts">
+                <ion-icon name="refresh-outline"></ion-icon>
+            </button>
         </div>
         
         <div class="stats-bar" id="stats-bar">

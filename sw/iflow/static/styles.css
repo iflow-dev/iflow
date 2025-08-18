@@ -71,6 +71,20 @@ body {
     background: #5a6268;
 }
 
+.btn-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    padding: 0.5rem;
+}
+
+.btn-icon ion-icon {
+    font-size: 1.2rem;
+    width: 1.2rem;
+    height: 1.2rem;
+}
+
 .btn-danger {
     background: #dc3545;
 }

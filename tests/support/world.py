@@ -16,9 +16,9 @@ def before_scenario(scenario):
     
     print("Setting up scenario...")
     
-    # Set up Chrome options for visible testing (not headless)
+    # Set up Chrome options for headless testing
     chrome_options = Options()
-    # chrome_options.add_argument("--headless")  # Commented out to show browser
+    chrome_options.add_argument("--headless")  # Run headless by default
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--disable-gpu")

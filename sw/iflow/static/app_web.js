@@ -251,6 +251,24 @@ function openModalWithConfig() {
         console.error('Failed to load artifactStatuses');
     }
     
+    // Refresh custom dropdowns to ensure they work properly
+    if (dropdownManager) {
+        console.log('Refreshing custom dropdowns...');
+        dropdownManager.updateDropdownOptions();
+        
+        // Re-create custom dropdowns for form elements to ensure they work
+        const artifactTypeSelect = document.getElementById('artifactType');
+        const artifactStatusSelect = document.getElementById('artifactStatus');
+        
+        if (artifactTypeSelect) {
+            dropdownManager.refreshDropdownDisplay(artifactTypeSelect.parentNode.querySelector('.custom-dropdown'));
+        }
+        
+        if (artifactStatusSelect) {
+            dropdownManager.refreshDropdownDisplay(artifactStatusSelect.parentNode.querySelector('.custom-dropdown'));
+        }
+    }
+    
     // Set default status to 'open' for new artifacts
     const artifactStatusSelect = document.getElementById('artifactStatus');
     if (artifactStatusSelect) {
