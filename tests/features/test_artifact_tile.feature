@@ -6,7 +6,7 @@ Feature: Test Artifact Tile
 
       Scenario: Verify Artifact Tile Exists
         Given I go to home
-        Then I see the artifact #00058
+        Then I see the artifact #00001
 
   Scenario: Verify Artifact Tile does not Exist
     Given I go to home

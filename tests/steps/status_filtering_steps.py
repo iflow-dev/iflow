@@ -5,39 +5,48 @@ import time
 
 @step("I filter by status {status:QuotedString}")
 def i_filter_by_status(step, status):
-    """Filter artifacts by the specified status."""
+    """Filter artifacts by the specified status using JavaScript accessibility functions."""
     from radish import world
     
-    # Find the status filter dropdown
-    status_filter = world.driver.find_element(By.ID, "statusFilter")
+    # Use the new JavaScript accessibility function to set the status filter
+    print(f"Using JavaScript accessibility function to set status filter to '{status}'...")
     
-    # Wait for options to be populated (up to 10 seconds)
-    max_wait = 10
-    wait_time = 0
-    while wait_time < max_wait:
-        try:
-            select = Select(status_filter)
-            options = select.options
-            if len(options) > 1:  # More than just "All Statuses"
-                print(f"Status filter options populated after {wait_time}s, found {len(options)} options")
-                break
-        except Exception as e:
-            print(f"Waiting for status filter options: {e}")
+    result = world.driver.execute_script(f"""
+        if (typeof setDropdownValue === 'function') {{
+            return setDropdownValue('statusFilter', '{status}');
+        }} else {{
+            console.error('setDropdownValue function not available');
+            return false;
+        }}
+    """)
+    
+    if result:
+        print(f"Successfully set status filter to '{status}' using JavaScript accessibility function")
         
-        time.sleep(1)
-        wait_time += 1
-    
-    # Now try to select the status using JavaScript
-    try:
-        # First try the normal Select approach
-        select = Select(status_filter)
-        select.select_by_value(status)
-        print(f"Successfully selected status '{status}' using Select")
-    except Exception as e:
-        print(f"Select approach failed: {e}")
-        # Fallback to JavaScript
-        world.driver.execute_script(f"arguments[0].value = '{status}'; arguments[0].dispatchEvent(new Event('change'));", status_filter)
-        print(f"Set status '{status}' using JavaScript")
+        # Verify the value was set correctly
+        actual_value = world.driver.execute_script(f"""
+            if (typeof getDropdownValue === 'function') {{
+                return getDropdownValue('statusFilter');
+            }} else {{
+                return null;
+            }}
+        """)
+        
+        if actual_value == status:
+            print(f"Verified status filter is now '{actual_value}'")
+        else:
+            print(f"Warning: Expected status '{status}', but got '{actual_value}'")
+    else:
+        print(f"Failed to set status filter to '{status}' using JavaScript accessibility function")
+        # Fallback to old method
+        try:
+            status_filter = world.driver.find_element(By.ID, "statusFilter")
+            select = Select(status_filter)
+            select.select_by_value(status)
+            print(f"Fallback: Successfully selected status '{status}' using Select")
+        except Exception as e:
+            print(f"Fallback failed: {e}")
+            raise Exception(f"Could not set status filter to '{status}'")
     
     # Wait for filtering to complete
     time.sleep(1)
@@ -80,23 +89,48 @@ def i_see_artifacts_with_status(step, status):
 
 @step("I clear the status filter")
 def i_clear_the_status_filter(step):
-    """Clear the status filter by selecting the default option."""
+    """Clear the status filter using JavaScript accessibility functions."""
     from radish import world
     
-    # Find the status filter dropdown
-    status_filter = world.driver.find_element(By.ID, "statusFilter")
+    # Use the new JavaScript accessibility function to clear the status filter
+    print("Using JavaScript accessibility function to clear status filter...")
     
-    # Use JavaScript to clear the filter
-    try:
-        # First try the normal Select approach
-        select = Select(status_filter)
-        select.select_by_index(0)
-        print("Successfully cleared status filter using Select")
-    except Exception as e:
-        print(f"Select approach failed: {e}")
-        # Fallback to JavaScript
-        world.driver.execute_script("arguments[0].value = ''; arguments[0].dispatchEvent(new Event('change'));", status_filter)
-        print("Cleared status filter using JavaScript")
+    result = world.driver.execute_script(f"""
+        if (typeof setDropdownValue === 'function') {{
+            return setDropdownValue('statusFilter', '');
+        }} else {{
+            console.error('setDropdownValue function not available');
+            return false;
+        }}
+    """)
+    
+    if result:
+        print("Successfully cleared status filter using JavaScript accessibility function")
+        
+        # Verify the value was cleared
+        actual_value = world.driver.execute_script(f"""
+            if (typeof getDropdownValue === 'function') {{
+                return getDropdownValue('statusFilter');
+            }} else {{
+                return null;
+            }}
+        """)
+        
+        if actual_value == "":
+            print("Verified status filter is now cleared")
+        else:
+            print(f"Warning: Expected empty value, but got '{actual_value}'")
+    else:
+        print("Failed to clear status filter using JavaScript accessibility function")
+        # Fallback to old method
+        try:
+            status_filter = world.driver.find_element(By.ID, "statusFilter")
+            select = Select(status_filter)
+            select.select_by_index(0)
+            print("Fallback: Successfully cleared status filter using Select")
+        except Exception as e:
+            print(f"Fallback failed: {e}")
+            raise Exception("Could not clear status filter")
     
     # Wait for filtering to complete
     time.sleep(1)

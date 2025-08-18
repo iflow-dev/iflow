@@ -103,11 +103,16 @@ class CustomDropdownManager {
         const value = optionElement.getAttribute('data-value');
         const originalSelect = dropdownElement._originalSelect;
         
+        console.log('handleOptionSelect called with value:', value);
+        console.log('originalSelect:', originalSelect);
+        
         if (originalSelect) {
             originalSelect.value = value;
+            console.log('Set originalSelect.value to:', value);
             // Trigger change event on the original select
             const event = new Event('change', { bubbles: true });
             originalSelect.dispatchEvent(event);
+            console.log('Dispatched change event on originalSelect');
         }
         
         // Update the visual display
@@ -511,38 +516,159 @@ class CustomDropdownManager {
         }
     }
 
-    // Get dropdown value
-    getDropdownValue(dropdownElement) {
-        // Validate dropdown element
-        if (!dropdownElement || !dropdownElement._originalSelect) {
-            console.error('Invalid dropdown element for getting value');
+    // JavaScript accessibility functions for testing (Ticket #00073)
+    
+    /**
+     * Get the current selected value of a dropdown
+     * @param {string} selectId - The ID of the original select element
+     * @returns {string|null} The current selected value or null if not found
+     */
+    getDropdownValue(selectId) {
+        const originalSelect = document.getElementById(selectId);
+        if (!originalSelect) {
+            console.warn(`Dropdown with ID '${selectId}' not found`);
             return null;
         }
         
-        // Return the value from the original select element
-        return dropdownElement._originalSelect.value;
+        const value = originalSelect.value;
+        console.log(`getDropdownValue('${selectId}') = '${value}'`);
+        return value;
     }
-
-    // Set dropdown value
-    setDropdownValue(dropdownElement, value) {
-        // Validate dropdown element
-        if (!dropdownElement || !dropdownElement._originalSelect) {
-            console.error('Invalid dropdown element for setting value');
+    
+    /**
+     * Set the value of a dropdown programmatically
+     * @param {string} selectId - The ID of the original select element
+     * @param {string} value - The value to set
+     * @returns {boolean} True if successful, false otherwise
+     */
+    setDropdownValue(selectId, value) {
+        const originalSelect = document.getElementById(selectId);
+        if (!originalSelect) {
+            console.warn(`Dropdown with ID '${selectId}' not found`);
             return false;
         }
         
-        // Validate the value before setting
-        const validation = this.validateDropdownSelection(dropdownElement, value);
-        if (!validation.isValid && value !== '') {
-            console.error('Invalid value for dropdown:', validation.error);
+        // Check if the value is valid for this select
+        const option = originalSelect.querySelector(`option[value="${value}"]`);
+        if (!option) {
+            console.warn(`Value '${value}' is not a valid option for dropdown '${selectId}'`);
             return false;
         }
         
-        // Set the value on the original select element
-        dropdownElement._originalSelect.value = value;
+        // Set the value on the original select
+        originalSelect.value = value;
         
-        // Update the visual display using existing method
-        return this.setCustomDropdownValue(dropdownElement, value);
+        // Trigger change event
+        const event = new Event('change', { bubbles: true });
+        originalSelect.dispatchEvent(event);
+        
+        // Update the custom dropdown visual display
+        const customDropdown = this.dropdowns.get(selectId);
+        if (customDropdown) {
+            this.setCustomDropdownValue(customDropdown, value);
+        }
+        
+        console.log(`setDropdownValue('${selectId}', '${value}') = true`);
+        return true;
+    }
+    
+    /**
+     * Get all available options for a dropdown
+     * @param {string} selectId - The ID of the original select element
+     * @returns {Array} Array of option values
+     */
+    getDropdownOptions(selectId) {
+        const originalSelect = document.getElementById(selectId);
+        if (!originalSelect) {
+            console.warn(`Dropdown with ID '${selectId}' not found`);
+            return [];
+        }
+        
+        const options = Array.from(originalSelect.options).map(option => option.value);
+        console.log(`getDropdownOptions('${selectId}') = [${options.join(', ')}]`);
+        return options;
+    }
+    
+    /**
+     * Check if a dropdown is open
+     * @param {string} selectId - The ID of the original select element
+     * @returns {boolean} True if dropdown is open, false otherwise
+     */
+    isDropdownOpen(selectId) {
+        const customDropdown = this.dropdowns.get(selectId);
+        if (!customDropdown) {
+            return false;
+        }
+        
+        const optionsContainer = customDropdown.querySelector('.custom-dropdown-options');
+        return optionsContainer && optionsContainer.style.display === 'block';
+    }
+    
+    /**
+     * Open a dropdown programmatically
+     * @param {string} selectId - The ID of the original select element
+     * @returns {boolean} True if successful, false otherwise
+     */
+    openDropdown(selectId) {
+        const customDropdown = this.dropdowns.get(selectId);
+        if (!customDropdown) {
+            console.warn(`Custom dropdown for '${selectId}' not found`);
+            return false;
+        }
+        
+        this.handleDropdownToggle(customDropdown);
+        return true;
+    }
+    
+    /**
+     * Close a dropdown programmatically
+     * @param {string} selectId - The ID of the original select element
+     * @returns {boolean} True if successful, false otherwise
+     */
+    closeDropdown(selectId) {
+        const customDropdown = this.dropdowns.get(selectId);
+        if (!customDropdown) {
+            return false;
+        }
+        
+        if (this.activeDropdown === customDropdown) {
+            this.closeAllDropdowns();
+        }
+        return true;
+    }
+    
+    /**
+     * Get the display text of the currently selected option
+     * @param {string} selectId - The ID of the original select element
+     * @returns {string|null} The display text or null if not found
+     */
+    getDropdownDisplayText(selectId) {
+        const originalSelect = document.getElementById(selectId);
+        if (!originalSelect) {
+            return null;
+        }
+        
+        const selectedOption = originalSelect.options[originalSelect.selectedIndex];
+        return selectedOption ? selectedOption.textContent : null;
+    }
+    
+    /**
+     * Expose the dropdown manager globally for testing access
+     */
+    exposeForTesting() {
+        // Make the dropdown manager available globally for testing
+        window.dropdownManager = this;
+        
+        // Also expose individual functions for easier access
+        window.getDropdownValue = (selectId) => this.getDropdownValue(selectId);
+        window.setDropdownValue = (selectId, value) => this.setDropdownValue(selectId, value);
+        window.getDropdownOptions = (selectId) => this.getDropdownOptions(selectId);
+        window.isDropdownOpen = (selectId) => this.isDropdownOpen(selectId);
+        window.openDropdown = (selectId) => this.openDropdown(selectId);
+        window.closeDropdown = (selectId) => this.closeDropdown(selectId);
+        window.getDropdownDisplayText = (selectId) => this.getDropdownDisplayText(selectId);
+        
+        console.log('Dropdown accessibility functions exposed globally for testing');
     }
     
     // Get all dropdown values as an object
@@ -550,7 +676,7 @@ class CustomDropdownManager {
         const values = {};
         
         this.dropdowns.forEach((customDropdown, selectId) => {
-            values[selectId] = this.getDropdownValue(customDropdown);
+            values[selectId] = this.getDropdownValue(selectId);
         });
         
         return values;
@@ -563,7 +689,7 @@ class CustomDropdownManager {
         Object.entries(valuesObject).forEach(([selectId, value]) => {
             const customDropdown = this.dropdowns.get(selectId);
             if (customDropdown) {
-                if (!this.setDropdownValue(customDropdown, value)) {
+                if (!this.setDropdownValue(selectId, value)) {
                     success = false;
                 }
             } else {

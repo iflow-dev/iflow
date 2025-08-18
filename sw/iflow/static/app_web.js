@@ -74,6 +74,8 @@ async function loadConfiguration() {
             
             if (dropdownManager.initializeData(workItemTypes, artifactStatuses)) {
                 dropdownManager.createCustomDropdowns();
+                // Expose dropdown accessibility functions for testing (Ticket #00073)
+                dropdownManager.exposeForTesting();
             }
             
             if (tileManager.initializeData(workItemTypes, artifactStatuses)) {

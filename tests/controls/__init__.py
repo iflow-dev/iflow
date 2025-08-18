@@ -316,53 +316,61 @@ class InputField(ControlBase):
         return element
     
     def _set_custom_dropdown_value(self, driver, dropdown_element, value):
-        """Set value for custom dropdown (div-based)."""
+        """Set value for custom dropdown (div-based) using JavaScript accessibility functions."""
         from selenium.webdriver.common.by import By
         import time
         
         try:
-            # Step 1: Click on the dropdown button to open it
-            dropdown_button = dropdown_element.find_element(By.CLASS_NAME, "custom-dropdown-button")
-            dropdown_button.click()
-            print(f"Clicked dropdown button to open options")
-            
-            # Step 2: Wait 0.5 seconds for options to appear
-            time.sleep(0.5)
-            print(f"Waited 0.5 seconds for dropdown options")
-            
-            # Step 3: Find and click the specific option
-            options_container = dropdown_element.find_element(By.CLASS_NAME, "custom-dropdown-options")
-            option = options_container.find_element(By.CSS_SELECTOR, f'[data-value="{value}"]')
-            option.click()
-            print(f"Successfully selected '{value}' from custom dropdown")
-            
-            # Step 4: Wait for the dropdown to close and value to be set
-            time.sleep(0.5)
-            
-            # Step 5: Verify the value was set and dropdown is closed
+            # Get the original select element ID
+            original_select = None
             try:
-                selected_text = dropdown_element.find_element(By.CLASS_NAME, "custom-dropdown-selected").text
-                print(f"Dropdown now shows: '{selected_text}'")
-                
-                # Check if dropdown options are still visible (dropdown should be closed)
-                try:
-                    options_container = dropdown_element.find_element(By.CLASS_NAME, "custom-dropdown-options")
-                    if options_container.is_displayed():
-                        print("Dropdown is still open, clicking outside to close it...")
-                        # Click on the dropdown button again to close it
-                        dropdown_button.click()
-                        time.sleep(0.2)
-                except:
-                    print("Dropdown is properly closed")
-                    
+                # Look for the original select element in the same parent
+                parent = dropdown_element.find_element(By.XPATH, "..")
+                original_select = parent.find_element(By.TAG_NAME, "select")
+                select_id = original_select.get_attribute("id")
+                print(f"Found original select element: {select_id}")
             except Exception as e:
-                print(f"Could not verify selected text: {e}")
+                print(f"Could not find original select element: {e}")
+                return dropdown_element
             
-            return dropdown_element
+            # Use the new JavaScript accessibility function to set the value
+            print(f"Using JavaScript accessibility function to set dropdown value '{value}'...")
             
+            # Call the global setDropdownValue function
+            result = driver.execute_script(f"""
+                if (typeof setDropdownValue === 'function') {{
+                    return setDropdownValue('{select_id}', '{value}');
+                }} else {{
+                    console.error('setDropdownValue function not available');
+                    return false;
+                }}
+            """)
+            
+            if result:
+                print(f"Successfully set dropdown value '{value}' using JavaScript accessibility function")
+                
+                # Verify the value was set correctly
+                actual_value = driver.execute_script(f"""
+                    if (typeof getDropdownValue === 'function') {{
+                        return getDropdownValue('{select_id}');
+                    }} else {{
+                        return null;
+                    }}
+                """)
+                
+                if actual_value == value:
+                    print(f"Verified dropdown value is now '{actual_value}'")
+                else:
+                    print(f"Warning: Expected value '{value}', but got '{actual_value}'")
+                
+                return dropdown_element
+            else:
+                print(f"Failed to set dropdown value '{value}' using JavaScript accessibility function")
+                raise Exception(f"JavaScript setDropdownValue returned false for value '{value}'")
+                
         except Exception as e:
-            print(f"Custom dropdown method failed: {e}")
-            raise Exception(f"Failed to select '{value}' from custom dropdown: {e}")
+            print(f"JavaScript accessibility function failed: {e}")
+            raise Exception(f"Failed to set dropdown value '{value}' using accessibility functions: {e}")
     
     def _set_standard_select_value(self, driver, element, value):
         """Set value for standard HTML select element."""
