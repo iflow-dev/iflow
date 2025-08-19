@@ -209,7 +209,7 @@ function openCreateModal() {
     document.getElementById('artifactForm').reset();
     
     // Set submit button text to "Create"
-    const submitButton = document.querySelector('#artifactForm button[type="submit"]');
+    const submitButton = document.getElementById('submitButton');
     if (submitButton) {
         submitButton.textContent = 'Create';
     }
@@ -293,7 +293,7 @@ function openEditModal(artifactId) {
         document.getElementById('modalTitle').textContent = 'Edit Artifact';
         
         // Set submit button text to "Save"
-        const submitButton = document.querySelector('#artifactForm button[type="submit"]');
+        const submitButton = document.getElementById('submitButton');
         if (submitButton) {
             submitButton.textContent = 'Save';
         }
