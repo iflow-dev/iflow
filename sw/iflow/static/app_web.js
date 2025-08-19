@@ -412,6 +412,9 @@ async function loadArtifacts() {
         console.log('Artifacts received:', artifacts);
         currentArtifacts = artifacts;
         
+        // Update the filtered count display
+        updateFilteredCount(artifacts.length);
+        
         // Update tile manager with artifacts
         if (tileManager) {
             tileManager.updateArtifacts(artifacts);
@@ -518,6 +521,9 @@ async function applyCombinedFilters() {
         // Update DOM filter values to keep them in sync
         updateFilterDOMValues();
         
+        // Update the filtered count display
+        updateFilteredCount(filtered.length);
+        
         // Use tile manager to display filtered artifacts
         if (tileManager) {
             tileManager.displayArtifacts(filtered);
@@ -533,6 +539,13 @@ async function applyCombinedFilters() {
         } else {
             displayArtifacts(currentArtifacts);
         }
+    }
+}
+
+function updateFilteredCount(count) {
+    const filteredCountElement = document.getElementById('filtered-count');
+    if (filteredCountElement) {
+        filteredCountElement.textContent = count;
     }
 }
 
