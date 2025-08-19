@@ -24,11 +24,18 @@ class ArtifactTestWorld:
 def i_am_on_artifacts_page(step):
     """Navigate to the artifacts page."""
     from radish import world
-    world.driver.get("http://localhost:8080")
+    import time
+    
+    # Use the same base URL as other steps
+    base_url = world.base_url
+    world.driver.get(base_url)
     world.wait = WebDriverWait(world.driver, 10)
     
     # Wait for the page to load
     world.wait.until(EC.presence_of_element_located((By.CLASS_NAME, "artifacts-container")))
+    
+    # Additional wait to ensure page is fully loaded and interactive
+    time.sleep(1)
 
 @step("I am logged in as a user")
 def i_am_logged_in_as_user(step):

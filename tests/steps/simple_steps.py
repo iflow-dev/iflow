@@ -12,6 +12,8 @@ from selenium.webdriver.support import expected_conditions as EC
 def i_go_to_home(step):
     """Navigate to the home page (base URL)."""
     from radish import world
+    import time
+    
     base_url = world.base_url
     world.driver.get(base_url)
     
@@ -21,6 +23,9 @@ def i_go_to_home(step):
     # Wait for the page to load
     wait = WebDriverWait(world.driver, 10)
     wait.until(EC.presence_of_element_located((By.CLASS_NAME, "artifacts-container")))
+    
+    # Additional wait to ensure page is fully loaded and interactive
+    time.sleep(1)
 
 @given("I am on the main page")
 def i_am_on_main_page(step):
@@ -31,20 +36,16 @@ def i_am_on_main_page(step):
 
 @given("I am on the search page")
 def i_am_on_search_page(step):
-    """Navigate to the search page and verify we are there."""
+    """Verify we are on the search page (expects previous step to have navigated)."""
     from radish import world
     
-    # Navigate to the search page (same as home for now, since search is on the main page)
-    base_url = world.base_url
-    world.driver.get(base_url)
-    
-    # Wait for the page to load
-    wait = WebDriverWait(world.driver, 10)
-    wait.until(EC.presence_of_element_located((By.CLASS_NAME, "artifacts-container")))
-    
-    # Verify we're on the iflow page
+    # Verify we're on the iflow page (don't navigate, just verify)
     title = Title("iflow")
     title.locate(world.driver)
+    
+    # Verify we have the artifacts container (search functionality)
+    wait = WebDriverWait(world.driver, 10)
+    wait.until(EC.presence_of_element_located((By.CLASS_NAME, "artifacts-container")))
 
 @when("I click the {button_text:QuotedString} button")
 def i_click_button(step, button_text):
