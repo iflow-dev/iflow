@@ -14,24 +14,6 @@ jobs:
     - name: Checkout iflow repository
       uses: actions/checkout@v5
       
-    - name: Checkout test database
-      uses: actions/checkout@v5
-      with:
-        repository: iflow-dev/iflow-db
-        path: .iflow-test
-        ref: master
-        token: ${{ secrets.ACCESS_TOKEN }}
-        
-    - name: Verify test database
-      run: |
-        # Verify the test database has the required artifacts
-        if [ ! -f ".iflow-test/artifacts/00001.yaml" ]; then
-          echo "❌ Test database missing required artifact 00001.yaml"
-          exit 1
-        fi
-        
-        echo "✅ Test database setup complete"
-        
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
@@ -63,21 +45,23 @@ jobs:
       run: |
         pip install -e .
         
-    - name: Start iflow server
+    - name: Start iflow server with init-db
       run: |
-        # Start the server in the background
+        # Start the server in the background with --init-db to create initial repository
         python -m iflow.web_server \
           --port 8080 \
-          --database .iflow-test \
+          --init-db \
           --host 0.0.0.0 \
           --title "iflow - Test Server" &
         
         # Wait for server to start
         sleep 5
         
-        # Verify server is running
+        # Verify server is running and initial ticket was created
         curl -f http://localhost:8080/api/project-info || exit 1
-        echo "✅ iflow server started successfully"
+        curl -f http://localhost:8080/api/artifacts || exit 1
+        
+        echo "✅ iflow server started successfully with initial database"
         
     - name: Run smoke tests
       run: |
