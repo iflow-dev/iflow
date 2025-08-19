@@ -24,22 +24,16 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y git wget unzip
         
-    - name: Install Chrome and ChromeDriver
+    - name: Install Chrome and ChromeDriver (simplified)
       run: |
-        # Install Chrome
-        wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-        echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
-        sudo apt-get update
-        sudo apt-get install -y google-chrome-stable
+        # Install Chrome using apt-get (much simpler)
+        sudo apt-get install -y google-chrome-stable chromium-chromedriver
         
-        # Install ChromeDriver
-        CHROME_VERSION=$(google-chrome --version | cut -d ' ' -f 3 | cut -d '.' -f 1)
-        CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_VERSION")
-        wget -O /tmp/chromedriver.zip "https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip"
-        unzip /tmp/chromedriver.zip -d /usr/local/bin/
-        chmod +x /usr/local/bin/chromedriver
+        # Verify installations
+        google-chrome --version
+        chromedriver --version
         
-        echo "✅ Chrome and ChromeDriver installed"
+        echo "✅ Chrome and ChromeDriver installed via apt-get"
         
     - name: Install Python dependencies
       run: |
