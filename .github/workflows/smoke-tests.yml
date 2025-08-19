@@ -19,6 +19,7 @@ jobs:
       with:
         repository: iflow-dev/iflow-test-db
         path: .iflow-test
+        ref: main
         
     - name: Verify test database
       run: |
