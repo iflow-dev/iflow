@@ -72,6 +72,7 @@ class TileManager {
             <div class="artifact-content">
                 <div class="artifact-summary">${artifact.summary}</div>
                 <div class="artifact-description">${artifact.description || 'No description'}</div>
+                <div class="artifact-verification">Verification: ${artifact.verification || 'BDD'}</div>
             </div>
             <div class="artifact-bottom">
                 ${artifact.category ? `<div class="artifact-category-left"><a href="#" onclick="filterByCategory('${artifact.category}', true); return false;" class="category-link">${artifact.category}</a></div>` : '<div class="artifact-category-left"></div>'}

@@ -216,6 +216,18 @@ body {
     line-height: 1.5;
 }
 
+.artifact-verification {
+    color: #28a745;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    padding: 0.2rem 0.4rem;
+    background: #f8f9fa;
+    border-radius: 3px;
+    display: inline-block;
+    border-left: 3px solid #28a745;
+}
+
 .artifact-category {
     color: #8B5CF6;
     font-size: 0.9rem;

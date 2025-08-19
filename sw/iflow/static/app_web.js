@@ -288,6 +288,12 @@ function openModalWithConfig() {
         artifactFlaggedCheckbox.checked = false;
     }
     
+    // Set default verification method for new artifacts
+    const artifactVerificationField = document.getElementById('artifactVerification');
+    if (artifactVerificationField) {
+        artifactVerificationField.value = 'BDD';
+    }
+    
     // Hide artifact ID display for new artifacts
     document.getElementById('artifactIdDisplay').style.display = 'none';
     document.getElementById('artifactModal').style.display = 'block';
@@ -309,6 +315,7 @@ function openEditModal(artifactId) {
         document.getElementById('artifactSummary').value = artifact.summary;
         document.getElementById('artifactDescription').value = artifact.description || '';
         document.getElementById('artifactCategory').value = artifact.category || '';
+        document.getElementById('artifactVerification').value = artifact.verification || 'BDD';
         document.getElementById('artifactFlagged').checked = artifact.flagged || false;
         
         // Set values on custom dropdowns
@@ -546,6 +553,7 @@ document.getElementById('artifactForm').addEventListener('submit', async functio
         description: document.getElementById('artifactDescription').value,
         category: document.getElementById('artifactCategory').value,
         status: document.getElementById('artifactStatus').value || 'open',
+        verification: document.getElementById('artifactVerification').value || 'BDD',
         flagged: document.getElementById('artifactFlagged').checked
     };
     
