@@ -54,20 +54,40 @@ jobs:
           --host 0.0.0.0 \
           --title "iflow - Test Server" &
         
-        # Wait for server to start
-        sleep 5
+        # Store the server PID for cleanup
+        echo $! > /tmp/iflow_server.pid
         
-        # Verify server is running and initial ticket was created
-        curl -f http://localhost:8080/api/project-info || exit 1
-        curl -f http://localhost:8080/api/artifacts || exit 1
+        # Wait for server to start with retry logic
+        echo "Waiting for server to start..."
+        for i in {1..30}; do
+          if curl -f http://localhost:8080/api/project-info > /dev/null 2>&1; then
+            echo "✅ Server is responding after $i seconds"
+            break
+          fi
+          if [ $i -eq 30 ]; then
+            echo "❌ Server failed to start within 30 seconds"
+            exit 1
+          fi
+          sleep 1
+        done
+        
+        # Verify initial ticket was created
+        echo "Verifying initial database setup..."
+        if curl -f http://localhost:8080/api/artifacts > /dev/null 2>&1; then
+          echo "✅ Initial database and artifacts are accessible"
+        else
+          echo "❌ Failed to access artifacts API"
+          exit 1
+        fi
         
         echo "✅ iflow server started successfully with initial database"
         
     - name: Run smoke tests
       run: |
-        # Set environment variable for tests
+        # Set environment variables for tests
         export IFLOW_BASE_URL="http://localhost:8080"
         export PYTHONPATH="tests:$PYTHONPATH"
+        export DISPLAY=":99"
         
         # Run smoke tests
         echo "Running smoke tests..."
@@ -78,6 +98,14 @@ jobs:
     - name: Cleanup
       if: always()
       run: |
-        # Stop the server
+        # Stop the server using stored PID
+        if [ -f /tmp/iflow_server.pid ]; then
+          PID=$(cat /tmp/iflow_server.pid)
+          kill $PID 2>/dev/null || true
+          rm -f /tmp/iflow_server.pid
+        fi
+        
+        # Also try to kill by process name as backup
         pkill -f "python -m iflow.web_server" || true
+        
         echo "✅ Cleanup completed"
