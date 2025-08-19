@@ -41,14 +41,16 @@ jobs:
         pip install -r requirements.txt
         pip install radish-bdd selenium typer
         
-    - name: Set up test database
-      run: |
-        # Checkout the test database from a predefined branch
-        git clone https://github.com/iflow-dev/iflow-test-db.git .iflow-test
-        cd .iflow-test
+    - name: Checkout test database
+      uses: actions/checkout@v4
+      with:
+        repository: iflow-dev/iflow-test-db
+        path: .iflow-test
         
+    - name: Verify test database
+      run: |
         # Verify the test database has the required artifacts
-        if [ ! -f "artifacts/00001.yaml" ]; then
+        if [ ! -f ".iflow-test/artifacts/00001.yaml" ]; then
           echo "❌ Test database missing required artifact 00001.yaml"
           exit 1
         fi
