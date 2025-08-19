@@ -1,0 +1,27 @@
+- follow those steps, STEP BY STEP, log each step
+- check run_server.py to learn how to run a radish test
+- 
+- ALWAYS CHECK IF PORT IS FREE BEFORE STARTING A SERVER
+- NEVER USE PORT 9000 FOR TESTING
+
+- environments are on /opt/iflow
+- checkout environment structure, especially the virtual environments
+- read ENVIRONMENT_SETUP.md
+- check if prod server is running on port 9000, if not, start it using `/opt/iflow/prod/server start`
+- query backend api on server for later use, check how to find artifacts
+- always use PROD server for artifact queries
+
+- read artifact 00102
+- read all procedures to have an understanding
+- github cli is available
+
+- for local testing, start a server on local repository with --init-db
+  but make sure you stop any running dev server before. Allowed port
+  range for dev servers is 7000-7010.
+
+- before creating new step definitions, always:
+    - search all existing steps for similar steps that can do the job
+    - unify steps by making them more flexible and reusing them
+    - try to follow a natural language, but with formal elements
+    - always distinguish between activity (when) and verification (then),
+      but use only @step decorator
