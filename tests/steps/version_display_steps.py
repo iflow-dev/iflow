@@ -1,5 +1,6 @@
 from radish import given, when, then, step
 from controls import Title
+from selenium.webdriver.common.by import By
 import logging
 
 # Set up logging
@@ -13,7 +14,7 @@ def i_see_version_information_in_header(step):
     
     # Look for version information in the header
     try:
-        version_element = world.driver.find_element_by_id("header-version")
+        version_element = world.driver.find_element(By.ID, "header-version")
         version_text = version_element.text
         log.debug(f"✅ Version information found in header: {version_text}")
     except Exception as e:
@@ -26,7 +27,7 @@ def i_do_not_see_version_in_statistics_line(step):
     
     # Look for version information in the statistics line
     try:
-        stats_element = world.driver.find_element_by_id("stats-bar")
+        stats_element = world.driver.find_element(By.ID, "stats-bar")
         stats_text = stats_element.text
         
         # Check if version information is present in the statistics
@@ -46,7 +47,7 @@ def i_see_statistics_line(step):
     from radish import world
     
     try:
-        stats_element = world.driver.find_element_by_id("stats-bar")
+        stats_element = world.driver.find_element(By.ID, "stats-bar")
         if stats_element.is_displayed():
             log.debug("✅ Statistics line is visible")
         else:
@@ -60,7 +61,7 @@ def statistics_line_does_not_contain_version(step):
     from radish import world
     
     try:
-        stats_element = world.driver.find_element_by_id("stats-bar")
+        stats_element = world.driver.find_element(By.ID, "stats-bar")
         stats_text = stats_element.text
         
         # Look for version-like patterns in the statistics
