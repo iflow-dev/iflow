@@ -11,11 +11,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 import os
 import time
-import logging
-
-# Set up logging
-logging.basicConfig(level=logging.DEBUG)
-log = logging.getLogger(__name__)
+from logging_config import logger as log
 
 # ============================================================================
 # SESSION-LEVEL HOOKS (ChromeDriver Management)

@@ -92,9 +92,13 @@ jobs:
         export IFLOW_BASE_URL="http://localhost:8080"
         export PYTHONPATH="tests:$PYTHONPATH"
         export DISPLAY=":99"
+        export PYTHONUNBUFFERED="1"
+        export PYTHONPATH="tests:$PYTHONPATH"
+        export PYTHON_LOG_LEVEL="INFO"
         
         # Run smoke tests
         echo "Running smoke tests..."
+        echo "Logging level set to: $PYTHON_LOG_LEVEL"
         radish -b tests tests/features/ --tags smoke
         
         echo "✅ Smoke tests completed successfully"

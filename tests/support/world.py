@@ -6,11 +6,7 @@ All hooks are now in hooks.py for better organization.
 
 from radish import world
 import os
-import logging
-
-# Set up logging
-logging.basicConfig(level=logging.DEBUG)
-log = logging.getLogger(__name__)
+from logging_config import logger as log
 
 # ============================================================================
 # WORLD CONFIGURATION
