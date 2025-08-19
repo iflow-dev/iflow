@@ -36,3 +36,15 @@ Feature: Artifact Flags
         Then I should see the new artifact created
         # TODO: Flag functionality not working - checkbox clicked but not saved
         # And the new artifact should be flagged
+
+    Scenario: Filter should persist when flagging/unflagging artifacts
+        Given I reset the database to master
+        And I go to home
+        And I see artifacts displayed
+        When I set the status filter to "open"
+        And I verify the status filter is set to "open"
+        Then I see only artifacts with status "open"
+        When I flag artifact #00001
+        Then the artifact should be flagged
+        And I should still see only artifacts with status "open"
+        And the status filter should still be set to "open"

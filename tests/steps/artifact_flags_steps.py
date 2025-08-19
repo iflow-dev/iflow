@@ -359,3 +359,66 @@ def i_submit_form_alias(step):
 
 
 # Note: Refresh button functionality is handled in toolbar_refresh_steps.py
+
+@step("I should still see only artifacts with status {status:QuotedString}")
+def i_should_still_see_only_artifacts_with_status(step, status):
+    """Verify that the status filter is still applied after flagging/unflagging."""
+    from radish import world
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    
+    try:
+        # Wait for artifacts to be visible
+        WebDriverWait(world.driver, 10).until(
+            EC.presence_of_element_located((By.CLASS_NAME, "artifact-card"))
+        )
+        
+        # Get all visible artifact cards
+        visible_artifacts = world.driver.find_elements(By.CLASS_NAME, "artifact-card")
+        
+        if not visible_artifacts:
+            raise AssertionError("No artifacts are visible")
+        
+        # Check each artifact's status
+        artifacts_with_correct_status = 0
+        for artifact in visible_artifacts:
+            try:
+                # Look for status indicator in the artifact card
+                status_element = artifact.find_element(By.CSS_SELECTOR, ".status-indicator, .artifact-status")
+                status_text = status_element.text.strip()
+                
+                # Check if the status text contains the expected status (ignoring emojis and case)
+                if status.lower() in status_text.lower():
+                    artifacts_with_correct_status += 1
+                    
+            except Exception as e:
+                # Continue checking other artifacts
+                continue
+        
+        # Verify that the filter is still working - at least some artifacts should have the correct status
+        # and all visible artifacts should have the correct status (filter should exclude others)
+        assert artifacts_with_correct_status > 0, f"No artifacts with status '{status}' found after flagging"
+        assert artifacts_with_correct_status == len(visible_artifacts), f"Filter not working: found {artifacts_with_correct_status} artifacts with status '{status}' out of {len(visible_artifacts)} visible artifacts"
+        
+        print(f"✅ Status filter still working: {artifacts_with_correct_status} artifacts with status '{status}' visible")
+        
+    except Exception as e:
+        raise AssertionError(f"Failed to verify status filter persistence: {e}")
+
+@step("the status filter should still be set to {status:QuotedString}")
+def the_status_filter_should_still_be_set_to(step, status):
+    """Verify that the status filter dropdown still shows the correct value."""
+    from radish import world
+    
+    try:
+        # Use JavaScript accessibility function to get the current value
+        actual_value = world.driver.execute_script("return getDropdownValue('statusFilter');")
+        
+        if actual_value == status:
+            print(f"✅ Status filter still correctly set to '{actual_value}'")
+        else:
+            raise AssertionError(f"Status filter value changed. Expected: '{status}', Got: '{actual_value}'")
+            
+    except Exception as e:
+        raise AssertionError(f"Failed to verify status filter value: {e}")
