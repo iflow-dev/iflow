@@ -1,4 +1,3 @@
-@smoke
 Feature: Artifact Flags
     As a user
     I want to flag artifacts for easy identification
