@@ -1,0 +1,12 @@
+# Integration Environment Configuration
+# Purpose: Configuration for the integration environment used for testing multiple PRs
+
+environment:
+  name: "integration"
+  port: 8082
+  host: "0.0.0.0"
+  title: "iflow - Integration Environment"
+  database: ".iflow-test"
+
+# Use the same configuration as other environments
+# This will be overridden by the project's config.yaml when the server starts
