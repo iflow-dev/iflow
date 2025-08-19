@@ -1,4 +1,5 @@
 - `iflow` is a tool for managing project artifacts like requirements, tasks, test cases, issues for projects
+
 - make a web-based application
 - tooling
     - use pywebview as the plattform
@@ -18,4 +19,4 @@
                 <details>
         ```
 - features:
-    - list of all available artifacts
+    - list of all available artifacts%
