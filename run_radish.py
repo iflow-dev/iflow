@@ -104,8 +104,27 @@ def main(
     # Set up Python path
     setup_python_path()
     
-    # Run radish
+    # Run radish with all remaining arguments
+    run_radish(radish_args)
+
+def main_simple():
+    """Simple version that doesn't use typer for argument parsing."""
+    if len(sys.argv) < 3:
+        print("Usage: run_radish.py <environment> <radish_args...>")
+        print("Example: run_radish.py dev tests/features/ --tags @smoke")
+        sys.exit(1)
+    
+    environment = sys.argv[1]
+    radish_args = sys.argv[2:]
+    
+    # Set up environment
+    setup_environment(environment)
+    
+    # Set up Python path
+    setup_python_path()
+    
+    # Run radish with all remaining arguments
     run_radish(radish_args)
 
 if __name__ == "__main__":
-    app()
+    main_simple()

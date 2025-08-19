@@ -3,6 +3,11 @@ Simple control classes for BDD test automation.
 This module provides basic controls for common UI elements.
 """
 
+import sys
+import os
+# Add the tests directory to the Python path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from controls.base import ControlBase
 
 
