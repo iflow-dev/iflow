@@ -1,5 +1,5 @@
 - follow those steps, STEP BY STEP, log each step
-- check run_server.py to learn how to run a radish test
+- check run_radish.py to learn how to run a radish test
 - 
 - ALWAYS CHECK IF PORT IS FREE BEFORE STARTING A SERVER
 - NEVER USE PORT 9000 FOR TESTING
