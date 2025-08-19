@@ -339,6 +339,7 @@ function openEditModal(artifactId) {
         document.getElementById('artifactCategory').value = artifact.category || '';
         document.getElementById('artifactVerification').value = artifact.verification || 'BDD';
         document.getElementById('artifactActivity').value = artifact.activity || '';
+        document.getElementById('artifactIteration').value = artifact.iteration || '';
         document.getElementById('artifactFlagged').checked = artifact.flagged || false;
         
         // Set values on custom dropdowns
@@ -578,6 +579,7 @@ document.getElementById('artifactForm').addEventListener('submit', async functio
         status: document.getElementById('artifactStatus').value || 'open',
         verification: document.getElementById('artifactVerification').value || 'BDD',
         activity: document.getElementById('artifactActivity').value || '',
+        iteration: document.getElementById('artifactIteration').value || '',
         flagged: document.getElementById('artifactFlagged').checked
     };
     

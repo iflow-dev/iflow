@@ -1,0 +1,45 @@
+Feature: Artifact Iteration Field
+    As an iflow user
+    I want to specify the iteration in which an artifact is supposed to be resolved
+    So that I can track project planning and delivery timelines
+
+    Scenario: Create artifact with iteration field
+        Given I go to home
+        When I click the create button
+        Then I should see the edit dialog
+        And I should see an iteration field
+        And the iteration field should be empty by default
+
+    Scenario: Edit artifact iteration field
+        Given I go to home
+        And I see artifacts displayed
+        When I click the edit button on the first artifact
+        Then I should see the edit dialog
+        And I should see an iteration field
+        And I can edit the iteration field
+
+    Scenario: Save artifact with iteration information
+        Given I go to home
+        When I click the create button
+        And I fill in the summary with "Test artifact with iteration"
+        And I fill in the description with "This artifact has iteration tracking"
+        And I fill in the iteration field with "Sprint 3"
+        And I click the Create button
+        Then I should see a success message
+        And the artifact should be saved with iteration "Sprint 3"
+
+    Scenario: Display iteration field in artifact tile
+        Given I go to home
+        And there is an artifact with iteration "Sprint 2"
+        When I view the artifact tile
+        Then I should see the iteration information displayed
+        And it should show "Sprint 2"
+
+    Scenario: Update iteration field on existing artifact
+        Given I go to home
+        And there is an existing artifact
+        When I click the edit button on the artifact
+        And I update the iteration field to "Sprint 4"
+        And I click the Save button
+        Then I should see a success message
+        And the artifact should be updated with new iteration "Sprint 4"
