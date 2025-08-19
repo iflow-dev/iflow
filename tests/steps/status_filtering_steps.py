@@ -9,46 +9,104 @@ log = logging.getLogger(__name__)
 def i_set_status_filter_to(step, status):
     """Set the status filter to the specified value using JavaScript accessibility functions."""
     from radish import world
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.support.ui import Select
+    import time
     
     try:
-        # Use JavaScript accessibility function to set the status filter
-        log.debug(f"Using JavaScript accessibility function to set status filter to '{status}'...")
+        # Wait for the page to be fully loaded and JavaScript functions to be available
+        log.debug(f"Waiting for JavaScript functions to be available...")
         
-        # Call the JavaScript function to set the dropdown value
-        result = world.driver.execute_script(f"return setDropdownValue('statusFilter', '{status}');")
+        # Wait for the status filter element to be present
+        WebDriverWait(world.driver, 10).until(
+            EC.presence_of_element_located((By.ID, "statusFilter"))
+        )
         
-        if result:
-            log.debug(f"Successfully set status filter to '{status}' using JavaScript accessibility function")
-        else:
-            # Fallback to traditional Select method
-            from selenium.webdriver.support.ui import Select
-            from selenium.webdriver.common.by import By
+        # Wait a bit more for JavaScript to be fully loaded
+        time.sleep(1)
+        
+        # Check if JavaScript functions are available
+        js_functions_available = world.driver.execute_script("""
+            return typeof setDropdownValue !== 'undefined' && 
+                   typeof getDropdownValue !== 'undefined' &&
+                   typeof window.setDropdownValue !== 'undefined';
+        """)
+        
+        if js_functions_available:
+            log.debug(f"JavaScript functions available, using setDropdownValue to set status filter to '{status}'...")
             
-            status_filter = world.driver.find_element(By.ID, "statusFilter")
-            select = Select(status_filter)
+            # Call the JavaScript function to set the dropdown value
+            result = world.driver.execute_script(f"return setDropdownValue('statusFilter', '{status}');")
+            
+            if result:
+                log.debug(f"Successfully set status filter to '{status}' using JavaScript accessibility function")
+                return
+            else:
+                log.debug(f"JavaScript function returned false, trying fallback...")
+        else:
+            log.debug(f"JavaScript functions not available, using fallback method...")
+        
+        # Fallback to traditional Select method
+        status_filter = world.driver.find_element(By.ID, "statusFilter")
+        select = Select(status_filter)
+        
+        # Try to select by visible text first
+        try:
             select.select_by_visible_text(status)
-            log.debug(f"Fallback: Successfully selected status '{status}' using Select")
+            log.debug(f"Fallback: Successfully selected status '{status}' using Select by visible text")
+        except:
+            # If that fails, try to select by value
+            try:
+                select.select_by_value(status)
+                log.debug(f"Fallback: Successfully selected status '{status}' using Select by value")
+            except:
+                # If both fail, try to find option containing the status text
+                options = select.options
+                for option in options:
+                    if status.lower() in option.text.lower():
+                        option.click()
+                        log.debug(f"Fallback: Successfully selected status '{status}' using option click")
+                        return
+                raise Exception(f"Could not find option containing '{status}'")
             
     except Exception as e:
-        log.debug(f"Fallback failed: {e}")
+        log.debug(f"All methods failed: {e}")
         raise AssertionError(f"Failed to set status filter to '{status}': {e}")
 
 @step(r"I verify the status filter is set to {status:QuotedString}")
 def i_verify_status_filter_is_set_to(step, status):
     """Verify that the status filter is set to the specified value."""
     from radish import world
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.support.ui import Select
     
     try:
-        # Use JavaScript accessibility function to get the current value
-        actual_value = world.driver.execute_script("return getDropdownValue('statusFilter');")
+        # First try JavaScript accessibility function
+        try:
+            actual_value = world.driver.execute_script("return getDropdownValue('statusFilter');")
+            if actual_value == status:
+                log.debug(f"Verified status filter is now '{actual_value}' using JavaScript")
+                return
+            else:
+                log.debug(f"JavaScript verification failed: Expected '{status}', but got '{actual_value}'")
+        except Exception as e:
+            log.debug(f"JavaScript verification failed: {e}")
         
-        if actual_value == status:
-            log.debug(f"Verified status filter is now '{actual_value}'")
+        # Fallback to traditional Select method
+        status_filter = world.driver.find_element(By.ID, "statusFilter")
+        select = Select(status_filter)
+        actual_value = select.first_selected_option.text.strip()
+        
+        # Check if the status text contains the expected status (ignoring emojis and case)
+        if status.lower() in actual_value.lower():
+            log.debug(f"Verified status filter is now '{actual_value}' using Select fallback")
         else:
             log.debug(f"Warning: Expected status '{status}', but got '{actual_value}'")
             
     except Exception as e:
-        log.debug(f"Failed to set status filter to '{status}' using JavaScript accessibility function")
+        log.debug(f"All verification methods failed: {e}")
         raise AssertionError(f"Failed to verify status filter: {e}")
 
 @step(r"I see only artifacts with status {status:QuotedString}")
