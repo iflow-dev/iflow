@@ -65,6 +65,7 @@ async function loadConfiguration() {
         if (statusesResponse.ok) {
             artifactStatuses = await statusesResponse.json();
             console.log('Artifact statuses loaded:', artifactStatuses);
+            updateStatusFilterOptions();
             updateStatusFormOptions();
             
             // Initialize managers with the loaded data
@@ -95,6 +96,27 @@ async function loadConfiguration() {
         }
     } catch (error) {
         console.error('Error loading configuration:', error);
+    }
+}
+
+function updateStatusFilterOptions() {
+    // Update the status filter dropdown using specific ID
+    const statusFilter = document.getElementById('statusFilter');
+    if (statusFilter && artifactStatuses.length > 0) {
+        // Clear existing options
+        statusFilter.innerHTML = '<option value="">All Statuses</option>';
+        
+        // Add options for each status
+        artifactStatuses.forEach(status => {
+            const option = document.createElement('option');
+            option.value = status.id;
+            // For emojis, show the emoji
+            const displayText = status.icon.startsWith('ion-') ? status.icon : status.icon;
+            option.textContent = `${displayText} ${status.name}`;
+            option.style.color = status.color;
+            option.setAttribute('data-icon', status.icon);
+            statusFilter.appendChild(option);
+        });
     }
 }
 
