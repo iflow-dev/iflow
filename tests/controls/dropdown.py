@@ -1,0 +1,68 @@
+"""
+Dropdown control class for BDD test automation.
+This module provides controls for custom dropdown elements.
+"""
+
+import sys
+import os
+# Add the tests directory to the Python path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from controls.base import ControlBase
+
+
+class Dropdown(ControlBase):
+    """Control for custom dropdown elements."""
+    
+    def __init__(self, dropdown_type):
+        """
+        Initialize dropdown control.
+        
+        Args:
+            dropdown_type: Either 'type' or 'status' to identify which dropdown
+        """
+        if dropdown_type == 'type':
+            # First custom dropdown (type filter)
+            super().__init__("(//div[contains(@class, 'custom-dropdown')])[1]")
+        elif dropdown_type == 'status':
+            # Second custom dropdown (status filter)
+            super().__init__("(//div[contains(@class, 'custom-dropdown')])[2]")
+        else:
+            raise ValueError(f"Unknown dropdown type: {dropdown_type}")
+        
+        self.dropdown_type = dropdown_type
+    
+    def get_selected_value(self, driver, timeout=None):
+        """Get the currently selected value from the dropdown."""
+        dropdown = self.locate(driver, timeout)
+        selected_element = dropdown.find_element("xpath", ".//div[contains(@class, 'custom-dropdown-selected')]")
+        return selected_element.text
+    
+    def select_option(self, driver, option_text, timeout=None):
+        """Select an option from the dropdown by text."""
+        # Click to open dropdown
+        dropdown = self.locate(driver, timeout)
+        button = dropdown.find_element("xpath", ".//div[contains(@class, 'custom-dropdown-button')]")
+        button.click()
+        
+        # Wait a moment for dropdown to open
+        import time
+        time.sleep(0.5)
+        
+        # Find and click the option
+        options = dropdown.find_elements("xpath", ".//div[contains(@class, 'custom-dropdown-option')]")
+        for option in options:
+            if option_text.lower() in option.text.lower():
+                option.click()
+                return
+        
+        raise ValueError(f"Option '{option_text}' not found in {self.dropdown_type} dropdown")
+    
+    def is_open(self, driver, timeout=None):
+        """Check if the dropdown is currently open."""
+        try:
+            dropdown = self.locate(driver, timeout)
+            options_container = dropdown.find_element("xpath", ".//div[contains(@class, 'custom-dropdown-options')]")
+            return options_container.is_displayed()
+        except:
+            return False
