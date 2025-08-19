@@ -2,7 +2,7 @@
 iflow - Git-based artifact management system
 """
 
-__version__ = "0.3.2"
+__version__ = "0.4.0a2"
 __author__ = "iflow team"
 
 from .core import Artifact, ArtifactType
