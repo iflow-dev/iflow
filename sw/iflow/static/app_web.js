@@ -799,10 +799,8 @@ async function toggleArtifactFlag(artifactId) {
         // Update the local artifact state
         artifact.flagged = newFlagState;
         
-        // Refresh the display
-        if (tileManager) {
-            tileManager.refreshTiles();
-        }
+        // Refresh the display while maintaining current filters
+        await applyCombinedFilters();
         
         console.log(`Artifact ${artifactId} flag toggled to ${newFlagState}`);
     } catch (error) {
