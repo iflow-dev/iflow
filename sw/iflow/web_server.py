@@ -154,21 +154,47 @@ def get_project_info():
 
 @app.route('/api/artifacts')
 def list_artifacts():
-    """List all artifacts, optionally filtered by type."""
+    """List all artifacts, optionally filtered by type, status, category, and search."""
     try:
         artifact_type = request.args.get('type')
-        print(f"Listing artifacts, type filter: {artifact_type}")
+        status_filter = request.args.get('status')
+        category_filter = request.args.get('category')
+        search_filter = request.args.get('search')
         
+        print(f"Listing artifacts, filters: type={artifact_type}, status={status_filter}, category={category_filter}, search={search_filter}")
+        
+        # Get all artifacts first
         if artifact_type:
             artifact_type_enum = ArtifactType(artifact_type)
             artifacts = db.list_artifacts(artifact_type_enum)
         else:
             artifacts = db.list_artifacts()
         
-        print(f"Found {len(artifacts)} artifacts")
+        # Apply additional filters
+        filtered_artifacts = []
+        for artifact in artifacts:
+            # Apply status filter
+            if status_filter and artifact.status != status_filter:
+                continue
+                
+            # Apply category filter
+            if category_filter and category_filter.lower() not in artifact.category.lower():
+                continue
+                
+            # Apply search filter
+            if search_filter:
+                search_lower = search_filter.lower()
+                if (search_lower not in artifact.summary.lower() and 
+                    search_lower not in artifact.description.lower() and
+                    search_lower not in artifact.category.lower()):
+                    continue
+            
+            filtered_artifacts.append(artifact)
+        
+        print(f"Found {len(filtered_artifacts)} artifacts after filtering")
         
         # Convert to dictionaries for JSON serialization
-        result = [artifact_to_dict(artifact) for artifact in artifacts]
+        result = [artifact_to_dict(artifact) for artifact in filtered_artifacts]
         return jsonify(result)
     except Exception as e:
         print(f"Error listing artifacts: {e}")

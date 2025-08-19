@@ -65,6 +65,7 @@ async function loadConfiguration() {
         if (statusesResponse.ok) {
             artifactStatuses = await statusesResponse.json();
             console.log('Artifact statuses loaded:', artifactStatuses);
+            updateStatusFilterOptions();
             updateStatusFormOptions();
             
             // Initialize managers with the loaded data
@@ -95,6 +96,27 @@ async function loadConfiguration() {
         }
     } catch (error) {
         console.error('Error loading configuration:', error);
+    }
+}
+
+function updateStatusFilterOptions() {
+    // Update the status filter dropdown using specific ID
+    const statusFilter = document.getElementById('statusFilter');
+    if (statusFilter && artifactStatuses.length > 0) {
+        // Clear existing options
+        statusFilter.innerHTML = '<option value="">All Statuses</option>';
+        
+        // Add options for each status
+        artifactStatuses.forEach(status => {
+            const option = document.createElement('option');
+            option.value = status.id;
+            // For emojis, show the emoji
+            const displayText = status.icon.startsWith('ion-') ? status.icon : status.icon;
+            option.textContent = `${displayText} ${status.name}`;
+            option.style.color = status.color;
+            option.setAttribute('data-icon', status.icon);
+            statusFilter.appendChild(option);
+        });
     }
 }
 
@@ -629,38 +651,72 @@ async function deleteArtifact(artifactId) {
     }
 }
 
-function refreshArtifacts() {
-    // Reset all filters
-    const typeFilters = document.querySelectorAll('.filter-select');
-    if (typeFilters.length >= 1) typeFilters[0].value = '';
-    if (typeFilters.length >= 2) typeFilters[1].value = '';
-    
-    // Reset category filter
-    const categoryFilter = document.querySelector('input[placeholder="Filter by category..."]');
-    if (categoryFilter) categoryFilter.value = '';
-    
-    // Reset search
-    if (searchManager) {
-        searchManager.clearSearch();
-    } else {
-        // Fallback to old method
-        const searchBox = document.querySelector('input[placeholder="Search artifacts..."]');
-        if (searchBox) searchBox.value = '';
+async function refreshArtifacts() {
+    try {
+        console.log('refreshArtifacts called');
+        
+        // Get current filter state
+        const currentState = getCurrentFilterState();
+        console.log('Current filter state before refresh:', currentState);
+        
+        // Build query parameters for all active filters
+        const params = new URLSearchParams();
+        
+        if (currentState.type && currentState.type !== '') {
+            params.append('type', currentState.type);
+        }
+        
+        if (currentState.status && currentState.status !== '') {
+            params.append('status', currentState.status);
+        }
+        
+        if (currentState.category && currentState.category !== '') {
+            params.append('category', currentState.category);
+        }
+        
+        if (currentState.search && currentState.search !== '') {
+            params.append('search', currentState.search);
+        }
+        
+        // Make API call with filter parameters
+        const url = params.toString() ? `${API_BASE}/artifacts?${params.toString()}` : `${API_BASE}/artifacts`;
+        console.log('Making refresh API call to:', url);
+        
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const artifacts = await response.json();
+        console.log('Artifacts received from refresh:', artifacts);
+        currentArtifacts = artifacts;
+        
+        // Apply flag filter locally (since it's not supported by the API yet)
+        let filtered = artifacts;
+        if (currentState.flagged) {
+            filtered = filtered.filter(artifact => artifact.flagged === true);
+        }
+        
+        // Update tile manager with filtered artifacts
+        if (tileManager) {
+            tileManager.updateArtifacts(filtered);
+            tileManager.displayArtifacts(filtered);
+        } else {
+            // Fallback to old method
+            displayArtifacts(filtered);
+        }
+        
+        // Update statistics
+        if (statisticsManager) {
+            statisticsManager.loadStats();
+        }
+        
+        console.log('Refresh completed successfully');
+    } catch (error) {
+        console.error('Error in refreshArtifacts:', error);
+        // Fallback to loading all artifacts if refresh fails
+        loadArtifacts();
     }
-    
-    // Reset filter state
-    currentFilterState = {
-        type: '',
-        status: '',
-        category: '',
-        search: '',
-        flagged: false
-    };
-    
-    if (statisticsManager) {
-        statisticsManager.loadStats();
-    }
-    loadArtifacts();
 }
 
 // Filter State Management
