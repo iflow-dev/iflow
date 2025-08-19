@@ -1,7 +1,12 @@
 """
-Input field control class for BDD test automation.
-This module provides controls for locating and interacting with input fields.
+Input field control for BDD test automation.
+This module provides controls for input fields and form elements.
 """
+
+import sys
+import os
+# Add the tests directory to the Python path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from controls.base import ControlBase
 from selenium.webdriver.common.by import By
