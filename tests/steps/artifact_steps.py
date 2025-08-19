@@ -67,22 +67,26 @@ def i_fill_in_artifact_details(step):
         ]
     
     for row in data:
-        if len(row) >= 2:
-            field = row[0]
-            value = row[1]
-            
-            if field == "Type":
-                select = Select(world.driver.find_element(By.ID, "artifactType"))
-                select.select_by_value(value)
-            elif field == "Summary":
-                world.driver.find_element(By.ID, "artifactSummary").send_keys(value)
-            elif field == "Description":
-                world.driver.find_element(By.ID, "artifactDescription").send_keys(value)
-            elif field == "Category":
-                world.driver.find_element(By.ID, "artifactCategory").send_keys(value)
-            elif field == "Status":
-                select = Select(world.driver.find_element(By.ID, "artifactStatus"))
-                select.select_by_value(value)
+        try:
+            if len(row) >= 2:
+                field = row[0]
+                value = row[1]
+                
+                if field == "Type":
+                    select = Select(world.driver.find_element(By.ID, "artifactType"))
+                    select.select_by_value(value)
+                elif field == "Summary":
+                    world.driver.find_element(By.ID, "artifactSummary").send_keys(value)
+                elif field == "Description":
+                    world.driver.find_element(By.ID, "artifactDescription").send_keys(value)
+                elif field == "Category":
+                    world.driver.find_element(By.ID, "artifactCategory").send_keys(value)
+                elif field == "Status":
+                    select = Select(world.driver.find_element(By.ID, "artifactStatus"))
+                    select.select_by_value(value)
+        except (IndexError, KeyError) as e:
+            print(f"Warning: Error processing row {row}: {e}")
+            continue
 
 @step("I click \"{button_text}\"")
 def i_click_save_artifact(step, button_text):
