@@ -20,6 +20,7 @@ jobs:
         repository: iflow-dev/iflow-db
         path: .iflow-test
         ref: master
+        token: ${{ secrets.ACCESS_TOKEN }}
         
     - name: Verify test database
       run: |
