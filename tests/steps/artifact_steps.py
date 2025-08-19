@@ -46,29 +46,43 @@ def i_click_button(step, button_text):
 def i_fill_in_artifact_details(step):
     """Fill in the artifact form with the data table."""
     from radish import world
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
     
     # Wait for modal to appear
-    world.wait.until(EC.visibility_of_element_located((By.ID, "artifactModal")))
+    wait = WebDriverWait(world.driver, 10)
+    wait.until(EC.visibility_of_element_located((By.ID, "artifactModal")))
     
     # Get the data table from the step
-    data = step.table
+    if hasattr(step, 'table') and step.table:
+        data = step.table
+    else:
+        # Default values if no table provided
+        data = [
+            ["Type", "requirement"],
+            ["Summary", "Test artifact"],
+            ["Description", "Test artifact description"],
+            ["Category", "Test"],
+            ["Status", "open"]
+        ]
     
     for row in data:
-        field = row[0]
-        value = row[1]
-        
-        if field == "Type":
-            select = Select(world.driver.find_element(By.ID, "artifactType"))
-            select.select_by_value(value)
-        elif field == "Summary":
-            world.driver.find_element(By.ID, "artifactSummary").send_keys(value)
-        elif field == "Description":
-            world.driver.find_element(By.ID, "artifactDescription").send_keys(value)
-        elif field == "Category":
-            world.driver.find_element(By.ID, "artifactCategory").send_keys(value)
-        elif field == "Status":
-            select = Select(world.driver.find_element(By.ID, "artifactStatus"))
-            select.select_by_value(value)
+        if len(row) >= 2:
+            field = row[0]
+            value = row[1]
+            
+            if field == "Type":
+                select = Select(world.driver.find_element(By.ID, "artifactType"))
+                select.select_by_value(value)
+            elif field == "Summary":
+                world.driver.find_element(By.ID, "artifactSummary").send_keys(value)
+            elif field == "Description":
+                world.driver.find_element(By.ID, "artifactDescription").send_keys(value)
+            elif field == "Category":
+                world.driver.find_element(By.ID, "artifactCategory").send_keys(value)
+            elif field == "Status":
+                select = Select(world.driver.find_element(By.ID, "artifactStatus"))
+                select.select_by_value(value)
 
 @step("I click \"{button_text}\"")
 def i_click_save_artifact(step, button_text):

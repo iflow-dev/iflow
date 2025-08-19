@@ -55,6 +55,8 @@ class TileManager {
     createArtifactTile(artifact) {
         const typeInfo = this.getTypeDisplayInfo(artifact.type);
         const statusInfo = this.getStatusDisplayInfo(artifact.status);
+        const flagIcon = artifact.flagged ? 'flag' : 'flag-outline';
+        const flagColor = artifact.flagged ? '#dc3545' : '#6c757d';
         
         return `
         <div class="artifact-card" style="border: 2px solid ${typeInfo.color}">
@@ -74,6 +76,9 @@ class TileManager {
             <div class="artifact-bottom">
                 ${artifact.category ? `<div class="artifact-category-left"><a href="#" onclick="filterByCategory('${artifact.category}', true); return false;" class="category-link">${artifact.category}</a></div>` : '<div class="artifact-category-left"></div>'}
                 <div class="artifact-actions">
+                    <button class="btn btn-transparent" onclick="toggleArtifactFlag('${artifact.artifact_id}')" title="${artifact.flagged ? 'Unflag artifact' : 'Flag artifact'}">
+                        <ion-icon name="${flagIcon}" style="color: ${flagColor}"></ion-icon>
+                    </button>
                     <button class="btn btn-transparent" onclick="openEditModal('${artifact.artifact_id}')" title="Edit artifact">
                         <ion-icon name="create-outline"></ion-icon>
                     </button>

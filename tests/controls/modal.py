@@ -1,7 +1,12 @@
 """
-Modal control class for BDD test automation.
-This module provides controls for locating and interacting with modal dialogs.
+Modal control for BDD test automation.
+This module provides controls for modal dialogs.
 """
+
+import sys
+import os
+# Add the tests directory to the Python path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from controls.base import ControlBase
 
