@@ -53,7 +53,7 @@ def setup_test_environment(features, marker):
         log.debug(f"Warning: Could not initialize Chrome driver: {e}")
         log.debug("Tests will run but may fail without a web driver")
 
-@after.all
+# @after.all
 def cleanup_test_environment(features, marker):
     """Clean up after all tests complete."""
     log.debug("BDD testing completed")
