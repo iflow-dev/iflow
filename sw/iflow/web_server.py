@@ -225,7 +225,8 @@ def create_artifact():
             category=data.get('category', ''),
             status=data.get('status', 'open'),
             artifact_id=data.get('artifact_id'),
-            verification=data.get('verification', 'BDD')
+            verification=data.get('verification', 'BDD'),
+            activity=data.get('activity', '')
         )
         
         db.save_artifact(artifact)
@@ -261,6 +262,8 @@ def update_artifact(artifact_id):
             artifact.flagged = data['flagged']
         if 'verification' in data:
             artifact.verification = data['verification']
+        if 'activity' in data:
+            artifact.activity = data['activity']
         
         # Update timestamp
         artifact.update()
@@ -354,7 +357,8 @@ def artifact_to_dict(artifact):
         'updated_at': artifact.updated_at.isoformat(),
         'metadata': artifact.metadata,
         'flagged': artifact.flagged,
-        'verification': artifact.verification
+        'verification': artifact.verification,
+        'activity': artifact.activity
     }
 
 def get_html_template(title="iflow - Project Artifact Manager"):
