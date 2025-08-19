@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 # ============================================================================
 
 @before.all
-def setup_test_environment(*args, **kwargs):
+def setup_test_environment(features, marker):
     """Set up the test environment before all tests."""
     log.debug("Starting BDD tests...")
     
@@ -54,7 +54,7 @@ def setup_test_environment(*args, **kwargs):
         log.debug("Tests will run but may fail without a web driver")
 
 @after.all
-def cleanup_test_environment(*args, **kwargs):
+def cleanup_test_environment(features, marker):
     """Clean up after all tests complete."""
     log.debug("BDD testing completed")
     
