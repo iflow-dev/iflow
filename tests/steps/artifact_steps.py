@@ -9,6 +9,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
+from controls import Title
 import time
 
 class ArtifactTestWorld:
@@ -22,13 +23,19 @@ class ArtifactTestWorld:
 
 @step("I am on the artifacts page")
 def i_am_on_artifacts_page(step):
-    """Navigate to the artifacts page."""
+    """Verify we are on the artifacts page (expects previous step to have navigated)."""
     from radish import world
-    world.driver.get("http://localhost:8080")
-    world.wait = WebDriverWait(world.driver, 10)
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
     
-    # Wait for the page to load
-    world.wait.until(EC.presence_of_element_located((By.CLASS_NAME, "artifacts-container")))
+    # Verify we're on the iflow page (don't navigate, just verify)
+    title = Title("iflow")
+    title.locate(world.driver)
+    
+    # Verify we have the artifacts container (search functionality)
+    wait = WebDriverWait(world.driver, 10)
+    wait.until(EC.presence_of_element_located((By.CLASS_NAME, "artifacts-container")))
 
 @step("I am logged in as a user")
 def i_am_logged_in_as_user(step):
@@ -48,6 +55,7 @@ def i_fill_in_artifact_details(step):
     from radish import world
     from selenium.webdriver.support.ui import WebDriverWait
     from selenium.webdriver.support import expected_conditions as EC
+    from selenium.webdriver.support.ui import Select
     
     # Wait for modal to appear
     wait = WebDriverWait(world.driver, 10)
@@ -55,22 +63,35 @@ def i_fill_in_artifact_details(step):
     
     # Get the data table from the step
     if hasattr(step, 'table') and step.table:
-        data = step.table
+        # Radish table has rows as dictionaries with column names as keys
+        for row in step.table:
+            field = row.get("Field")
+            value = row.get("Value")
+            
+            if field and value:
+                if field == "Type":
+                    select = Select(world.driver.find_element(By.ID, "artifactType"))
+                    select.select_by_value(value)
+                elif field == "Summary":
+                    world.driver.find_element(By.ID, "artifactSummary").send_keys(value)
+                elif field == "Description":
+                    world.driver.find_element(By.ID, "artifactDescription").send_keys(value)
+                elif field == "Category":
+                    world.driver.find_element(By.ID, "artifactCategory").send_keys(value)
+                elif field == "Status":
+                    select = Select(world.driver.find_element(By.ID, "artifactStatus"))
+                    select.select_by_value(value)
     else:
         # Default values if no table provided
-        data = [
-            ["Type", "requirement"],
-            ["Summary", "Test artifact"],
-            ["Description", "Test artifact description"],
-            ["Category", "Test"],
-            ["Status", "open"]
-        ]
-    
-    for row in data:
-        if len(row) >= 2:
-            field = row[0]
-            value = row[1]
-            
+        default_data = {
+            "Type": "requirement",
+            "Summary": "Test artifact",
+            "Description": "Test artifact description",
+            "Category": "Test",
+            "Status": "open"
+        }
+        
+        for field, value in default_data.items():
             if field == "Type":
                 select = Select(world.driver.find_element(By.ID, "artifactType"))
                 select.select_by_value(value)

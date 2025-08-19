@@ -7,18 +7,7 @@ from selenium.webdriver.common.by import By
 from controls.dropdown import Dropdown
 
 
-@given("I go to home")
-def go_to_home(step):
-    """Navigate to the home page."""
-    from radish import world
-    from time import sleep
-    
-    # Navigate to the application
-    world.driver.get(world.base_url)
-    sleep(2)
-    
-    # Wait for the artifacts container to load
-    world.driver.find_element(By.CSS_SELECTOR, ".artifacts-container")
+
 
 
 @given("I filter for type {filter_value}")

@@ -1,0 +1,119 @@
+name: Smoke Tests
+
+on:
+  pull_request:
+    branches: [ master, main, branches/testing ]
+  push:
+    branches: [ master, main, branches/testing ]
+
+jobs:
+  smoke-tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout iflow repository
+      uses: actions/checkout@v5
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y git wget unzip curl
+        
+    - name: Install Chrome and ChromeDriver (compatible versions)
+      run: |
+        # Install Chrome using the official Google repository
+        wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+        echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+        sudo apt-get update
+        sudo apt-get install -y google-chrome-stable
+        
+        # Verify Chrome installation
+        echo "Chrome installed successfully"
+        google-chrome --version
+        
+        # Selenium Manager will automatically download compatible ChromeDriver
+        echo "✅ Chrome installed - ChromeDriver will be auto-downloaded by Selenium"
+        
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install radish-bdd selenium typer
+        
+    - name: Install iflow package
+      run: |
+        pip install -e .
+        
+    - name: Start iflow server with init-db
+      run: |
+        # Start the server in the background with --init-db to create initial repository
+        python -m iflow.web_server \
+          --port 8080 \
+          --init-db \
+          --host 0.0.0.0 \
+          --title "iflow - Test Server" &
+        
+        # Store the server PID for cleanup
+        echo $! > /tmp/iflow_server.pid
+        
+        # Wait for server to start with retry logic
+        echo "Waiting for server to start..."
+        for i in {1..30}; do
+          if curl -f http://localhost:8080/api/project-info > /dev/null 2>&1; then
+            echo "✅ Server is responding after $i seconds"
+            break
+          fi
+          if [ $i -eq 30 ]; then
+            echo "❌ Server failed to start within 30 seconds"
+            exit 1
+          fi
+          sleep 1
+        done
+        
+        # Verify initial ticket was created
+        echo "Verifying initial database setup..."
+        if curl -f http://localhost:8080/api/artifacts > /dev/null 2>&1; then
+          echo "✅ Initial database and artifacts are accessible"
+        else
+          echo "❌ Failed to access artifacts API"
+          exit 1
+        fi
+        
+        echo "✅ iflow server started successfully with initial database"
+        
+    - name: Run smoke tests
+      run: |
+        # Set environment variables for tests
+        export IFLOW_BASE_URL="http://localhost:8080"
+        export PYTHONPATH="tests:$PYTHONPATH"
+        export DISPLAY=":99"
+        export PYTHONUNBUFFERED="1"
+        export PYTHONPATH="tests:$PYTHONPATH"
+        export PYTHON_LOG_LEVEL="INFO"
+        
+        # Run smoke tests
+        echo "Running smoke tests..."
+        echo "Logging level set to: $PYTHON_LOG_LEVEL"
+        radish -b tests tests/features/ --tags smoke
+        
+        echo "✅ Smoke tests completed successfully"
+        
+    - name: Cleanup
+      if: always()
+      run: |
+        # Stop the server using stored PID
+        if [ -f /tmp/iflow_server.pid ]; then
+          PID=$(cat /tmp/iflow_server.pid)
+          kill $PID 2>/dev/null || true
+          rm -f /tmp/iflow_server.pid
+        fi
+        
+        # Also try to kill by process name as backup
+        pkill -f "python -m iflow.web_server" || true
+        
+        echo "✅ Cleanup completed"

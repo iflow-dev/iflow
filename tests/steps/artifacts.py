@@ -10,7 +10,7 @@ from controls import Tile
 def i_see_the_artifact(step, key):
     """Verify that the given artifact exists on the page."""
     import logging
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
     
     logger.debug(f"I see the artifact #{key}")
@@ -24,7 +24,7 @@ def i_see_the_artifact(step, key):
 def i_do_not_see_the_artifact(step, key):
     """Verify that the given artifact does not exist on the page."""
     import logging
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
     
     logger.debug(f"I do not see the artifact #{key}")

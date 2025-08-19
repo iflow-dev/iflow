@@ -165,6 +165,8 @@ Temporary Items
 # Logs
 *.log
 logs/
+*workflow_logs*.txt
+*smoke-tests-workflow-logs*.txt
 
 # Database
 *.db
@@ -193,4 +195,5 @@ yarn-error.log*
 *.js.map
 .iflow-demo/
 .iflow-test/
+.iflow-test*/
 .iflow/

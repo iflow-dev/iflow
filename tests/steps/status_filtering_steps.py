@@ -28,6 +28,11 @@ def i_set_status_filter_to(step, status):
             select = Select(status_filter)
             select.select_by_visible_text(status)
             log.debug(f"Fallback: Successfully selected status '{status}' using Select")
+        
+        # Wait for the filter to take effect
+        import time
+        time.sleep(2)
+        log.debug("Waited 2 seconds for filter to take effect")
             
     except Exception as e:
         log.debug(f"Fallback failed: {e}")
@@ -91,9 +96,13 @@ def i_see_only_artifacts_with_status(step, status):
         
         log.debug(f"Found {artifacts_with_correct_status} artifacts with status '{status}' out of {len(visible_artifacts)} visible artifacts")
         
-        # Verify that all visible artifacts have the correct status
+        # Verify that the filter is working - at least some artifacts should have the correct status
+        # and all visible artifacts should have the correct status (filter should exclude others)
+        if artifacts_with_correct_status == 0:
+            raise AssertionError(f"No artifacts found with status '{status}' - filter may not be working")
+        
         if artifacts_with_correct_status != len(visible_artifacts):
-            raise AssertionError(f"Expected all artifacts to have status '{status}', but only {artifacts_with_correct_status} out of {len(visible_artifacts)} artifacts have this status")
+            raise AssertionError(f"Status filter not working correctly: expected all visible artifacts to have status '{status}', but only {artifacts_with_correct_status} out of {len(visible_artifacts)} artifacts have this status")
             
     except Exception as e:
         raise AssertionError(f"Error verifying artifact statuses: {e}")
