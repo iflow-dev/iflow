@@ -13,8 +13,8 @@ class ControlBase:
     def locate(self, driver, timeout=None):
         """Locate the element within timeout, assert if not found."""
         import logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+        logging.basicConfig(level=logging.INFO)
+        logger = logging.getLogger(__name__)
         
         # Set default timeout if None is provided
         if timeout is None:
