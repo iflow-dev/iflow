@@ -32,23 +32,32 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y google-chrome-stable
         
-        # Install ChromeDriver that matches Chrome version
-        CHROME_VERSION=$(google-chrome --version | awk '{print $3}' | awk -F'.' '{print $1}')
-        echo "Chrome version: $CHROME_VERSION"
-        
-        # Download compatible ChromeDriver
-        wget -O /tmp/chromedriver.zip "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_VERSION"
-        LATEST_VERSION=$(cat /tmp/chromedriver.zip)
-        echo "Latest ChromeDriver version for Chrome $CHROME_VERSION: $LATEST_VERSION"
-        
-        wget -O /tmp/chromedriver.zip "https://chromedriver.storage.googleapis.com/$LATEST_VERSION/chromedriver_linux64.zip"
-        unzip /tmp/chromedriver.zip -d /tmp/
-        sudo mv /tmp/chromedriver /usr/local/bin/
-        sudo chmod +x /usr/local/bin/chromedriver
-        
-        # Verify installations
+        # Install ChromeDriver using Selenium Manager (more reliable)
+        echo "Chrome installed successfully"
         google-chrome --version
-        chromedriver --version
+        
+        # Use Selenium Manager to automatically download compatible ChromeDriver
+        # This is more reliable than manual version matching
+        python -c "
+import selenium
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+
+print('Selenium version:', selenium.__version__)
+print('Setting up Chrome options...')
+chrome_options = Options()
+chrome_options.add_argument('--headless')
+chrome_options.add_argument('--no-sandbox')
+chrome_options.add_argument('--disable-dev-shm-usage')
+chrome_options.add_argument('--disable-gpu')
+
+print('Creating Chrome driver...')
+driver = webdriver.Chrome(options=chrome_options)
+print('Chrome driver created successfully!')
+driver.quit()
+print('Chrome driver test completed')
+"
         
         echo "✅ Chrome and ChromeDriver installed with compatible versions"
         
