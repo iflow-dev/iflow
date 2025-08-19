@@ -67,17 +67,9 @@ def i_fill_in_artifact_details(step):
         ]
     
     for row in data:
-        try:
-            # Handle both dictionary and list formats
-            if isinstance(row, dict):
-                field = row.get('Field', '')
-                value = row.get('Value', '')
-            elif isinstance(row, list) and len(row) >= 2:
-                field = row[0]
-                value = row[1]
-            else:
-                print(f"Warning: Skipping invalid row format: {row}")
-                continue
+        if len(row) >= 2:
+            field = row[0]
+            value = row[1]
             
             if field == "Type":
                 select = Select(world.driver.find_element(By.ID, "artifactType"))
@@ -91,9 +83,6 @@ def i_fill_in_artifact_details(step):
             elif field == "Status":
                 select = Select(world.driver.find_element(By.ID, "artifactStatus"))
                 select.select_by_value(value)
-        except (IndexError, KeyError, Exception) as e:
-            print(f"Warning: Error processing row {row}: {e}")
-            continue
 
 @step("I click \"{button_text}\"")
 def i_click_save_artifact(step, button_text):
