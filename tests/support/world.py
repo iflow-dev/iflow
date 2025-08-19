@@ -80,7 +80,7 @@ def after_scenario(scenario):
     # Calculate scenario duration
     import time
     scenario_duration = time.time() - scenario.scenario_start_time
-    print(f"Completed scenario: {scenario.name} in {scenario_duration:.2f}s")
+    print(f"Completed scenario: {scenario.sentence} in {scenario_duration:.2f}s")
     
     # Clean up scenario state
     scenario.current_page = None
