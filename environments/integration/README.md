@@ -21,24 +21,23 @@ The integration environment serves as a staging area for testing multiple pull r
    ```
 
 ## Alternative Startup Methods
+The integration environment can also be started from anywhere using the standard pattern:
 
-### Run from anywhere
-The startup script can be run from any directory:
 ```bash
+# From anywhere in the system
 /opt/iflow/integration/start.sh
 ```
 
-### Manual startup
-```bash
-cd /opt/iflow/integration
-source venv/bin/activate
-python -m iflow.web_server --port 8082 --database .iflow-test --host 0.0.0.0 --title "iflow - Integration Environment"
-```
+## Requirements
+All required dependencies are automatically installed:
+- Python 3.x
+- Virtual environment (created automatically)
+- iflow package (installed from source)
+- Test database (cloned from GitHub)
 
-## Environment Details
-- **Working Directory**: `/opt/iflow/integration/`
-- **Port**: 8082
-- **Database**: `/opt/iflow/integration/.iflow-test`
-- **Python Environment**: Dedicated virtual environment at `/opt/iflow/integration/venv/`
-- **Code Source**: Installed iflow package
-- **Purpose**: Integration testing of multiple pull requests
+## Script Pattern
+This environment follows the standard `/opt/iflow/<env>/start.sh` pattern:
+- Script can be run from anywhere
+- Uses absolute paths for reliability
+- Automatically changes to the correct directory
+- Handles all setup automatically
