@@ -35,7 +35,15 @@ def setup_test_environment(features, marker):
     # Initialize the web driver once for the entire test session
     log.debug("Initializing Chrome driver for entire test session...")
     chrome_options = Options()
-    chrome_options.add_argument("--headless")  # Run headless by default
+    
+    # Check if headless mode should be disabled
+    headless_mode = os.environ.get("HEADLESS_MODE", "true").lower() == "true"
+    if headless_mode:
+        chrome_options.add_argument("--headless")  # Run headless by default
+        log.debug("Chrome running in headless mode")
+    else:
+        log.debug("Chrome running in visible mode (headless disabled)")
+    
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--disable-gpu")
@@ -96,6 +104,25 @@ def after_scenario(scenario):
     # Clean up scenario state
     scenario.current_page = None
     scenario.last_action = None
+    
+    # Close any open modal to ensure clean state for next scenario
+    try:
+        from selenium.webdriver.common.by import By
+        from selenium.webdriver.support.ui import WebDriverWait
+        from selenium.webdriver.support import expected_conditions as EC
+        
+        # Check if modal is open
+        modal = world.driver.find_element(By.ID, "artifactModal")
+        if modal.is_displayed():
+            log.debug("Closing open modal after scenario")
+            # Try to find and click the close button (×)
+            close_button = world.driver.find_element(By.XPATH, "//div[@id='artifactModal']//button[contains(text(), '×') or contains(@class, 'close')]")
+            close_button.click()
+            # Wait for modal to close
+            WebDriverWait(world.driver, 5).until(EC.invisibility_of_element_located((By.ID, "artifactModal")))
+            log.debug("Modal closed successfully")
+    except Exception as e:
+        log.debug(f"No modal to close or error closing modal: {e}")
     
     # Note: ChromeDriver is NOT closed here - it stays alive for the entire session
 

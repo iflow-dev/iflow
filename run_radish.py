@@ -38,7 +38,12 @@ def setup_environment(environment: str) -> None:
     
     url = ENVIRONMENT_URLS[environment]
     os.environ["IFLOW_BASE_URL"] = url
+    os.environ["PYTHON_LOG_LEVEL"] = "INFO"  # Set logging level for tests
+    os.environ["HEADLESS_MODE"] = "false"  # Disable headless mode for debugging
     typer.echo(f"Using environment: {environment} (URL: {url})")
+    typer.echo(f"Set IFLOW_BASE_URL={url}")
+    typer.echo(f"Set PYTHON_LOG_LEVEL=INFO")
+    typer.echo(f"Set HEADLESS_MODE=false (Chrome will be visible)")
 
 def setup_python_path() -> None:
     """Set up Python path to include the tests directory."""
@@ -53,8 +58,8 @@ def setup_python_path() -> None:
     
     os.environ["PYTHONPATH"] = new_pythonpath
 
-def run_radish(args: List[str]) -> None:
-    """Run the radish command with the given arguments."""
+def run_radish(args: List[str]) -> int:
+    """Run the radish command with the given arguments and return the status code."""
     script_dir = get_script_dir()
     tests_dir = script_dir / "tests"
     
@@ -66,14 +71,17 @@ def run_radish(args: List[str]) -> None:
     if not has_basedir:
         radish_cmd.extend(["-b", str(tests_dir)])
     
+    typer.echo(f"Running command: {' '.join(radish_cmd)}")
+    
     # Run the command
     try:
-        subprocess.run(radish_cmd, check=True)
-    except subprocess.CalledProcessError as e:
-        raise typer.Exit(e.returncode)
+        result = subprocess.run(radish_cmd, check=False)
+        status_code = result.returncode
+        typer.echo(f"Radish command completed with status code: {status_code}")
+        return status_code
     except FileNotFoundError:
         typer.echo("Error: 'radish' command not found. Please install radish-bdd.")
-        raise typer.Exit(1)
+        return 1
 
 @app.command()
 def main(
@@ -104,8 +112,11 @@ def main(
     # Set up Python path
     setup_python_path()
     
-    # Run radish with all remaining arguments
-    run_radish(radish_args)
+    # Run radish with all remaining arguments and get status code
+    status_code = run_radish(radish_args)
+    
+    # Exit with the radish status code
+    raise typer.Exit(status_code)
 
 def main_simple():
     """Simple version that doesn't use typer for argument parsing."""
@@ -123,8 +134,11 @@ def main_simple():
     # Set up Python path
     setup_python_path()
     
-    # Run radish with all remaining arguments
-    run_radish(radish_args)
+    # Run radish with all remaining arguments and get status code
+    status_code = run_radish(radish_args)
+    
+    # Exit with the radish status code
+    sys.exit(status_code)
 
 if __name__ == "__main__":
     main_simple()

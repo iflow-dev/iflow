@@ -6,9 +6,10 @@ Feature: Edit Dialog Button Text
 
     Scenario: Create new artifact shows "Create" button
         Given I go to home
-        When I click the create button
+        When I create a new requirement
         Then I should see the edit dialog
         And the submit button should say "Create"
+        And I cancel the artifact creation
 
     Scenario: Edit existing artifact shows "Save" button
         Given I go to home
@@ -16,3 +17,4 @@ Feature: Edit Dialog Button Text
         When I click the edit button on the first artifact
         Then I should see the edit dialog
         And the submit button should say "Save"
+        And I cancel the artifact creation
