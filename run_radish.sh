@@ -6,6 +6,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Check for mandatory environment parameter
 ENVIRONMENT=""
+RADISH_ARGS=()
+
 for arg in "$@"; do
     if [[ "$arg" == "--env" || "$arg" == "-e" ]]; then
         # Get the next argument as environment value
@@ -13,13 +15,17 @@ for arg in "$@"; do
     elif [[ "$arg" =~ ^--env= || "$arg" =~ ^-e= ]]; then
         # Extract environment from --env=value or -e=value format
         ENVIRONMENT="${arg#*=}"
-        break
     elif [[ "$ENVIRONMENT" == "" && "$arg" != "--env" && "$arg" != "-e" ]]; then
         # If we haven't found environment yet and this isn't a flag, it might be the environment
         if [[ "$arg" == "dev" || "$arg" == "qa" || "$arg" == "prod" ]]; then
             ENVIRONMENT="$arg"
-            break
+        else
+            # This is not an environment, add to radish args
+            RADISH_ARGS+=("$arg")
         fi
+    else
+        # Add to radish args
+        RADISH_ARGS+=("$arg")
     fi
 done
 
@@ -55,7 +61,7 @@ export PYTHONPATH="${SCRIPT_DIR}/tests${PYTHONPATH+:${PYTHONPATH}}"
 
 # If no basedir (-b/--basedir) was provided, add "-b tests"
 ADD_BASEDIR=true
-for arg in "$@"; do
+for arg in "${RADISH_ARGS[@]}"; do
     if [[ "$arg" == "-b" || "$arg" == "--basedir" ]]; then
         ADD_BASEDIR=false
         break
@@ -63,7 +69,7 @@ for arg in "$@"; do
 done
 
 if $ADD_BASEDIR; then
-    exec radish "$@" -b "${SCRIPT_DIR}/tests"
+    exec radish "${RADISH_ARGS[@]}" -b "${SCRIPT_DIR}/tests"
 else
-    exec radish "$@"
+    exec radish "${RADISH_ARGS[@]}"
 fi

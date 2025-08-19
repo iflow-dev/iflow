@@ -1,0 +1,4 @@
+name: integration
+port: 8082
+database: .iflow-test
+database_url: https://github.com/iflow-dev/iflow-test-db.git

@@ -5,7 +5,8 @@ Feature: Toolbar Refresh Functionality
     So that I can see the latest data without reloading the page
 
     Scenario: Refresh artifacts using toolbar refresh button
-        Given I am on the search page
+        Given I go to home
+        And I see artifacts displayed
         When I click the refresh button in the toolbar
-        Then the artifacts list should be refreshed
-        And I should see the latest artifacts data
+        Then the artifacts should be refreshed
+        And I should see the latest data

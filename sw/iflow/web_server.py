@@ -230,6 +230,8 @@ def update_artifact(artifact_id):
             artifact.category = data['category']
         if 'status' in data:
             artifact.status = data['status']
+        if 'flagged' in data:
+            artifact.flagged = data['flagged']
         
         # Update timestamp
         artifact.update()
@@ -244,6 +246,40 @@ def update_artifact(artifact_id):
         return jsonify(result)
     except Exception as e:
         print(f"Error updating artifact {artifact_id}: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/artifacts/<artifact_id>', methods=['PATCH'])
+def patch_artifact(artifact_id):
+    """Partially update an artifact (for flag updates)."""
+    try:
+        print(f"Patching artifact: {artifact_id}")
+        artifact = db.get_artifact(artifact_id)
+        if not artifact:
+            print(f"Artifact not found: {artifact_id}")
+            return jsonify({'error': 'Artifact not found'}), 404
+        
+        data = request.get_json()
+        print(f"Patch data: {data}")
+        
+        # Update specific fields
+        if 'flagged' in data:
+            artifact.flagged = data['flagged']
+        
+        # Update timestamp
+        artifact.update()
+        
+        print(f"Artifact patched, saving to database...")
+        # Save to database
+        db.save_artifact(artifact)
+        print(f"Artifact saved successfully")
+        
+        result = artifact_to_dict(artifact)
+        print(f"Returning result: {result}")
+        return jsonify(result)
+    except Exception as e:
+        print(f"Error patching artifact {artifact_id}: {e}")
         import traceback
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
@@ -287,7 +323,8 @@ def artifact_to_dict(artifact):
         'status': artifact.status,
         'created_at': artifact.created_at.isoformat(),
         'updated_at': artifact.updated_at.isoformat(),
-        'metadata': artifact.metadata
+        'metadata': artifact.metadata,
+        'flagged': artifact.flagged
     }
 
 def get_html_template(title="iflow - Project Artifact Manager"):
