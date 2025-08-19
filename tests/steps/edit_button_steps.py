@@ -7,15 +7,7 @@ from selenium.webdriver.support import expected_conditions as EC
 # Set up logging
 log = logging.getLogger(__name__)
 
-@step("I see artifacts displayed")
-def i_see_artifacts_displayed(step):
-    """Verify that artifacts are displayed on the page."""
-    from radish import world
-    
-    # Wait for artifacts to be visible
-    wait = WebDriverWait(world.driver, 10)
-    wait.until(EC.presence_of_element_located((By.CLASS_NAME, "artifact-card")))
-    log.debug("✅ Artifacts are displayed")
+# Note: "I see artifacts displayed" step is already defined in artifact_flags_steps.py
 
 @when("I click the create button")
 def i_click_create_button(step):

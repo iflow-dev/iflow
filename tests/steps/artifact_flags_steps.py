@@ -69,9 +69,21 @@ def i_flag_artifact_by_id(step, artifact_id):
     
     # Store the current flag state for verification
     icon = flag_button.find_element(By.CSS_SELECTOR, "ion-icon")
-    world.previous_flag_state = "flag" in icon.get_attribute("name") and "outline" not in icon.get_attribute("name")
+    icon_name = icon.get_attribute("name")
+    # Check if the button is currently flagged (filled icon) or unflagged (outline icon)
+    world.previous_flag_state = "outline" not in icon_name
     
     flag_button.click()
+    
+    # Wait for any modal to close if it was open
+    try:
+        WebDriverWait(world.driver, 2).until_not(
+            EC.presence_of_element_located((By.CSS_SELECTOR, ".modal-content"))
+        )
+    except TimeoutException:
+        # Modal might not be present, which is fine
+        pass
+    
     print(f"✅ Flagged artifact #{artifact_id} (previous state: {'flagged' if world.previous_flag_state else 'unflagged'})")
 
 
@@ -86,7 +98,8 @@ def the_artifact_should_be_flagged(step):
     # Check the flag button state
     flag_button = world.driver.find_element(By.CSS_SELECTOR, ".artifact-card:first-child .artifact-actions button:first-child")
     icon = flag_button.find_element(By.CSS_SELECTOR, "ion-icon")
-    current_flag_state = "flag" in icon.get_attribute("name") and "outline" not in icon.get_attribute("name")
+    icon_name = icon.get_attribute("name")
+    current_flag_state = "outline" not in icon_name
     
     # The flag state should have changed from the previous state
     assert current_flag_state != world.previous_flag_state, f"Flag state did not change. Expected: {not world.previous_flag_state}, Got: {current_flag_state}"
@@ -293,38 +306,4 @@ def i_submit_form_alias(step):
 # Note: "I fill in the artifact details" step definition already exists in artifact_steps.py
 
 
-@step("I click the refresh button in the toolbar")
-def i_click_refresh_button_in_toolbar(step):
-    """Click the refresh button in the toolbar."""
-    from radish import world
-    
-    # Find and click the refresh button
-    refresh_button = world.driver.find_element(By.CSS_SELECTOR, ".toolbar button[onclick*='refresh']")
-    refresh_button.click()
-    print("✅ Clicked refresh button in toolbar")
-
-
-@step("the artifacts should be refreshed")
-def the_artifacts_should_be_refreshed(step):
-    """Verify that the artifacts have been refreshed."""
-    from radish import world
-    
-    # Wait a moment for the refresh to complete
-    time.sleep(1)
-    
-    # Check that artifacts are still visible (indicating successful refresh)
-    artifacts = world.driver.find_elements(By.CSS_SELECTOR, ".artifact-card")
-    assert len(artifacts) > 0, "No artifacts found after refresh"
-    print(f"✅ Artifacts refreshed successfully ({len(artifacts)} artifacts visible)")
-
-
-@step("I should see the latest data")
-def i_should_see_latest_data(step):
-    """Verify that the latest data is displayed."""
-    from radish import world
-    
-    # This is a simple verification that the page is still functional
-    # In a real scenario, you might check for specific updated timestamps or data
-    artifacts = world.driver.find_elements(By.CSS_SELECTOR, ".artifact-card")
-    assert len(artifacts) > 0, "No artifacts visible after refresh"
-    print("✅ Latest data is displayed")
+# Note: Refresh button functionality is handled in toolbar_refresh_steps.py
