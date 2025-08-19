@@ -1,126 +1,131 @@
-# iflow Environment Setup
+# Environment Setup
 
-## Overview
-The iflow project now has three separate environments with proper isolation:
+This document describes the setup and details of all environments used in the iflow project.
 
-1. **Development Environment** - Runs from source code
-2. **QA Environment** - Runs from installed package in dedicated virtual environment
-3. **Production Environment** - Runs from installed package in dedicated virtual environment
+## Environments Overview
 
-## Environment Details
+All environments follow the standard pattern `/opt/iflow/<env>/start.sh` and can be started from anywhere without changing directories.
 
-### 1. Development Environment
-- **Working Directory**: `/Users/claudio/realtime/reos2`
+### Development Environment
+- **Working Directory**: `/opt/iflow/dev/`
 - **Port**: 8080
-- **Database**: `.iflow-test` (relative to project root)
-- **Python Environment**: Uses project's virtual environment
-- **Code Source**: Direct source code execution
-- **Purpose**: AI development and testing activities
+- **Database**: `/opt/iflow/dev/.iflow-test`
+- **Start Command**: `/opt/iflow/dev/start.sh`
+- **Server Management**: `/opt/iflow/dev/server {start|stop|status|restart}`
+- **Purpose**: Local development and testing
 
-**Start Command**:
-```bash
-cd /Users/claudio/realtime/reos2
-source venv/bin/activate
-python sw/iflow/web_server.py --port 8080 --database .iflow-test --host 0.0.0.0
-```
-
-### 2. QA Environment
+### QA Environment
 - **Working Directory**: `/opt/iflow/qa/`
 - **Port**: 8081
 - **Database**: `/opt/iflow/qa/.iflow-test`
-- **Python Environment**: Dedicated virtual environment at `/opt/iflow/qa/venv/`
-- **Code Source**: Installed iflow package (`pip install .`)
-- **Purpose**: Human testing and QA activities
+- **Start Command**: `/opt/iflow/qa/start.sh`
+- **Server Management**: `/opt/iflow/qa/server {start|stop|status|restart}`
+- **Purpose**: Quality assurance testing
 
-**Start Command**:
-```bash
-cd /opt/iflow/qa
-./start_qa.sh
-```
-
-**Manual Start**:
-```bash
-cd /opt/iflow/qa
-source venv/bin/activate
-python -m iflow.web_server --port 8081 --database /opt/iflow/qa/.iflow-test --host 0.0.0.0
-```
-
-### 3. Production Environment
+### Production Environment
 - **Working Directory**: `/opt/iflow/prod/`
 - **Port**: 9000
 - **Database**: `/opt/iflow/prod/.iflow-demo`
-- **Python Environment**: Dedicated virtual environment at `/opt/iflow/prod/venv/`
-- **Code Source**: Installed iflow package (`pip install .`)
-- **Purpose**: Production use
+- **Start Command**: `/opt/iflow/prod/start.sh`
+- **Server Management**: `/opt/iflow/prod/server {start|stop|status|restart}`
+- **Purpose**: Production deployment
 
-**Start Command**:
+### Integration Environment
+- **Working Directory**: `/opt/iflow/integration/`
+- **Port**: 8082
+- **Database**: `/opt/iflow/integration/.iflow-test`
+- **Start Command**: `/opt/iflow/integration/start.sh`
+- **Server Management**: `/opt/iflow/integration/server {start|stop|status|restart}`
+- **Purpose**: Integration testing of multiple PRs
+
+## Key Features
+
+- **Universal Access**: All start scripts can be run from anywhere using `/opt/iflow/<env>/start.sh`
+- **Unified Server Management**: All environments support `/opt/iflow/<env>/server` commands
+- **Automatic Setup**: Scripts automatically handle virtual environment creation, package installation, and database setup
+- **Consistent Pattern**: All environments follow the same startup pattern and structure
+- **Port Management**: Each environment uses a unique port to avoid conflicts
+- **Database Isolation**: Each environment has its own isolated database
+- **Background Execution**: All servers start in background with proper PID management
+
+## Usage Examples
+
+### Traditional Startup (Legacy)
 ```bash
-cd /opt/iflow/prod
-./start_prod.sh
+# Start development environment from anywhere
+/opt/iflow/dev/start.sh
+
+# Start QA environment from anywhere
+/opt/iflow/qa/start.sh
+
+# Start production environment from anywhere
+/opt/iflow/prod/start.sh
+
+# Start integration environment from anywhere
+/opt/iflow/integration/start.sh
 ```
 
-**Manual Start**:
+### Unified Server Management (Recommended)
 ```bash
-cd /opt/iflow/prod
-source venv/bin/activate
-python -m iflow.web_server --port 9000 --database /opt/iflow/prod/.iflow-demo --host 0.0.0.0
+# Check status of all environments
+/opt/iflow/dev/server status
+/opt/iflow/qa/server status
+/opt/iflow/prod/server status
+/opt/iflow/integration/server status
+
+# Start environments
+/opt/iflow/dev/server start
+/opt/iflow/qa/server start
+/opt/iflow/prod/server start
+/opt/iflow/integration/server start
+
+# Stop environments
+/opt/iflow/dev/server stop
+/opt/iflow/qa/server stop
+/opt/iflow/prod/server stop
+/opt/iflow/integration/server stop
+
+# Restart environments
+/opt/iflow/dev/server restart
+/opt/iflow/qa/server restart
+/opt/iflow/prod/server restart
+/opt/iflow/integration/server restart
 ```
 
-## Environment Isolation Benefits
+## Server Management Features
 
-1. **Code Isolation**: Changes to source code in development don't affect QA/Production
-2. **Package Management**: QA/Production use stable, installed packages
-3. **Database Separation**: Each environment has its own database
-4. **Virtual Environment Isolation**: Each environment has dedicated Python dependencies
-5. **Port Separation**: No conflicts between environments
+### Start Command
+- **Fails if server is already running** (prevents duplicate instances)
+- Automatically handles all setup requirements
+- Starts server in background with PID tracking
+- Provides immediate feedback on success/failure
 
-## Package Installation
+### Stop Command
+- Gracefully shuts down server
+- Waits for clean termination (up to 10 seconds)
+- Force kills if necessary
+- Cleans up PID files
 
-The iflow package is installed in QA and Production environments using:
-```bash
-pip install /Users/claudio/realtime/reos2
-```
+### Status Command
+- Shows current server status
+- Displays PID and port information
+- Color-coded output for clarity
+- Validates port is actually listening
 
-This installs the package with all dependencies and static files.
+### Restart Command
+- Stops existing server (if running)
+- Starts new server instance
+- Useful for applying configuration changes
 
 ## Configuration
 
-All environments use the same `config.yaml` from the project repository, ensuring consistent:
-- Artifact types
-- Status definitions
-- Colors and icons
-- Project settings
+All environments use the same `config.yaml` file for consistency. Environment-specific settings are handled through environment variables and startup scripts.
 
-## Startup Scripts
+## File Locations
 
-Both QA and Production environments have startup scripts:
-- `/opt/iflow/qa/start_qa.sh`
-- `/opt/iflow/prod/start_prod.sh`
-
-These scripts:
-- Activate the appropriate virtual environment
-- Set environment variables
-- Start the web server with correct parameters
-
-## Current Status
-
-- ✅ Development Environment: Running on port 8080
-- ✅ QA Environment: Running on port 8081
-- ✅ Production Environment: Running on port 9000
-- ✅ All environments serving web interface correctly
-- ✅ Static files properly included in installed packages
-- ✅ Environment isolation working as intended
-
-## Maintenance
-
-To update QA/Production environments after code changes:
-1. Make changes in development environment
-2. Test changes thoroughly
-3. Reinstall package in QA/Production:
-   ```bash
-   cd /opt/iflow/qa && source venv/bin/activate && pip install --force-reinstall /Users/claudio/realtime/reos2
-   cd /opt/iflow/prod && source venv/bin/activate && pip install --force-reinstall /Users/claudio/realtime/reos2
-   ```
-4. Restart the respective servers
+- **Startup Scripts**: `/opt/iflow/<env>/start.sh` (legacy, still supported)
+- **Server Management**: `/opt/iflow/<env>/server` (recommended)
+- **Repository Scripts**: `environments/server-scripts/` (for version control)
+- **Documentation**: `environments/server-scripts/README.md`
 
 
