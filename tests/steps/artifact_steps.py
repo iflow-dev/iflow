@@ -9,6 +9,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
+from controls import Title
 import time
 
 class ArtifactTestWorld:
@@ -22,20 +23,19 @@ class ArtifactTestWorld:
 
 @step("I am on the artifacts page")
 def i_am_on_artifacts_page(step):
-    """Navigate to the artifacts page."""
+    """Verify we are on the artifacts page (expects previous step to have navigated)."""
     from radish import world
-    import time
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
     
-    # Use the same base URL as other steps
-    base_url = world.base_url
-    world.driver.get(base_url)
-    world.wait = WebDriverWait(world.driver, 10)
+    # Verify we're on the iflow page (don't navigate, just verify)
+    title = Title("iflow")
+    title.locate(world.driver)
     
-    # Wait for the page to load
-    world.wait.until(EC.presence_of_element_located((By.CLASS_NAME, "artifacts-container")))
-    
-    # Additional wait to ensure page is fully loaded and interactive
-    time.sleep(1)
+    # Verify we have the artifacts container (search functionality)
+    wait = WebDriverWait(world.driver, 10)
+    wait.until(EC.presence_of_element_located((By.CLASS_NAME, "artifacts-container")))
 
 @step("I am logged in as a user")
 def i_am_logged_in_as_user(step):

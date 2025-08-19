@@ -25,7 +25,7 @@ def i_go_to_home(step):
     wait.until(EC.presence_of_element_located((By.CLASS_NAME, "artifacts-container")))
     
     # Additional wait to ensure page is fully loaded and interactive
-    time.sleep(1)
+    time.sleep(3)
 
 @given("I am on the main page")
 def i_am_on_main_page(step):

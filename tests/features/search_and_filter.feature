@@ -4,7 +4,8 @@ Feature: Search and Filter Functionality
   So that I can work efficiently
 
   Background:
-    Given I am on the artifacts page
+    Given I go to home
+    And I am on the artifacts page
     And I am logged in as a user
 
   Scenario: Real-time Search

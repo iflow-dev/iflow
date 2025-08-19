@@ -4,7 +4,8 @@ Feature: Artifact Management
   So that project requirements are properly tracked
 
   Background:
-    Given I am on the artifacts page
+    Given I go to home
+    And I am on the artifacts page
     Given I am logged in as a user
 
   Scenario: Create New Artifact

@@ -30,7 +30,7 @@ def get_script_dir() -> Path:
     """Get the directory containing this script."""
     return Path(__file__).parent.absolute()
 
-def setup_environment(environment: str) -> None:
+def setup_environment(environment: str, foreground: bool = False) -> None:
     """Set up environment variables for the specified environment."""
     if environment not in ENVIRONMENT_URLS:
         typer.echo(f"Error: Invalid environment '{environment}'. Must be one of: {', '.join(ENVIRONMENT_URLS.keys())}")
@@ -39,11 +39,19 @@ def setup_environment(environment: str) -> None:
     url = ENVIRONMENT_URLS[environment]
     os.environ["IFLOW_BASE_URL"] = url
     os.environ["PYTHON_LOG_LEVEL"] = "INFO"  # Set logging level for tests
-    os.environ["HEADLESS_MODE"] = "true"  # Enable headless mode
+    
+    # Set headless mode based on foreground flag
+    if foreground:
+        os.environ["HEADLESS_MODE"] = "false"  # Disable headless mode for debugging
+        headless_message = "false (Chrome will be visible)"
+    else:
+        os.environ["HEADLESS_MODE"] = "true"  # Enable headless mode
+        headless_message = "true (Chrome will run in headless mode)"
+    
     typer.echo(f"Using environment: {environment} (URL: {url})")
     typer.echo(f"Set IFLOW_BASE_URL={url}")
     typer.echo(f"Set PYTHON_LOG_LEVEL=INFO")
-    typer.echo(f"Set HEADLESS_MODE=true (Chrome will run in headless mode)")
+    typer.echo(f"Set HEADLESS_MODE={headless_message}")
 
 def setup_python_path() -> None:
     """Set up Python path to include the tests directory."""
@@ -92,6 +100,11 @@ def main(
     radish_args: List[str] = typer.Argument(
         ...,
         help="Arguments to pass to radish command"
+    ),
+    foreground: bool = typer.Option(
+        False,
+        "--foreground", "-f",
+        help="Run tests in foreground mode (Chrome will be visible)"
     )
 ):
     """
@@ -105,9 +118,10 @@ def main(
         run_radish.py dev tests/features/artifact_management.feature
         run_radish.py qa --tags smoke
         run_radish.py prod tests/features/ --verbose
+        run_radish.py dev tests/features/test_status_filtering.feature --foreground
     """
     # Set up environment
-    setup_environment(environment)
+    setup_environment(environment, foreground)
     
     # Set up Python path
     setup_python_path()
@@ -121,15 +135,22 @@ def main(
 def main_simple():
     """Simple version that doesn't use typer for argument parsing."""
     if len(sys.argv) < 3:
-        print("Usage: run_radish.py <environment> <radish_args...>")
+        print("Usage: run_radish.py <environment> <radish_args...> [--foreground]")
         print("Example: run_radish.py dev tests/features/ --tags @smoke")
+        print("Example: run_radish.py dev tests/features/test_status_filtering.feature --foreground")
         sys.exit(1)
     
     environment = sys.argv[1]
     radish_args = sys.argv[2:]
     
+    # Check for --foreground flag
+    foreground = False
+    if "--foreground" in radish_args:
+        foreground = True
+        radish_args.remove("--foreground")
+    
     # Set up environment
-    setup_environment(environment)
+    setup_environment(environment, foreground)
     
     # Set up Python path
     setup_python_path()
