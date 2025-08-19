@@ -323,9 +323,36 @@ def get_html_template(title="iflow - Project Artifact Manager"):
     
     return html_content
 
-def run_web_server(database_path=".iflow", host="127.0.0.1", port=5000, debug=True):
+def run_web_server(database_path=".iflow", host="127.0.0.1", port=5000, debug=True, init_db=False):
     """Run the Flask web server."""
     global db
+    
+    # Initialize database with initial artifact if requested
+    if init_db:
+        print("Initializing database with initial artifact...")
+        try:
+            # Create database instance
+            init_db_instance = GitDatabase(database_path)
+            
+            # Create initial artifact
+            from .core import Artifact, ArtifactType
+            initial_artifact = Artifact(
+                artifact_type=ArtifactType("requirement"),
+                summary="Initial ticket",
+                description="This is the initial ticket created when the database was initialized.",
+                category="setup",
+                status="open"
+            )
+            
+            # Save the initial artifact
+            init_db_instance.save_artifact(initial_artifact)
+            print(f"✅ Created initial artifact: {initial_artifact.artifact_id} - {initial_artifact.summary}")
+            
+        except Exception as e:
+            print(f"❌ Failed to initialize database: {e}")
+            import traceback
+            traceback.print_exc()
+    
     # Initialize database with the correct path
     db = GitDatabase(database_path)
     
@@ -349,6 +376,7 @@ if __name__ == "__main__":
     parser.add_argument("--database", type=str, default=".iflow-demo", help="Database path to use")
     parser.add_argument("--host", type=str, default="0.0.0.0", help="Host to bind to")
     parser.add_argument("--title", type=str, default="iflow - Project Artifact Manager", help="Page title to display")
+    parser.add_argument("--init-db", action="store_true", help="Initialize database with initial artifact")
     
     args = parser.parse_args()
     
@@ -360,5 +388,6 @@ if __name__ == "__main__":
     print(f"Host: {args.host}")
     print(f"Port: {args.port}")
     print(f"Title: {args.title}")
+    print(f"Initialize DB: {args.init_db}")
     
-    run_web_server(database_path=args.database, host=args.host, port=args.port, debug=False)
+    run_web_server(database_path=args.database, host=args.host, port=args.port, debug=False, init_db=args.init_db)
