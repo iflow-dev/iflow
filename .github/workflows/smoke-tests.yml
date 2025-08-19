@@ -32,34 +32,12 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y google-chrome-stable
         
-        # Install ChromeDriver using Selenium Manager (more reliable)
+        # Verify Chrome installation
         echo "Chrome installed successfully"
         google-chrome --version
         
-        # Use Selenium Manager to automatically download compatible ChromeDriver
-        # This is more reliable than manual version matching
-        python -c "
-import selenium
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-
-print('Selenium version:', selenium.__version__)
-print('Setting up Chrome options...')
-chrome_options = Options()
-chrome_options.add_argument('--headless')
-chrome_options.add_argument('--no-sandbox')
-chrome_options.add_argument('--disable-dev-shm-usage')
-chrome_options.add_argument('--disable-gpu')
-
-print('Creating Chrome driver...')
-driver = webdriver.Chrome(options=chrome_options)
-print('Chrome driver created successfully!')
-driver.quit()
-print('Chrome driver test completed')
-"
-        
-        echo "✅ Chrome and ChromeDriver installed with compatible versions"
+        # Selenium Manager will automatically download compatible ChromeDriver
+        echo "✅ Chrome installed - ChromeDriver will be auto-downloaded by Selenium"
         
     - name: Install Python dependencies
       run: |
