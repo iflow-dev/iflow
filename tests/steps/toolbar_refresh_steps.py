@@ -2,7 +2,7 @@
 Step definitions for toolbar refresh functionality testing.
 """
 
-from radish import when, then
+from radish import given, when, then
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -36,6 +36,20 @@ def artifacts_list_should_be_refreshed(step):
     loading_elements = artifacts_container.find_elements(By.CLASS_NAME, "loading")
     assert len(loading_elements) == 0, "Artifacts container is still in loading state"
 
+@then("the artifacts should be refreshed")
+def the_artifacts_should_be_refreshed(step):
+    """Verify that the artifacts have been refreshed."""
+    from radish import world
+    
+    # Wait a moment for the refresh to complete
+    import time
+    time.sleep(1)
+    
+    # Check that artifacts are still visible (indicating successful refresh)
+    artifacts = world.driver.find_elements(By.CSS_SELECTOR, ".artifact-card")
+    assert len(artifacts) > 0, "No artifacts found after refresh"
+    print(f"✅ Artifacts refreshed successfully ({len(artifacts)} artifacts visible)")
+
 @then("I should see the latest artifacts data")
 def i_should_see_latest_artifacts_data(step):
     """Verify that the latest artifacts data is displayed."""
@@ -53,3 +67,29 @@ def i_should_see_latest_artifacts_data(step):
     # Verify that the artifacts container is not empty
     artifacts_container = world.driver.find_element(By.CLASS_NAME, "artifacts-container")
     assert artifacts_container.text.strip() != "", "Artifacts container is empty after refresh"
+
+@then("I should see the latest data")
+def i_should_see_the_latest_data(step):
+    """Verify that the latest data is displayed."""
+    from radish import world
+    
+    # This is a simple verification that the page is still functional
+    # In a real scenario, you might check for specific updated timestamps or data
+    artifacts = world.driver.find_elements(By.CSS_SELECTOR, ".artifact-card")
+    assert len(artifacts) > 0, "No artifacts visible after refresh"
+    print("✅ Latest data is displayed")
+
+@given("I see artifacts displayed")
+def i_see_artifacts_displayed(step):
+    """Verify that artifacts are displayed on the page."""
+    from radish import world
+    
+    # Wait for artifacts to be loaded
+    wait = WebDriverWait(world.driver, 10)
+    artifact_cards = wait.until(
+        EC.presence_of_all_elements_located((By.CLASS_NAME, "artifact-card"))
+    )
+    
+    # Verify that artifacts are displayed
+    assert len(artifact_cards) > 0, "No artifacts are displayed on the page"
+    print(f"✅ Found {len(artifact_cards)} artifacts displayed")

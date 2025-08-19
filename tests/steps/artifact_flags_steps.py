@@ -69,9 +69,21 @@ def i_flag_artifact_by_id(step, artifact_id):
     
     # Store the current flag state for verification
     icon = flag_button.find_element(By.CSS_SELECTOR, "ion-icon")
-    world.previous_flag_state = "flag" in icon.get_attribute("name") and "outline" not in icon.get_attribute("name")
+    icon_name = icon.get_attribute("name")
+    # Check if the button is currently flagged (filled icon) or unflagged (outline icon)
+    world.previous_flag_state = "outline" not in icon_name
     
     flag_button.click()
+    
+    # Wait for any modal to close if it was open
+    try:
+        WebDriverWait(world.driver, 2).until_not(
+            EC.presence_of_element_located((By.CSS_SELECTOR, ".modal-content"))
+        )
+    except TimeoutException:
+        # Modal might not be present, which is fine
+        pass
+    
     print(f"✅ Flagged artifact #{artifact_id} (previous state: {'flagged' if world.previous_flag_state else 'unflagged'})")
 
 
@@ -86,7 +98,8 @@ def the_artifact_should_be_flagged(step):
     # Check the flag button state
     flag_button = world.driver.find_element(By.CSS_SELECTOR, ".artifact-card:first-child .artifact-actions button:first-child")
     icon = flag_button.find_element(By.CSS_SELECTOR, "ion-icon")
-    current_flag_state = "flag" in icon.get_attribute("name") and "outline" not in icon.get_attribute("name")
+    icon_name = icon.get_attribute("name")
+    current_flag_state = "outline" not in icon_name
     
     # The flag state should have changed from the previous state
     assert current_flag_state != world.previous_flag_state, f"Flag state did not change. Expected: {not world.previous_flag_state}, Got: {current_flag_state}"
