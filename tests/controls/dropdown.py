@@ -42,7 +42,19 @@ class Dropdown(ControlBase):
         """Select an option from the dropdown by text."""
         # Click to open dropdown
         dropdown = self.locate(driver, timeout)
-        button = dropdown.find_element("xpath", ".//div[contains(@class, 'custom-dropdown-button')]")
+        
+        # Try different approaches to find the button
+        try:
+            # First try: direct child with class
+            button = dropdown.find_element("xpath", ".//div[contains(@class, 'custom-dropdown-button')]")
+        except:
+            try:
+                # Second try: any descendant with class
+                button = dropdown.find_element("xpath", ".//*[contains(@class, 'custom-dropdown-button')]")
+            except:
+                # Third try: first div child (fallback)
+                button = dropdown.find_element("xpath", ".//div[1]")
+        
         button.click()
         
         # Wait a moment for dropdown to open
@@ -52,7 +64,11 @@ class Dropdown(ControlBase):
         # Find and click the option
         options = dropdown.find_elements("xpath", ".//div[contains(@class, 'custom-dropdown-option')]")
         for option in options:
-            if option_text.lower() in option.text.lower():
+            option_text_lower = option_text.lower()
+            option_text_content = option.text.lower()
+            
+            # Check if the option text contains the target text
+            if option_text_lower in option_text_content:
                 option.click()
                 return
         
