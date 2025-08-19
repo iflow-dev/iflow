@@ -57,12 +57,7 @@ def artifact_with_iteration(step, iteration):
     # In a real test, you might want to create it programmatically
     pass
 
-@given("there is an existing artifact")
-def existing_artifact(step):
-    """Ensure there is an existing artifact to edit."""
-    # This step assumes the artifact already exists in the database
-    # In a real test, you might want to create it programmatically
-    pass
+
 
 @then("the artifact should be saved with iteration {iteration}")
 def artifact_saved_with_iteration(step, iteration):
