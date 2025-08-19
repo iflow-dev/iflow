@@ -39,11 +39,11 @@ def setup_environment(environment: str) -> None:
     url = ENVIRONMENT_URLS[environment]
     os.environ["IFLOW_BASE_URL"] = url
     os.environ["PYTHON_LOG_LEVEL"] = "INFO"  # Set logging level for tests
-    os.environ["HEADLESS_MODE"] = "false"  # Disable headless mode for debugging
+    os.environ["HEADLESS_MODE"] = "true"  # Enable headless mode
     typer.echo(f"Using environment: {environment} (URL: {url})")
     typer.echo(f"Set IFLOW_BASE_URL={url}")
     typer.echo(f"Set PYTHON_LOG_LEVEL=INFO")
-    typer.echo(f"Set HEADLESS_MODE=false (Chrome will be visible)")
+    typer.echo(f"Set HEADLESS_MODE=true (Chrome will run in headless mode)")
 
 def setup_python_path() -> None:
     """Set up Python path to include the tests directory."""

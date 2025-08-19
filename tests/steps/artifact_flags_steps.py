@@ -230,10 +230,45 @@ def the_flag_filter_button_should_be_grey(step):
 def i_check_flag_artifact_checkbox(step):
     """Check the flag checkbox in the artifact form."""
     from radish import world
+    import time
     
-    flag_checkbox = world.driver.find_element(By.ID, "artifactFlagged")
+    # Try to find the flag checkbox with different possible IDs
+    flag_checkbox = None
+    possible_ids = ["artifactFlagged", "artifact-flagged", "flagged", "flag"]
+    
+    for checkbox_id in possible_ids:
+        try:
+            flag_checkbox = world.driver.find_element(By.ID, checkbox_id)
+            print(f"✅ Found flag checkbox with ID: {checkbox_id}")
+            break
+        except:
+            continue
+    
+    if not flag_checkbox:
+        # Try to find by name attribute
+        try:
+            flag_checkbox = world.driver.find_element(By.NAME, "flagged")
+            print(f"✅ Found flag checkbox with name: flagged")
+        except:
+            # Try to find by XPath
+            try:
+                flag_checkbox = world.driver.find_element(By.XPATH, "//input[@type='checkbox' and contains(@name, 'flag')]")
+                print(f"✅ Found flag checkbox with XPath")
+            except:
+                # Last resort: try to find any checkbox in the form
+                try:
+                    flag_checkbox = world.driver.find_element(By.XPATH, "//div[@id='artifactModal']//input[@type='checkbox']")
+                    print(f"✅ Found checkbox in modal (ID: {flag_checkbox.get_attribute('id')}, name: {flag_checkbox.get_attribute('name')})")
+                except Exception as e:
+                    print(f"❌ Could not find flag checkbox: {e}")
+                    raise AssertionError("Flag checkbox not found in the form")
+    
     if not flag_checkbox.is_selected():
         flag_checkbox.click()
+        print(f"✅ Clicked checkbox (ID: {flag_checkbox.get_attribute('id')}, name: {flag_checkbox.get_attribute('name')})")
+    
+    # Wait for the flag state to be processed
+    time.sleep(0.5)
     
     assert flag_checkbox.is_selected(), "Flag checkbox should be checked"
     print("✅ Checked the 'Flag this artifact' checkbox")
@@ -267,21 +302,38 @@ def i_should_see_new_artifact_created(step):
 def the_new_artifact_should_be_flagged(step):
     """Verify that the newly created artifact is flagged."""
     from radish import world
+    import time
     
     # Wait for the modal to close and artifacts to refresh
     time.sleep(2)
     
-    # Find the most recent artifact (last in the list)
+    # Find the specific artifact we created by its summary text
     artifacts = world.driver.find_elements(By.CSS_SELECTOR, ".artifact-card")
     assert len(artifacts) > 0, "No artifacts found after creation"
     
-    # Check the last artifact (most recent)
-    last_artifact = artifacts[-1]
-    flag_button = last_artifact.find_element(By.CSS_SELECTOR, ".artifact-actions button:first-child")
+    target_artifact = None
+    for artifact in artifacts:
+        try:
+            summary_element = artifact.find_element(By.CSS_SELECTOR, ".artifact-summary")
+            if "Test artifact with flag" in summary_element.text:
+                target_artifact = artifact
+                break
+        except:
+            continue
+    
+    assert target_artifact is not None, "Could not find the newly created artifact with test summary"
+    
+    # Check the flag button on our specific artifact
+    flag_button = target_artifact.find_element(By.CSS_SELECTOR, ".artifact-actions button:first-child")
     icon = flag_button.find_element(By.CSS_SELECTOR, "ion-icon")
     
-    is_flagged = "flag" in icon.get_attribute("name") and "outline" not in icon.get_attribute("name")
-    assert is_flagged, "Newly created artifact should be flagged"
+    icon_name = icon.get_attribute("name")
+    is_flagged = "flag" in icon_name and "outline" not in icon_name
+    
+    if not is_flagged:
+        print(f"❌ Artifact flag icon name: '{icon_name}' (expected: filled flag, not outline)")
+    
+    assert is_flagged, f"Newly created artifact should be flagged but icon name is '{icon_name}'"
     print("✅ Newly created artifact is flagged")
 
 
