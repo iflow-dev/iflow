@@ -80,7 +80,8 @@ def i_see_only_artifacts_with_status(step, status):
                 status_text = status_element.text.strip()
                 log.debug(f"Found artifact with status: '{status_text}'")
                 
-                if status_text.lower() == status.lower():
+                # Check if the status text contains the expected status (ignoring emojis and case)
+                if status.lower() in status_text.lower():
                     artifacts_with_correct_status += 1
                     
             except Exception as e:

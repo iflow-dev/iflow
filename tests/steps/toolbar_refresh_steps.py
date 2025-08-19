@@ -9,7 +9,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from controls import Button
 
 @when("I click the refresh button in the toolbar")
-def i_click_refresh_button_in_toolbar(step):
+def i_click_refresh_button_in_toolbar_new(step):
     """Click the refresh button in the toolbar."""
     from radish import world
     

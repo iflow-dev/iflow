@@ -293,38 +293,4 @@ def i_submit_form_alias(step):
 # Note: "I fill in the artifact details" step definition already exists in artifact_steps.py
 
 
-@step("I click the refresh button in the toolbar")
-def i_click_refresh_button_in_toolbar(step):
-    """Click the refresh button in the toolbar."""
-    from radish import world
-    
-    # Find and click the refresh button
-    refresh_button = world.driver.find_element(By.CSS_SELECTOR, ".toolbar button[onclick*='refresh']")
-    refresh_button.click()
-    print("✅ Clicked refresh button in toolbar")
-
-
-@step("the artifacts should be refreshed")
-def the_artifacts_should_be_refreshed(step):
-    """Verify that the artifacts have been refreshed."""
-    from radish import world
-    
-    # Wait a moment for the refresh to complete
-    time.sleep(1)
-    
-    # Check that artifacts are still visible (indicating successful refresh)
-    artifacts = world.driver.find_elements(By.CSS_SELECTOR, ".artifact-card")
-    assert len(artifacts) > 0, "No artifacts found after refresh"
-    print(f"✅ Artifacts refreshed successfully ({len(artifacts)} artifacts visible)")
-
-
-@step("I should see the latest data")
-def i_should_see_latest_data(step):
-    """Verify that the latest data is displayed."""
-    from radish import world
-    
-    # This is a simple verification that the page is still functional
-    # In a real scenario, you might check for specific updated timestamps or data
-    artifacts = world.driver.find_elements(By.CSS_SELECTOR, ".artifact-card")
-    assert len(artifacts) > 0, "No artifacts visible after refresh"
-    print("✅ Latest data is displayed")
+# Note: Refresh button functionality is handled in toolbar_refresh_steps.py
