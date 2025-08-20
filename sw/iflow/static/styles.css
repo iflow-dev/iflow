@@ -76,6 +76,14 @@ body {
     cursor: pointer;
     font-size: 0.9rem;
     transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn.btn-icon {
+    min-width: 40px;
+    padding: 0.5rem;
 }
 
 .btn:hover {
