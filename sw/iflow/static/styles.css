@@ -146,19 +146,23 @@ body {
 .search-box {
     width: 100%;
     min-width: 0;
+    height: 2.5rem;
     padding: 0.5rem 2.5rem 0.5rem 0.5rem;
     border: 1px solid #ddd;
     border-radius: 6px;
     font-size: 0.9rem;
+    box-sizing: border-box;
 }
 
 .filter-select {
+    height: 2.5rem;
     padding: 0.5rem 2.5rem 0.5rem 0.5rem;
     border: 1px solid #ddd;
     border-radius: 6px;
     font-size: 0.9rem;
     transition: border-color 0.2s ease;
     max-width: 150px;
+    box-sizing: border-box;
 }
 
 .filter-select.active {
