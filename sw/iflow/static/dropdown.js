@@ -866,9 +866,9 @@ class CustomDropdownManager {
     // Helper method to get default text for dropdowns
     getDefaultText(type) {
         if (type === 'type') {
-            return 'All Types';
+            return 'All';
         } else if (type === 'status') {
-            return 'All Statuses';
+            return 'All';
         } else if (type === 'form') {
             return 'Select Type';
         } else if (type === 'status-form') {

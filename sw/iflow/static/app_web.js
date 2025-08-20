@@ -104,7 +104,7 @@ function updateStatusFilterOptions() {
     const statusFilter = document.getElementById('statusFilter');
     if (statusFilter && artifactStatuses.length > 0) {
         // Clear existing options
-        statusFilter.innerHTML = '<option value="">All Statuses</option>';
+        statusFilter.innerHTML = '<option value="">All</option>';
         
         // Add options for each status
         artifactStatuses.forEach(status => {
@@ -125,7 +125,7 @@ function updateTypeFilterOptions() {
     const typeFilter = document.getElementById('typeFilter');
     if (typeFilter && workItemTypes.length > 0) {
         // Clear existing options
-        typeFilter.innerHTML = '<option value="">All Types</option>';
+        typeFilter.innerHTML = '<option value="">All</option>';
         
         // Add options for each work item type
         workItemTypes.forEach(type => {
@@ -192,7 +192,7 @@ function updateStatusFormOptions() {
     const statusFilter = document.getElementById('statusFilter');
     if (statusFilter && artifactStatuses.length > 0) {
         // Clear existing options
-        statusFilter.innerHTML = '<option value="">All Statuses</option>';
+        statusFilter.innerHTML = '<option value="">All</option>';
         
         // Add options for each status
         artifactStatuses.forEach(status => {
@@ -661,11 +661,14 @@ function updateFilterDOMValues() {
     const typeFilter = document.getElementById('typeFilter');
     if (typeFilter) {
         typeFilter.value = currentFilterState.type;
+        const typeWrapper = typeFilter.closest('.filter-wrapper');
         // Add/remove active class based on filter value
         if (currentFilterState.type && currentFilterState.type !== '') {
             typeFilter.classList.add('active');
+            if (typeWrapper) typeWrapper.classList.add('active');
         } else {
             typeFilter.classList.remove('active');
+            if (typeWrapper) typeWrapper.classList.remove('active');
         }
     }
     
@@ -673,11 +676,14 @@ function updateFilterDOMValues() {
     const statusFilter = document.getElementById('statusFilter');
     if (statusFilter) {
         statusFilter.value = currentFilterState.status;
+        const statusWrapper = statusFilter.closest('.filter-wrapper');
         // Add/remove active class based on filter value
         if (currentFilterState.status && currentFilterState.status !== '') {
             statusFilter.classList.add('active');
+            if (statusWrapper) statusWrapper.classList.add('active');
         } else {
             statusFilter.classList.remove('active');
+            if (statusWrapper) statusWrapper.classList.remove('active');
         }
     }
     
@@ -685,11 +691,14 @@ function updateFilterDOMValues() {
     const categoryFilter = document.getElementById('categoryFilter');
     if (categoryFilter) {
         categoryFilter.value = currentFilterState.category;
+        const categoryContainer = categoryFilter.closest('.filter-container');
         // Add/remove active class based on filter value
         if (currentFilterState.category && currentFilterState.category !== '') {
             categoryFilter.classList.add('active');
+            if (categoryContainer) categoryContainer.classList.add('active');
         } else {
             categoryFilter.classList.remove('active');
+            if (categoryContainer) categoryContainer.classList.remove('active');
         }
     }
     
@@ -697,16 +706,28 @@ function updateFilterDOMValues() {
     if (searchManager) {
         searchManager.setSearchValue(currentFilterState.search);
         // The search manager handles the active class internally
+        // Also update the container for footer styling
+        const searchContainer = document.querySelector('.filter-container');
+        if (searchContainer) {
+            if (currentFilterState.search && currentFilterState.search !== '') {
+                searchContainer.classList.add('active');
+            } else {
+                searchContainer.classList.remove('active');
+            }
+        }
     } else {
         // Fallback to old method
         const searchBox = document.querySelector('input[placeholder="Search artifacts..."]');
         if (searchBox) {
             searchBox.value = currentFilterState.search;
+            const searchContainer = searchBox.closest('.filter-container');
             // Add/remove active class based on search value
             if (currentFilterState.search && currentFilterState.search !== '') {
                 searchBox.classList.add('active');
+                if (searchContainer) searchContainer.classList.add('active');
             } else {
                 searchBox.classList.remove('active');
+                if (searchContainer) searchContainer.classList.remove('active');
             }
         }
     }
@@ -714,10 +735,13 @@ function updateFilterDOMValues() {
     // Update flag filter active state
     const flagFilterBtn = document.getElementById('flagFilter');
     if (flagFilterBtn) {
+        const flagWrapper = flagFilterBtn.closest('.filter-wrapper');
         if (currentFilterState.flagged) {
             flagFilterBtn.classList.add('active');
+            if (flagWrapper) flagWrapper.classList.add('active');
         } else {
             flagFilterBtn.classList.remove('active');
+            if (flagWrapper) flagWrapper.classList.remove('active');
         }
     }
     
@@ -985,14 +1009,10 @@ async function toggleFlagFilter() {
             if (currentFilterState.flagged) {
                 // Active filter - red flag
                 icon.name = 'flag';
-                flagFilterBtn.style.background = '#dc3545';
-                flagFilterBtn.style.color = 'white';
                 flagFilterBtn.classList.add('active');
             } else {
                 // Inactive filter - grey flag
                 icon.name = 'flag-outline';
-                flagFilterBtn.style.background = '#6c757d';
-                flagFilterBtn.style.color = 'white';
                 flagFilterBtn.classList.remove('active');
             }
         }

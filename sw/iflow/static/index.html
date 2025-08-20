@@ -71,10 +71,6 @@
             </div>
         </div>
         
-        <div class="status-line" id="status-line">
-            <div class="status-text">Total artifacts: <span id="filtered-count">0</span></div>
-        </div>
-        
         <div class="stats-bar" id="stats-bar">
             <div class="loading">Loading statistics...</div>
         </div>
@@ -146,7 +142,12 @@
         </div>
     </div>
     
-            <script src="/static/dropdown.js"></script>
+    <!-- Status line at bottom of window -->
+    <div class="status-line" id="status-line">
+        <div class="status-text">Total artifacts: <span id="filtered-count">0</span></div>
+    </div>
+    
+    <script src="/static/dropdown.js"></script>
         <script src="/static/tile.js"></script>
         <script src="/static/statistics.js"></script>
         <script src="/static/search.js"></script>
