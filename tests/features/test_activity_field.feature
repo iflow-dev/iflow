@@ -8,12 +8,12 @@ Feature: Artifact Activity Field
         When I create a new requirement
         Then I should see the edit dialog
         And I should see an activity field
-        And the activity field should be empty by default
+        And the activity field is empty
 
     Scenario: Edit artifact activity field
         Given I go to home
         And I see artifacts displayed
-        When I click the edit button on the first artifact
+        When I edit an artifact
         Then I should see the edit dialog
         And I should see an activity field
         And I can edit the activity field
@@ -26,7 +26,8 @@ Feature: Artifact Activity Field
         And I set activity to "Initial development started"
         And I click the "Create" button
         Then I should see a success message
-        And the artifact should be saved with activity "Initial development started"
+        And I open the artifact with title "Test artifact with activity"
+        And I see the activity is "Initial development started"
 
     Scenario: Display activity field in artifact tile
         Given I go to home
@@ -39,8 +40,9 @@ Feature: Artifact Activity Field
     Scenario: Update activity field on existing artifact
         Given I go to home
         And I see artifacts displayed
-        When I click the edit button on the first artifact
+        When I edit an artifact
         And I set activity to "Testing in progress"
         And I click the "Save" button
         Then I should see a success message
-        And the artifact should be updated with new activity "Testing in progress"
+        And I open the artifact with title "Test artifact with activity"
+        And I see the activity is "Testing in progress"
