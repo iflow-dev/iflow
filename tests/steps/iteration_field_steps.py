@@ -24,7 +24,7 @@ def field_iteration_set_to(step, value):
     actual_value = iteration_field.get_attribute("value")
     assert actual_value == value, f"Iteration field should be set to '{value}', but got '{actual_value}'"
 
-@when("I fill the iteration field with {text}")
+@step("I fill the iteration field with {text}")
 def fill_iteration_field_with(step, text):
     """Fill the iteration field with the specified text."""
     from radish import world
@@ -115,7 +115,7 @@ def see_iteration_set_to(step, iteration):
     step.context.not_implemented = True
     raise NotImplementedError("not implemented yet")
 
-@when("I edit the first artifact")
+@step("I edit the first artifact")
 def edit_first_artifact(step):
     """Edit the first artifact by clicking its edit button."""
     from radish import world
