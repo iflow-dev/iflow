@@ -96,6 +96,9 @@ body {
     justify-content: center;
     min-width: 40px;
     padding: 0.5rem;
+    background: transparent;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
 }
 
 .btn-icon ion-icon {
@@ -149,7 +152,7 @@ body {
 .btn-icon.active {
     border: 2px solid #ff8c00;
     box-shadow: 0 0 5px rgba(255, 140, 0, 0.3);
-    background-color: #fff3e0;
+    background: transparent;
 }
 
 /* Clear button styling */
@@ -187,9 +190,9 @@ body {
 
 /* Clear all button */
 .clear-all-btn {
-    background: #6c757d;
-    color: white;
-    border: none;
+    background: transparent;
+    color: #666666;
+    border: 2px solid transparent;
     border-radius: 6px;
     padding: 0.5rem;
     min-width: 40px;
@@ -201,23 +204,23 @@ body {
 }
 
 .clear-all-btn:hover {
-    background: #5a6268;
+    color: #333333;
 }
 
 .clear-all-btn:disabled {
-    background: #e9ecef;
-    color: #6c757d;
+    background: transparent;
+    color: #cccccc;
     cursor: not-allowed;
 }
 
 .clear-all-btn.active {
-    background: #ff8c00;
+    background: transparent;
     border: 2px solid #ff8c00;
     box-shadow: 0 0 5px rgba(255, 140, 0, 0.3);
 }
 
 .clear-all-btn.active:hover {
-    background: #e67e00;
+    background: transparent;
 }
 
 .clear-all-btn ion-icon {
