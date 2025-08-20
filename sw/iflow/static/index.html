@@ -19,7 +19,7 @@
             <button class="btn" onclick="openCreateModal().catch(console.error)">Create</button>
             
             <div class="filter-container">
-                <input type="text" id="search-input" class="search-box" placeholder="Search artifacts...">
+                <input type="text" id="search-input" class="search-box" placeholder="type to filter...">
                 <button class="clear-btn" id="clearSearch" onclick="clearSearchFilter()" title="Clear search">×</button>
                 <div class="filter-footer">text</div>
             </div>
@@ -39,7 +39,7 @@
             </div>
             
             <div class="filter-container">
-                <input type="text" id="categoryFilter" class="search-box" placeholder="Filter by category..." onkeyup="filterByCategory(this.value)">
+                <input type="text" id="categoryFilter" class="search-box" placeholder="type to filter..." onkeyup="filterByCategory(this.value)">
                 <button class="clear-btn" id="clearCategory" onclick="clearCategoryFilter()" title="Clear category filter">×</button>
                 <div class="filter-footer">Category</div>
             </div>
@@ -51,13 +51,19 @@
                 <div class="filter-footer">Flag</div>
             </div>
             
-            <button class="btn btn-secondary btn-icon" onclick="refreshArtifacts()" title="Refresh artifacts">
-                <ion-icon name="refresh-outline"></ion-icon>
-            </button>
+            <div class="filter-wrapper">
+                <button class="btn btn-secondary btn-icon" onclick="refreshArtifacts()" title="Refresh artifacts">
+                    <ion-icon name="refresh-outline"></ion-icon>
+                </button>
+                <div class="filter-footer">refresh</div>
+            </div>
             
-            <button class="clear-all-btn" id="clearAllFilters" onclick="clearAllFilters()" title="Clear all filters">
-                <ion-icon name="close-outline"></ion-icon>
-            </button>
+            <div class="filter-wrapper">
+                <button class="clear-all-btn" id="clearAllFilters" onclick="clearAllFilters()" title="Clear all filters">
+                    <ion-icon name="close-outline"></ion-icon>
+                </button>
+                <div class="filter-footer">clear</div>
+            </div>
         </div>
         
         <div class="status-line" id="status-line">
