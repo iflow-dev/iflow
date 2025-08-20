@@ -298,10 +298,10 @@ function openModalWithConfig() {
         }
     }
     
-    // Set default status to 'open' for new artifacts
+    // Set default status to the first status from the status list for new artifacts
     const artifactStatusSelect = document.getElementById('artifactStatus');
-    if (artifactStatusSelect) {
-        artifactStatusSelect.value = 'open';
+    if (artifactStatusSelect && artifactStatuses.length > 0) {
+        artifactStatusSelect.value = artifactStatuses[0].id;
     }
     
     // Reset flag checkbox for new artifacts
@@ -375,10 +375,10 @@ function openEditModal(artifactId) {
             }
             
             if (customDropdown && customDropdown.classList.contains('custom-dropdown')) {
-                dropdownManager.setCustomDropdownValue(customDropdown, artifact.status || 'open');
+                dropdownManager.setCustomDropdownValue(customDropdown, artifact.status || (artifactStatuses.length > 0 ? artifactStatuses[0].id : 'open'));
             } else {
                 // Fallback to native select
-                artifactStatusSelect.value = artifact.status || 'open';
+                artifactStatusSelect.value = artifact.status || (artifactStatuses.length > 0 ? artifactStatuses[0].id : 'open');
             }
         }
         
