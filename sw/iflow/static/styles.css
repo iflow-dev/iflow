@@ -158,8 +158,8 @@ body {
     right: 8px;
     top: 50%;
     transform: translateY(-50%);
-    background: #dc3545;
-    color: white;
+    background: transparent;
+    color: #666666;
     border: none;
     border-radius: 50%;
     width: 20px;
@@ -169,11 +169,11 @@ body {
     display: none;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.2s ease;
+    transition: color 0.2s ease;
 }
 
 .clear-btn:hover {
-    background: #c82333;
+    color: #333333;
 }
 
 .clear-btn.visible {
