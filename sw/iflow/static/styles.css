@@ -139,6 +139,7 @@ body {
     border-radius: 6px;
     font-size: 0.9rem;
     transition: border-color 0.2s ease;
+    max-width: 150px;
 }
 
 .filter-select.active {
