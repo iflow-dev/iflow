@@ -234,6 +234,9 @@ async function loadConfiguration() {
                 if (filterWrapper) {
                     // Start in inactive state (blue border)
                     filterWrapper.classList.add('filter-inactive');
+                    
+                    // Initialize the new FilterControl system for the flag filter
+                    initializeFlagFilterControl(filterWrapper);
                 }
             }
             
@@ -996,6 +999,77 @@ async function toggleArtifactFlag(artifactId) {
     }
 }
 
+// Initialize the new FilterControl system for the flag filter
+function initializeFlagFilterControl(filterWrapper) {
+    try {
+        // Wait for ColorSchemeLoader to be ready
+        if (!window.colorSchemeLoader) {
+            console.log('Waiting for ColorSchemeLoader...');
+            setTimeout(() => initializeFlagFilterControl(filterWrapper), 100);
+            return;
+        }
+        
+        // Create IconFilter instance for the flag
+        const flagFilter = new IconFilter(filterWrapper, 'flagged', {
+            inactiveIcon: 'flag',
+            activeIcon: 'flag',
+            disabledIcon: 'flag'
+        });
+        
+        // Set the filter manager reference
+        if (window.filterManager) {
+            flagFilter.setFilterManager(window.filterManager);
+        }
+        
+        // Apply the color scheme from YAML
+        window.colorSchemeLoader.applyColorScheme(flagFilter, 'default');
+        
+        // Store reference to the filter control for later use
+        filterWrapper.flagFilterControl = flagFilter;
+        
+        // Override the onclick to use the new system
+        const flagButton = filterWrapper.querySelector('#flagFilter');
+        if (flagButton) {
+            // Remove the old onclick
+            flagButton.removeAttribute('onclick');
+            
+            // Add new event listener
+            flagButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                toggleFlagFilterWithControl(flagFilter);
+            });
+        }
+        
+        console.log('Flag filter control initialized with new system');
+        
+    } catch (error) {
+        console.error('Error initializing flag filter control:', error);
+    }
+}
+
+// New toggle function that works with the FilterControl system
+async function toggleFlagFilterWithControl(flagFilterControl) {
+    try {
+        // Toggle the filter control state
+        flagFilterControl.toggle();
+        
+        // Update the FilterManager
+        if (window.filterManager) {
+            const currentState = flagFilterControl.getState();
+            window.filterManager.updateFilter('flagged', currentState === 'active');
+            
+            // Trigger search update
+            window.filterManager.triggerSearchUpdate();
+        }
+        
+        console.log(`Flag filter toggled to: ${flagFilterControl.getState()}`);
+        
+    } catch (error) {
+        console.error('Error toggling flag filter with control:', error);
+    }
+}
+
+// Original toggle function for backward compatibility
 async function toggleFlagFilter() {
     try {
         // Toggle the flag filter state using FilterManager
