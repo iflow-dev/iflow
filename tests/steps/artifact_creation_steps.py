@@ -18,6 +18,22 @@ def i_create_a_new_requirement(step):
     # Store the editor in world for use in subsequent steps
     world.editor = editor
 
+@when("I create a new requirement {requirement_name:QuotedString}")
+def i_create_a_new_requirement_with_name(step, requirement_name):
+    """Open the artifact creation editor with a specific requirement name."""
+    from radish import world
+    from controls import Editor
+    
+    # Use the Editor control to open the artifact creation modal
+    editor = Editor(world.driver)
+    editor.open()
+    
+    # Store the editor in world for use in subsequent steps
+    world.editor = editor
+    
+    # Store the requirement name for later use
+    world.requirement_name = requirement_name
+
 @then("I see the artifact creation form")
 def i_see_artifact_creation_form(step):
     """Verify that the artifact creation form is displayed."""

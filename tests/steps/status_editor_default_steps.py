@@ -26,37 +26,30 @@ def the_artifact_editor_is_available(step):
     except Exception as e:
         raise AssertionError(f"Artifact editor is not available: {e}")
 
-@step("the status field should show the first status from the status list")
-def the_status_field_should_show_first_status(step):
-    """Verify that the status field shows the first status as the default value."""
+@step("the status field should show {expected_status:QuotedString}")
+def the_status_field_should_show_expected_status(step, expected_status):
+    """Verify that the status field shows the expected status value."""
     from radish import world
     from selenium.webdriver.common.by import By
-    from selenium.webdriver.support.ui import WebDriverWait
-    from selenium.webdriver.support import expected_conditions as EC
     
     try:
-        # Wait for the status field to be populated
-        status_select = WebDriverWait(world.driver, 10).until(
-            EC.presence_of_element_located((By.ID, "artifactStatus"))
-        )
+        # Find the status select element
+        status_select = world.driver.find_element(By.ID, "artifactStatus")
         
-        # Get the first status from the status list (should be 'open' based on our API)
-        first_status = 'open'  # This should match the first status from artifactStatuses
-        
-        # Check if the status field has the correct default value
+        # Get the current value
         actual_value = status_select.get_attribute("value")
         
-        if actual_value == first_status:
-            log.debug(f"Status field correctly shows first status: {actual_value}")
+        if actual_value == expected_status:
+            log.debug(f"Status field correctly shows expected status: {actual_value}")
         else:
-            raise AssertionError(f"Expected status field to show '{first_status}', but got '{actual_value}'")
+            raise AssertionError(f"Expected status field to show '{expected_status}', but got '{actual_value}'")
             
     except Exception as e:
-        raise AssertionError(f"Failed to verify status field default value: {e}")
+        raise AssertionError(f"Failed to verify status field value: {e}")
 
-@step("I should be able to change the status to a different value")
-def i_should_be_able_to_change_status(step):
-    """Verify that the status field can be changed to a different value."""
+@step("I change the status to {new_status:QuotedString}")
+def i_change_status_to(step, new_status):
+    """Change the status field to the specified value."""
     from radish import world
     from selenium.webdriver.common.by import By
     from selenium.webdriver.support.ui import Select
@@ -65,19 +58,35 @@ def i_should_be_able_to_change_status(step):
         # Find the status select element
         status_select = world.driver.find_element(By.ID, "artifactStatus")
         
-        # Try to change the status to 'done' (second status in the list)
+        # Change the status using Select
         select = Select(status_select)
-        select.select_by_value('done')
+        select.select_by_value(new_status)
         
-        # Verify the change
-        new_value = status_select.get_attribute("value")
-        if new_value == 'done':
-            log.debug("Successfully changed status to 'done'")
-        else:
-            raise AssertionError(f"Failed to change status to 'done', got '{new_value}'")
-            
+        log.debug(f"Changed status to '{new_status}'")
+        
     except Exception as e:
         raise AssertionError(f"Failed to change status field value: {e}")
+
+@step("I see the status is {expected_status:QuotedString}")
+def i_see_status_is(step, expected_status):
+    """Verify that the status field shows the expected status value."""
+    from radish import world
+    from selenium.webdriver.common.by import By
+    
+    try:
+        # Find the status select element
+        status_select = world.driver.find_element(By.ID, "artifactStatus")
+        
+        # Get the current value
+        actual_value = status_select.get_attribute("value")
+        
+        if actual_value == expected_status:
+            log.debug(f"Status field correctly shows expected status: {actual_value}")
+        else:
+            raise AssertionError(f"Expected status field to show '{expected_status}', but got '{actual_value}'")
+            
+    except Exception as e:
+        raise AssertionError(f"Failed to verify status field value: {e}")
 
 @step("I have an existing artifact with status {status:QuotedString}")
 def i_have_existing_artifact_with_status(step, status):
@@ -141,27 +150,6 @@ def i_see_artifact_edit_form(step):
             
     except Exception as e:
         raise AssertionError(f"Failed to verify edit form is displayed: {e}")
-
-@step("the status field should show {expected_status:QuotedString}")
-def the_status_field_should_show_expected_status(step, expected_status):
-    """Verify that the status field shows the expected status value."""
-    from radish import world
-    from selenium.webdriver.common.by import By
-    
-    try:
-        # Find the status select element
-        status_select = world.driver.find_element(By.ID, "artifactStatus")
-        
-        # Get the current value
-        actual_value = status_select.get_attribute("value")
-        
-        if actual_value == expected_status:
-            log.debug(f"Status field correctly shows expected status: {actual_value}")
-        else:
-            raise AssertionError(f"Expected status field to show '{expected_status}', but got '{actual_value}'")
-            
-    except Exception as e:
-        raise AssertionError(f"Failed to verify status field value: {e}")
 
 # Note: Step "I set the status to {status:QuotedString}" is already defined in artifact_creation_steps.py
 

@@ -11,8 +11,9 @@ Feature: Status Field Default Values in Editor
   Scenario: Status field shows first status as default when creating new artifact
     When I create a new requirement
     Then I see the artifact creation form
-    And the status field should show the first status from the status list
-    And I should be able to change the status to a different value
+    And the status field should show "open"
+    And I change the status to "done"
+    And I see the status is "done"
 
   @smoke
   Scenario: Status field shows actual status when editing existing artifact
@@ -20,14 +21,15 @@ Feature: Status Field Default Values in Editor
     When I edit the existing artifact
     Then I see the artifact edit form
     And the status field should show "in_progress"
-    And I should be able to change the status to a different value
+    And I change the status to "done"
+    And I see the status is "done"
 
   @smoke
   Scenario: Status field maintains selected value when saving artifact
-    When I create a new requirement
-    And I set the status to "done"
+    When I create a new requirement "test requirement"
+    And I set the status to "in_progress"
     And I set the summary to "Test artifact with custom status"
     And I set the description to "Testing status persistence"
     And I save the new artifact
     Then I should see a success message
-    And the new artifact should have status "done"
+    And the new artifact should have status "in_progress"
