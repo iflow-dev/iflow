@@ -220,12 +220,13 @@ body {
 
 .clear-all-btn.active {
     background: transparent;
-    border: 2px solid #ff8c00;
-    box-shadow: 0 0 5px rgba(255, 140, 0, 0.3);
+    /* Remove orange border - keep default styling */
+    color: #ff8c00; /* Keep orange color for the icon */
 }
 
 .clear-all-btn.active:hover {
     background: transparent;
+    color: #e67e00; /* Darker orange on hover */
 }
 
 .clear-all-btn ion-icon {
