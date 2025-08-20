@@ -9,19 +9,13 @@ let editingArtifactId = null;
 let projectConfig = null;
 let workItemTypes = [];
 let artifactStatuses = [];
-let currentFilterState = {
-    type: '',
-    status: '',
-    category: '',
-    search: '',
-    flagged: false
-};
+
+// Global error handling
+let globalErrorHandler = null;
 
 // Initialize the managers
 let dropdownManager = null;
-let tileManager = null;
 let statisticsManager = null;
-let searchManager = null;
 
 // API base URL
 const API_BASE = '/api';
@@ -29,24 +23,151 @@ const API_BASE = '/api';
 // Initialize the application
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('DOM loaded, starting to load data...');
-    await loadConfiguration();
-    if (statisticsManager) {
-        statisticsManager.loadStats();
+    
+    // Set up global error handling
+    setupGlobalErrorHandling();
+    console.log('Global error handling set up');
+    
+    try {
+        console.log('Starting configuration loading...');
+        await loadConfiguration();
+        console.log('Configuration loaded successfully');
+        
+        if (statisticsManager) {
+            statisticsManager.loadStats();
+        }
+    } catch (error) {
+        console.error('Error during application initialization:', error);
+        showErrorInStatusLine('Application initialization failed: ' + error.message);
     }
-    loadArtifacts();
 });
+
+// Global Error Handling
+function setupGlobalErrorHandling() {
+    // Catch unhandled promise rejections
+    window.addEventListener('unhandledrejection', function(event) {
+        console.error('Unhandled promise rejection:', event.reason);
+        showErrorInStatusLine('Unhandled error: ' + (event.reason?.message || event.reason || 'Unknown error'));
+        event.preventDefault();
+    });
+    
+    // Catch global JavaScript errors
+    window.addEventListener('error', function(event) {
+        console.error('Global JavaScript error:', event.error);
+        showErrorInStatusLine('JavaScript error: ' + (event.error?.message || event.message || 'Unknown error'));
+        event.preventDefault();
+    });
+    
+    // Catch fetch errors globally
+    const originalFetch = window.fetch;
+    window.fetch = async function(...args) {
+        try {
+            const response = await originalFetch(...args);
+            if (!response.ok) {
+                const errorText = `HTTP ${response.status}: ${response.statusText}`;
+                console.error('Fetch error:', errorText);
+                showErrorInStatusLine(errorText);
+            }
+            return response;
+        } catch (error) {
+            console.error('Fetch error:', error);
+            showErrorInStatusLine('Network error: ' + error.message);
+            throw error;
+        }
+    };
+}
+
+function showErrorInStatusLine(message) {
+    const statusLine = document.getElementById('status-line');
+    if (statusLine) {
+        // Remove existing classes and add error class
+        statusLine.className = 'status-line error';
+        
+        statusLine.innerHTML = `
+            <div class="status-text">
+                <span class="status-left error-message">
+                    ⚠️ ERROR: ${message}
+                </span>
+                <span class="status-right">Results: <span id="filtered-count">0</span></span>
+            </div>
+        `;
+        
+        // Also update the last message
+        const lastMessage = document.getElementById('last-message');
+        if (lastMessage) {
+            lastMessage.textContent = 'ERROR: ' + message;
+            lastMessage.style.color = '#dc3545';
+            lastMessage.style.fontWeight = 'bold';
+        }
+    }
+}
+
+function showSuccessInStatusLine(message) {
+    const statusLine = document.getElementById('status-line');
+    if (statusLine) {
+        // Remove existing classes and add success class
+        statusLine.className = 'status-line success';
+        
+        statusLine.innerHTML = `
+            <div class="status-text">
+                <span class="status-left success-message">
+                    ✅ ${message}
+                </span>
+                <span class="status-right">Results: <span id="filtered-count">0</span></span>
+            </div>
+        `;
+        
+        // Also update the last message
+        const lastMessage = document.getElementById('last-message');
+        if (lastMessage) {
+            lastMessage.textContent = message;
+            lastMessage.style.color = '#28a745';
+            lastMessage.style.fontWeight = 'bold';
+        }
+    }
+}
+
+function showInfoInStatusLine(message) {
+    const statusLine = document.getElementById('status-line');
+    if (statusLine) {
+        // Remove existing classes and add info class
+        statusLine.className = 'status-line info';
+        
+        statusLine.innerHTML = `
+            <div class="status-text">
+                <span class="status-left info-message">
+                    ℹ️ ${message}
+                </span>
+                <span class="status-right">Results: <span id="filtered-count">0</span></span>
+            </div>
+        `;
+        
+        // Also update the last message
+        const lastMessage = document.getElementById('last-message');
+        if (lastMessage) {
+            lastMessage.textContent = message;
+            lastMessage.style.color = '#17a2b8';
+            lastMessage.style.fontWeight = 'bold';
+        }
+    }
+}
 
 // Configuration Management
 async function loadConfiguration() {
     try {
         console.log('Loading project configuration...');
+        console.log('API_BASE:', API_BASE);
         
         // Load project info
         const projectResponse = await fetch(`${API_BASE}/project-info`);
+        console.log('Project info response status:', projectResponse.status);
         if (projectResponse.ok) {
             projectConfig = await projectResponse.json();
             console.log('Project config loaded:', projectConfig);
             updateProjectHeader();
+            showInfoInStatusLine('Project configuration loaded');
+        } else {
+            showErrorInStatusLine(`Failed to load project info: HTTP ${projectResponse.status}`);
         }
         
         // Load work item types
@@ -56,8 +177,10 @@ async function loadConfiguration() {
             console.log('Work item types loaded:', workItemTypes);
             console.log('workItemTypes array length:', workItemTypes.length);
             updateTypeFilterOptions();
+            showInfoInStatusLine(`Loaded ${workItemTypes.length} work item types`);
         } else {
             console.error('Failed to load work item types:', typesResponse.status);
+            showErrorInStatusLine(`Failed to load work item types: HTTP ${typesResponse.status}`);
         }
         
         // Load artifact statuses
@@ -70,17 +193,21 @@ async function loadConfiguration() {
             
             // Initialize managers with the loaded data
             dropdownManager = new CustomDropdownManager();
-            tileManager = TileManager.getInstance();
             statisticsManager = new StatisticsManager();
-            searchManager = new SearchManager();
             
+            // Get singleton instances (these set window.tileManager, window.searchManager, window.filterManager)
+            TileManager.getInstance();
+            SearchManager.getInstance();
+            FilterManager.getInstance();
+            
+            // Initialize managers in dependency order
             if (dropdownManager.initializeData(workItemTypes, artifactStatuses)) {
                 dropdownManager.createCustomDropdowns();
                 // Expose dropdown accessibility functions for testing (Ticket #00073)
                 dropdownManager.exposeForTesting();
             }
             
-            if (tileManager.initializeData(workItemTypes, artifactStatuses)) {
+            if (window.tileManager.initializeData(workItemTypes, artifactStatuses)) {
                 console.log('Tile manager initialized successfully');
             }
             
@@ -88,11 +215,33 @@ async function loadConfiguration() {
                 statisticsManager.initialize(projectConfig);
             }
             
-            if (searchManager) {
-                searchManager.initialize();
+            // Initialize search manager with tile manager reference
+            if (window.searchManager) {
+                window.searchManager.initialize(window.tileManager);
             }
+            
+            // Initialize filter manager with search manager reference
+            if (window.filterManager) {
+                window.filterManager.initialize(window.searchManager);
+            }
+            
+            showInfoInStatusLine(`Loaded ${artifactStatuses.length} artifact statuses`);
+            
+            // Initialize filter controls
+            const flagFilterBtn = document.getElementById('flagFilter');
+            if (flagFilterBtn) {
+                const filterWrapper = flagFilterBtn.closest('.filter-wrapper');
+                if (filterWrapper) {
+                    // Start in inactive state (blue border)
+                    filterWrapper.classList.add('filter-inactive');
+                }
+            }
+            
+            // Load artifacts after everything is initialized
+            await loadArtifacts();
         } else {
             console.error('Failed to load artifact statuses:', statusesResponse.status);
+            showErrorInStatusLine(`Failed to load artifact statuses: HTTP ${statusesResponse.status}`);
         }
     } catch (error) {
         console.error('Error loading configuration:', error);
@@ -416,130 +565,182 @@ async function loadArtifacts() {
         updateFilteredCount(artifacts.length);
         
         // Update tile manager with artifacts
-        if (tileManager) {
-            tileManager.updateArtifacts(artifacts);
-            tileManager.displayArtifacts(artifacts);
+        if (window.tileManager) {
+            window.tileManager.updateArtifacts(artifacts);
+            window.tileManager.displayArtifacts(artifacts);
+            showSuccessInStatusLine(`Loaded ${artifacts.length} artifacts successfully`);
         } else {
             // Fallback to old method if tile manager not available
             displayArtifacts(artifacts);
+            showInfoInStatusLine(`Loaded ${artifacts.length} artifacts (using fallback display)`);
         }
     } catch (error) {
         console.error('Error loading artifacts:', error);
         console.error('Error details:', error.message, error.stack);
+        showErrorInStatusLine('Failed to load artifacts: ' + error.message);
         document.getElementById('artifacts-container').innerHTML = '<div class="error">Error loading artifacts: ' + error.message + '</div>';
     }
 }
 
 // Artifact display is now handled by the TileManager class
 
-// Search and Filter
-async function searchArtifacts(query) {
-    if (searchManager) {
-        searchManager.setSearchValue(query);
-        currentFilterState.search = query.trim();
-    } else {
-        // Fallback to old method
-        currentFilterState.search = query.trim();
+// Update filtered count display
+function updateFilteredCount(count) {
+    const filteredCountElement = document.getElementById('filtered-count');
+    if (filteredCountElement) {
+        filteredCountElement.textContent = count;
+    }
+}
+
+// Fallback display function if TileManager is not available
+function displayArtifacts(artifacts) {
+    console.log('Using fallback displayArtifacts function');
+    const container = document.getElementById('artifacts-container');
+    if (!container) {
+        console.error('Artifacts container not found');
+        return;
     }
     
-    // Apply all active filters
-    await applyCombinedFilters();
+    if (!artifacts || artifacts.length === 0) {
+        container.innerHTML = '<div class="no-results">No artifacts found</div>';
+        return;
+    }
+    
+    // Clear existing content
+    container.innerHTML = '';
+    
+    // Create simple artifact tiles
+    artifacts.forEach(artifact => {
+        const tile = document.createElement('div');
+        tile.className = 'artifact-tile';
+        tile.innerHTML = `
+            <div class="tile-header">
+                <span class="artifact-id">${artifact.artifact_id}</span>
+                <span class="artifact-type">${artifact.type || 'N/A'}</span>
+                <span class="artifact-status">${artifact.status || 'N/A'}</span>
+            </div>
+            <div class="tile-summary">${artifact.summary || 'No summary'}</div>
+            <div class="tile-category">${artifact.category || 'No category'}</div>
+        `;
+        container.appendChild(tile);
+    });
+}
+
+// Search and Filter
+async function searchArtifacts(query) {
+    if (window.searchManager) {
+        window.searchManager.setSearchValue(query);
+        if (window.filterManager) {
+            window.filterManager.updateFilter('search', query.trim());
+        }
+    } else {
+        console.warn('SearchManager not available');
+    }
 }
 
 async function filterByType(type) {
-    // Store the type filter value for combination with other filters
-    currentFilterState.type = type;
-    
-    // Apply all active filters
-    await applyCombinedFilters();
+    if (window.filterManager) {
+        window.filterManager.updateFilter('type', type);
+    } else {
+        console.warn('FilterManager not available');
+    }
 }
 
 async function filterByCategory(category, exactMatch = false) {
-    if (category.trim() === '') {
-        currentFilterState.category = '';
-    } else {
-        currentFilterState.category = category;
-        
-        // Update the category filter input box to show the selected category
-        const categoryFilter = document.getElementById('categoryFilter');
-        if (categoryFilter) {
-            categoryFilter.value = category;
+    if (window.filterManager) {
+        if (category.trim() === '') {
+            window.filterManager.clearFilter('category');
+        } else {
+            window.filterManager.updateFilter('category', category);
+            
+            // Update the category filter input box to show the selected category
+            const categoryFilter = document.getElementById('categoryFilter');
+            if (categoryFilter) {
+                categoryFilter.value = category;
+            }
         }
+    } else {
+        console.warn('FilterManager not available');
     }
-    
-    // Apply all active filters
-    await applyCombinedFilters();
 }
 
 // Function to clear category filter
 async function clearCategoryFilter() {
-    currentFilterState.category = '';
-    const categoryFilter = document.getElementById('categoryFilter');
-    if (categoryFilter) {
-        categoryFilter.value = '';
+    if (window.filterManager) {
+        window.filterManager.clearFilter('category');
+        const categoryFilter = document.getElementById('categoryFilter');
+        if (categoryFilter) {
+            categoryFilter.value = '';
+        }
+    } else {
+        console.warn('FilterManager not available');
     }
-    await applyCombinedFilters();
 }
 
 // Function to clear search filter
 async function clearSearchFilter() {
-    currentFilterState.search = '';
-    if (searchManager) {
-        searchManager.setSearchValue('');
+    if (window.filterManager) {
+        window.filterManager.clearFilter('search');
+        if (window.searchManager) {
+            window.searchManager.setSearchValue('');
+        }
+    } else {
+        console.warn('FilterManager not available');
     }
-    await applyCombinedFilters();
 }
 
 // Function to clear all filters
 async function clearAllFilters() {
-    // Clear type filter
-    currentFilterState.type = '';
-    const typeFilter = document.getElementById('typeFilter');
-    if (typeFilter) {
-        typeFilter.value = '';
+    if (window.filterManager) {
+        // Clear all filters in the manager
+        window.filterManager.clearAllFilters();
+        
+        // TODO CHECK IF this code is really require danymore,s should not all this be done by the clearAllFitlers()?
+        // if yes, directly call window.filterManager.clearAllFilters() instead of this function.
+        
+        // Clear UI elements
+        const typeFilter = document.getElementById('typeFilter');
+        if (typeFilter) {
+            typeFilter.value = '';
+        }
+        
+        const statusFilter = document.getElementById('statusFilter');
+        if (statusFilter) {
+            statusFilter.value = '';
+        }
+        
+        const categoryFilter = document.getElementById('categoryFilter');
+        if (categoryFilter) {
+            categoryFilter.value = '';
+        }
+        
+        if (window.searchManager) {
+            window.searchManager.setSearchValue('');
+        }
+        
+        // Clear flag filter UI
+        const flagFilterBtn = document.getElementById('flagFilter');
+        if (flagFilterBtn) {
+            const icon = flagFilterBtn.querySelector('#flagIcon');
+            icon.src = '/static/icons/flag-outline.svg';
+            flagFilterBtn.style.background = '#6c757d';
+            flagFilterBtn.style.color = 'white';
+            flagFilterBtn.classList.remove('active');
+        }
+    } else {
+        console.warn('FilterManager not available');
     }
-    
-    // Clear status filter
-    currentFilterState.status = '';
-    const statusFilter = document.getElementById('statusFilter');
-    if (statusFilter) {
-        statusFilter.value = '';
-    }
-    
-    // Clear category filter
-    currentFilterState.category = '';
-    const categoryFilter = document.getElementById('categoryFilter');
-    if (categoryFilter) {
-        categoryFilter.value = '';
-    }
-    
-    // Clear search filter
-    currentFilterState.search = '';
-    if (searchManager) {
-        searchManager.setSearchValue('');
-    }
-    
-    // Clear flag filter
-    currentFilterState.flagged = false;
-    const flagFilterBtn = document.getElementById('flagFilter');
-    if (flagFilterBtn) {
-        const icon = flagFilterBtn.querySelector('ion-icon');
-        icon.name = 'flag-outline';
-        flagFilterBtn.style.background = '#6c757d';
-        flagFilterBtn.style.color = 'white';
-        flagFilterBtn.classList.remove('active');
-    }
-    
-    // Apply the cleared filters
-    await applyCombinedFilters();
 }
 
 // Function to update clear button visibility
 function updateClearButtonVisibility() {
+    // Get current filter state from FilterManager
+    const currentFilters = window.filterManager ? window.filterManager.getFilter() : {};
+    
     // Show/hide search clear button
     const clearSearchBtn = document.getElementById('clearSearch');
     if (clearSearchBtn) {
-        if (currentFilterState.search && currentFilterState.search !== '') {
+        if (currentFilters.search && currentFilters.search !== '') {
             clearSearchBtn.classList.add('visible');
         } else {
             clearSearchBtn.classList.remove('visible');
@@ -549,7 +750,7 @@ function updateClearButtonVisibility() {
     // Show/hide category clear button
     const clearCategoryBtn = document.getElementById('clearCategory');
     if (clearCategoryBtn) {
-        if (currentFilterState.category && currentFilterState.category !== '') {
+        if (currentFilters.category && currentFilters.category !== '') {
             clearCategoryBtn.classList.add('visible');
         } else {
             clearCategoryBtn.classList.remove('visible');
@@ -560,11 +761,11 @@ function updateClearButtonVisibility() {
     const clearAllBtn = document.getElementById('clearAllFilters');
     if (clearAllBtn) {
         const hasActiveFilters = (
-            (currentFilterState.type && currentFilterState.type !== '') ||
-            (currentFilterState.status && currentFilterState.status !== '') ||
-            (currentFilterState.category && currentFilterState.category !== '') ||
-            (currentFilterState.search && currentFilterState.search !== '') ||
-            currentFilterState.flagged
+            (currentFilters.type && currentFilters.type !== '') ||
+            (currentFilters.status && currentFilters.status !== '') ||
+            (currentFilters.category && currentFilters.category !== '') ||
+            (currentFilters.search && currentFilters.search !== '') ||
+            currentFilters.flagged
         );
         
         clearAllBtn.disabled = !hasActiveFilters;
@@ -579,175 +780,16 @@ function updateClearButtonVisibility() {
 }
 
 async function filterByStatus(status) {
-    // Store the status filter value for combination with other filters
-    currentFilterState.status = status;
-    
-    // Apply all active filters
-    await applyCombinedFilters();
-}
-
-async function applyCombinedFilters() {
-    try {
-        let artifactsToFilter = currentArtifacts;
-        
-        // First, apply type filter if active (API call)
-        if (currentFilterState.type && currentFilterState.type !== '') {
-            const response = await fetch(`${API_BASE}/artifacts?type=${encodeURIComponent(currentFilterState.type)}`);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            artifactsToFilter = await response.json();
-        }
-        
-        // Then apply local filters (status, category, search)
-        let filtered = artifactsToFilter;
-        
-        if (currentFilterState.status && currentFilterState.status !== '') {
-            filtered = filtered.filter(artifact => artifact.status === currentFilterState.status);
-        }
-        
-        if (currentFilterState.category && currentFilterState.category !== '') {
-            filtered = filtered.filter(artifact => 
-                artifact.category && artifact.category.toLowerCase().includes(currentFilterState.category.toLowerCase())
-            );
-        }
-        
-        if (currentFilterState.search && currentFilterState.search !== '') {
-            filtered = filtered.filter(artifact => 
-                artifact.summary.toLowerCase().includes(currentFilterState.search.toLowerCase()) ||
-                (artifact.description && artifact.description.toLowerCase().includes(currentFilterState.search.toLowerCase())) ||
-                (artifact.category && artifact.category.toLowerCase().includes(currentFilterState.search.toLowerCase()))
-            );
-        }
-        
-        // Apply flag filter
-        if (currentFilterState.flagged) {
-            filtered = filtered.filter(artifact => artifact.flagged === true);
-        }
-        
-        // Update DOM filter values to keep them in sync
-        updateFilterDOMValues();
-        
-        // Update the filtered count display
-        updateFilteredCount(filtered.length);
-        
-        // Use tile manager to display filtered artifacts
-        if (tileManager) {
-            tileManager.displayArtifacts(filtered);
-        } else {
-            // Fallback to old method
-            displayArtifacts(filtered);
-        }
-    } catch (error) {
-        console.error('Error applying combined filters:', error);
-        // Fallback to showing all artifacts
-        if (tileManager) {
-            tileManager.displayArtifacts(currentArtifacts);
-        } else {
-            displayArtifacts(currentArtifacts);
-        }
-    }
-}
-
-function updateFilteredCount(count) {
-    const filteredCountElement = document.getElementById('filtered-count');
-    if (filteredCountElement) {
-        filteredCountElement.textContent = count;
-    }
-}
-
-function updateFilterDOMValues() {
-    // Update type filter dropdown
-    const typeFilter = document.getElementById('typeFilter');
-    if (typeFilter) {
-        typeFilter.value = currentFilterState.type;
-        const typeWrapper = typeFilter.closest('.filter-wrapper');
-        // Add/remove active class based on filter value
-        if (currentFilterState.type && currentFilterState.type !== '') {
-            typeFilter.classList.add('active');
-            if (typeWrapper) typeWrapper.classList.add('active');
-        } else {
-            typeFilter.classList.remove('active');
-            if (typeWrapper) typeWrapper.classList.remove('active');
-        }
-    }
-    
-    // Update status filter dropdown
-    const statusFilter = document.getElementById('statusFilter');
-    if (statusFilter) {
-        statusFilter.value = currentFilterState.status;
-        const statusWrapper = statusFilter.closest('.filter-wrapper');
-        // Add/remove active class based on filter value
-        if (currentFilterState.status && currentFilterState.status !== '') {
-            statusFilter.classList.add('active');
-            if (statusWrapper) statusWrapper.classList.add('active');
-        } else {
-            statusFilter.classList.remove('active');
-            if (statusWrapper) statusWrapper.classList.remove('active');
-        }
-    }
-    
-    // Update category filter input
-    const categoryFilter = document.getElementById('categoryFilter');
-    if (categoryFilter) {
-        categoryFilter.value = currentFilterState.category;
-        const categoryContainer = categoryFilter.closest('.filter-container');
-        // Add/remove active class based on filter value
-        if (currentFilterState.category && currentFilterState.category !== '') {
-            categoryFilter.classList.add('active');
-            if (categoryContainer) categoryContainer.classList.add('active');
-        } else {
-            categoryFilter.classList.remove('active');
-            if (categoryContainer) categoryContainer.classList.remove('active');
-        }
-    }
-    
-    // Update search input
-    if (searchManager) {
-        searchManager.setSearchValue(currentFilterState.search);
-        // The search manager handles the active class internally
-        // Also update the container for footer styling
-        const searchContainer = document.querySelector('.filter-container');
-        if (searchContainer) {
-            if (currentFilterState.search && currentFilterState.search !== '') {
-                searchContainer.classList.add('active');
-            } else {
-                searchContainer.classList.remove('active');
-            }
-        }
+    if (window.filterManager) {
+        window.filterManager.updateFilter('status', status);
     } else {
-        // Fallback to old method
-        const searchBox = document.querySelector('input[placeholder="Search artifacts..."]');
-        if (searchBox) {
-            searchBox.value = currentFilterState.search;
-            const searchContainer = searchBox.closest('.filter-container');
-            // Add/remove active class based on search value
-            if (currentFilterState.search && currentFilterState.search !== '') {
-                searchBox.classList.add('active');
-                if (searchContainer) searchContainer.classList.add('active');
-            } else {
-                searchBox.classList.remove('active');
-                if (searchContainer) searchContainer.classList.remove('active');
-            }
-        }
+        console.warn('FilterManager not available');
     }
-    
-    // Update flag filter active state
-    const flagFilterBtn = document.getElementById('flagFilter');
-    if (flagFilterBtn) {
-        const flagWrapper = flagFilterBtn.closest('.filter-wrapper');
-        if (currentFilterState.flagged) {
-            flagFilterBtn.classList.add('active');
-            if (flagWrapper) flagWrapper.classList.add('active');
-        } else {
-            flagFilterBtn.classList.remove('active');
-            if (flagWrapper) flagWrapper.classList.remove('active');
-        }
-    }
-    
-    // Update clear button visibility
-    updateClearButtonVisibility();
 }
+
+// Old applyCombinedFilters function removed - now handled by FilterManager + SearchManager
+
+// Old filter state management functions removed - now handled by FilterManager
 
 // Form Handling
 document.getElementById('artifactForm').addEventListener('submit', async function(e) {
@@ -766,46 +808,48 @@ document.getElementById('artifactForm').addEventListener('submit', async functio
     };
     
             try {
-            // Capture current filter state before editing
-            const currentFilterState = getCurrentFilterState();
-            
-            let response;
-            if (editingArtifactId) {
-                // Update existing artifact
-                response = await fetch(`${API_BASE}/artifacts/${editingArtifactId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData)
-                });
-            } else {
-                // Create new artifact
-                response = await fetch(`${API_BASE}/artifacts`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData)
-                });
+                // Capture current filter state before editing
+                const currentFilterState = window.filterManager ? window.filterManager.getFilter() : {};
+                
+                let response;
+                if (editingArtifactId) {
+                    // Update existing artifact
+                    response = await fetch(`${API_BASE}/artifacts/${editingArtifactId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(formData)
+                    });
+                } else {
+                    // Create new artifact
+                    response = await fetch(`${API_BASE}/artifacts`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(formData)
+                    });
+                }
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                closeModal();
+                if (statisticsManager) {
+                    statisticsManager.loadStats();
+                }
+                
+                // Load artifacts and then reapply the filter state
+                await loadArtifacts();
+                if (window.filterManager && currentFilterState) {
+                    window.filterManager.applyFilterState(currentFilterState);
+                }
+            } catch (error) {
+                console.error('Error saving artifact:', error);
+                alert('Error saving artifact: ' + error.message);
             }
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            closeModal();
-            if (statisticsManager) {
-                statisticsManager.loadStats();
-            }
-            
-            // Load artifacts and then reapply the filter state
-            await loadArtifacts();
-            applyFilterState(currentFilterState);
-        } catch (error) {
-        console.error('Error saving artifact:', error);
-        alert('Error saving artifact: ' + error.message);
-    }
 });
 
 // Artifact Operations
@@ -813,7 +857,7 @@ async function deleteArtifact(artifactId) {
     if (confirm('Are you sure you want to delete this artifact?')) {
         try {
             // Capture current filter state before deleting
-            const currentFilterState = getCurrentFilterState();
+            const currentFilterState = window.filterManager ? window.filterManager.getFilter() : {};
             
             const response = await fetch(`${API_BASE}/artifacts/${artifactId}`, {
                 method: 'DELETE'
@@ -829,7 +873,9 @@ async function deleteArtifact(artifactId) {
             
             // Load artifacts and then reapply the filter state
             await loadArtifacts();
-            applyFilterState(currentFilterState);
+            if (window.filterManager && currentFilterState) {
+                window.filterManager.applyFilterState(currentFilterState);
+            }
         } catch (error) {
             console.error('Error deleting artifact:', error);
             alert('Error deleting artifact: ' + error.message);
@@ -841,55 +887,16 @@ async function refreshArtifacts() {
     try {
         console.log('refreshArtifacts called');
         
-        // Get current filter state
-        const currentState = getCurrentFilterState();
+        // Get current filter state from FilterManager
+        const currentState = window.filterManager ? window.filterManager.getFilter() : {};
         console.log('Current filter state before refresh:', currentState);
         
-        // Build query parameters for all active filters
-        const params = new URLSearchParams();
-        
-        if (currentState.type && currentState.type !== '') {
-            params.append('type', currentState.type);
-        }
-        
-        if (currentState.status && currentState.status !== '') {
-            params.append('status', currentState.status);
-        }
-        
-        if (currentState.category && currentState.category !== '') {
-            params.append('category', currentState.category);
-        }
-        
-        if (currentState.search && currentState.search !== '') {
-            params.append('search', currentState.search);
-        }
-        
-        // Make API call with filter parameters
-        const url = params.toString() ? `${API_BASE}/artifacts?${params.toString()}` : `${API_BASE}/artifacts`;
-        console.log('Making refresh API call to:', url);
-        
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const artifacts = await response.json();
-        console.log('Artifacts received from refresh:', artifacts);
-        currentArtifacts = artifacts;
-        
-        // Apply flag filter locally (since it's not supported by the API yet)
-        let filtered = artifacts;
-        if (currentState.flagged) {
-            filtered = filtered.filter(artifact => artifact.flagged === true);
-        }
-        
-        // Update tile manager with filtered artifacts
-        if (tileManager) {
-            tileManager.updateArtifacts(filtered);
-            tileManager.displayArtifacts(filtered);
+        // Use SearchManager to refresh with current filters
+        if (window.searchManager) {
+            await window.searchManager.updateSearchResults(currentState);
         } else {
-            // Fallback to old method
-            displayArtifacts(filtered);
+            // Fallback to loading all artifacts if SearchManager not available
+            await loadArtifacts();
         }
         
         // Update statistics
@@ -901,23 +908,11 @@ async function refreshArtifacts() {
     } catch (error) {
         console.error('Error in refreshArtifacts:', error);
         // Fallback to loading all artifacts if refresh fails
-        loadArtifacts();
+        await loadArtifacts();
     }
 }
 
-// Filter State Management
-function getCurrentFilterState() {
-    // Return a copy of the current filter state
-    return { ...currentFilterState };
-}
-
-function applyFilterState(filterState) {
-    // Restore the filter state
-    currentFilterState = { ...filterState };
-    
-    // Apply all active filters
-    applyCombinedFilters();
-}
+// Filter state management now handled by FilterManager
 
 // Event Listeners
 window.onclick = function(event) {
@@ -934,9 +929,9 @@ function cleanupManagers() {
         dropdownManager = null;
     }
     
-    if (tileManager) {
-        tileManager.cleanup();
-        tileManager = null;
+    if (window.tileManager) {
+        window.tileManager.cleanup();
+        window.tileManager = null;
     }
     
     if (statisticsManager) {
@@ -944,9 +939,13 @@ function cleanupManagers() {
         statisticsManager = null;
     }
     
-    if (searchManager) {
-        searchManager.cleanup();
-        searchManager = null;
+    if (window.searchManager) {
+        window.searchManager.cleanup();
+        window.searchManager = null;
+    }
+    
+    if (window.filterManager) {
+        window.filterManager = null;
     }
 }
 
@@ -986,8 +985,8 @@ async function toggleArtifactFlag(artifactId) {
         artifact.flagged = newFlagState;
         
         // Refresh the display
-        if (tileManager) {
-            tileManager.refreshTiles();
+        if (window.tileManager) {
+            window.tileManager.refreshTiles();
         }
         
         console.log(`Artifact ${artifactId} flag toggled to ${newFlagState}`);
@@ -999,29 +998,38 @@ async function toggleArtifactFlag(artifactId) {
 
 async function toggleFlagFilter() {
     try {
-        // Toggle the flag filter state
-        currentFilterState.flagged = !currentFilterState.flagged;
+        // Toggle the flag filter state using FilterManager
+        window.filterManager.toggleFlagFilter();
         
-        // Update the filter button appearance
+        // Update the flag filter button UI
         const flagFilterBtn = document.getElementById('flagFilter');
         if (flagFilterBtn) {
-            const icon = flagFilterBtn.querySelector('ion-icon');
-            if (currentFilterState.flagged) {
-                // Active filter - red flag
-                icon.name = 'flag';
+            const icon = flagFilterBtn.querySelector('#flagIcon');
+            const currentFlagState = window.filterManager.getFilter().flagged;
+            
+            // Get the filter wrapper container
+            const filterWrapper = flagFilterBtn.closest('.filter-wrapper');
+            
+            if (currentFlagState) {
+                // Active state
                 flagFilterBtn.classList.add('active');
+                if (filterWrapper) {
+                    filterWrapper.classList.remove('filter-inactive');
+                    filterWrapper.classList.add('filter-active');
+                }
             } else {
-                // Inactive filter - grey flag
-                icon.name = 'flag-outline';
+                // Inactive state
                 flagFilterBtn.classList.remove('active');
+                if (filterWrapper) {
+                    filterWrapper.classList.remove('filter-active');
+                    filterWrapper.classList.add('filter-inactive');
+                }
             }
+            
+            console.log(`Flag filter toggled to: ${window.filterManager.getFilter().flagged}`);
         }
-        
-        // Apply the filter
-        await applyCombinedFilters();
-        
-        console.log(`Flag filter toggled to: ${currentFilterState.flagged}`);
     } catch (error) {
         console.error('Error toggling flag filter:', error);
     }
 }
+

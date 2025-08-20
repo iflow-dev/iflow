@@ -1,5 +1,33 @@
 /* iflow - Project Artifact Manager Styles */
 
+/* Icon styles */
+.icon-svg {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    vertical-align: middle;
+    /* Ensure icon is fully visible */
+    overflow: visible;
+    max-width: none;
+    max-height: none;
+}
+
+/* Make SVG icons inherit the text color of their parent */
+/* Note: Individual filters are applied via JavaScript for different states */
+
+/* Override for buttons that should have colored icons */
+.btn-icon .icon-svg {
+    filter: none; /* Let JavaScript handle the filtering */
+}
+
+.btn-secondary .icon-svg {
+    filter: none; /* Let JavaScript handle the filtering */
+}
+
+.btn-secondary:hover .icon-svg {
+    filter: none; /* Let JavaScript handle the filtering */
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -99,6 +127,51 @@ body {
     font-weight: 500;
 }
 
+/* Enhanced error message styling */
+.error-message {
+    color: #dc3545 !important;
+    font-weight: bold !important;
+    font-size: 1.2em !important;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    animation: errorPulse 2s infinite;
+}
+
+.success-message {
+    color: #28a745 !important;
+    font-weight: bold !important;
+    font-size: 1.1em !important;
+}
+
+.info-message {
+    color: #17a2b8 !important;
+    font-weight: bold !important;
+    font-size: 1.1em !important;
+}
+
+@keyframes errorPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+}
+
+/* Make status line more prominent for errors */
+.status-line.error {
+    border-left-color: #dc3545;
+    background: #fff5f5;
+    border-left-width: 6px;
+}
+
+.status-line.success {
+    border-left-color: #28a745;
+    background: #f8fff9;
+    border-left-width: 6px;
+}
+
+.status-line.info {
+    border-left-color: #17a2b8;
+    background: #f8fcff;
+    border-left-width: 6px;
+}
+
 .status-text #last-message.warning {
     color: #ffc107;
     font-weight: 500;
@@ -130,10 +203,9 @@ body {
     color: #6c757d;
 }
 
-.btn.btn-icon ion-icon {
-    font-size: 1.4rem;
-    width: 1.4rem;
-    height: 1.4rem;
+.btn.btn-icon .icon-svg {
+    width: 20px;
+    height: 20px;
 }
 
 .btn.btn-icon:hover {
@@ -161,10 +233,9 @@ body {
     transition: all 0.2s ease;
 }
 
-.btn-icon ion-icon {
-    font-size: 1.2rem;
-    width: 1.2rem;
-    height: 1.2rem;
+.btn-icon .icon-svg {
+    width: 20px;
+    height: 20px;
 }
 
 .btn-danger {
@@ -292,6 +363,8 @@ select.filter-select:hover,
     display: flex;
     flex-direction: column;
     align-items: center;
+    /* Ensure content is not clipped */
+    overflow: visible;
 }
 
 /* Filter footer styling */
@@ -368,10 +441,9 @@ select.filter-select:hover,
     color: #ff8c00; /* Keep orange color for the icon */
 }
 
-.clear-all-btn ion-icon {
-    font-size: 1.2rem;
-    width: 1.2rem;
-    height: 1.2rem;
+.clear-all-btn .icon-svg {
+    width: 20px;
+    height: 20px;
 }
 
 .stats-bar {
@@ -588,8 +660,9 @@ select.filter-select:hover,
     color: #495057;
 }
 
-.artifact-actions ion-icon {
-    font-size: 1.2rem;
+.artifact-actions .icon-svg {
+    width: 20px;
+    height: 20px;
 }
 
 .artifact-category-left .category-link {
@@ -757,16 +830,50 @@ select.filter-select:hover,
     }
 }
 
-/* Ionic Icons Styling */
-ion-icon {
+/* Icon Styling */
+.icon-svg {
     vertical-align: middle;
     margin-right: 0.25rem;
-    width: 1em;
-    height: 1em;
 }
 
-.artifact-type ion-icon,
-.artifact-status ion-icon {
+.artifact-type .icon-svg,
+.artifact-status .icon-svg {
     display: inline-block;
     vertical-align: text-bottom;
+}
+
+/* Filter Control States */
+.filter-wrapper.filter-active {
+    border: 2px solid #ff8c00;
+    border-radius: 8px;
+    padding: 0.25rem;
+    background: rgba(255, 140, 0, 0.15);
+}
+
+.filter-wrapper.filter-inactive {
+    border: 2px solid transparent; /* Changed from #6c757d (grey) to transparent */
+    border-radius: 8px;
+    padding: 0.25rem;
+    background: transparent; /* Changed from #f8f9fa (light grey) to transparent */
+}
+
+.filter-wrapper.filter-disabled {
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    padding: 0.25rem;
+    background: #f8f9fa;
+    opacity: 0.6;
+}
+
+.filter-wrapper.filter-active .filter-footer {
+    color: #ff8c00;
+    font-weight: 600;
+}
+
+.filter-wrapper.filter-inactive .filter-footer {
+    color: #6c757d; /* Changed from #ff8c00 (orange) to #6c757d (grey) */
+}
+
+.filter-wrapper.filter-disabled .filter-footer {
+    color: #dee2e6;
 }

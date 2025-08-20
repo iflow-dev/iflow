@@ -72,6 +72,11 @@ def handle_exception(e):
     return jsonify({'error': str(e)}), 500
 
 # Routes
+@app.route('/favicon.ico')
+def favicon():
+    """Serve favicon to prevent 404 errors."""
+    return '', 204  # No content response
+
 @app.route('/')
 def index():
     """Serve the main HTML page."""

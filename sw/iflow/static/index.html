@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>iflow - Project Artifact Manager</title>
     <link rel="stylesheet" href="/static/styles.css">
-    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <!-- Icons handled by CSS classes -->
 </head>
 <body>
     <div class="header">
@@ -17,8 +16,8 @@
     <div class="container">
         <div class="toolbar">
             <div class="filter-wrapper">
-                <button class="btn btn-icon" onclick="openCreateModal().catch(console.error)" title="Create new artifact">
-                    <ion-icon name="create-outline"></ion-icon>
+                <button class="btn btn-icon" onclick="openCreateModal()" title="Create new artifact">
+                    <img src="/static/icons/create-outline.svg" alt="Create" class="icon-svg">
                 </button>
                 <div class="filter-footer">create</div>
             </div>
@@ -51,21 +50,21 @@
             
             <div class="filter-wrapper">
                 <button class="btn btn-secondary btn-icon" id="flagFilter" onclick="toggleFlagFilter()" title="Filter flagged artifacts">
-                    <ion-icon name="flag-outline"></ion-icon>
+                    <img src="/static/icons/flag.svg" alt="Flag" class="icon-svg" id="flagIcon">
                 </button>
                 <div class="filter-footer">Flag</div>
             </div>
             
             <div class="filter-wrapper">
                 <button class="clear-all-btn" id="clearAllFilters" onclick="clearAllFilters()" title="Clear all filters">
-                    <ion-icon name="close-outline"></ion-icon>
+                    <img src="/static/icons/close-outline.svg" alt="Clear" class="icon-svg">
                 </button>
                 <div class="filter-footer">clear</div>
             </div>
             
             <div class="filter-wrapper">
                 <button class="btn btn-secondary btn-icon" onclick="refreshArtifacts()" title="Refresh artifacts">
-                    <ion-icon name="refresh-outline"></ion-icon>
+                    <img src="/static/icons/refresh-outline.svg" alt="Refresh" class="icon-svg">
                 </button>
                 <div class="filter-footer">refresh</div>
             </div>
@@ -151,10 +150,13 @@
     </div>
     
     <script src="/static/filter-manager.js"></script>
+    <script src="/static/filter-control.js"></script>
+    <script src="/static/icon-filter.js"></script>
+    <script src="/static/filter-demo.js"></script>
     <script src="/static/dropdown.js"></script>
-        <script src="/static/tile.js"></script>
-        <script src="/static/statistics.js"></script>
-        <script src="/static/search.js"></script>
-        <script src="/static/app_web.js"></script>
+    <script src="/static/tile.js"></script>
+    <script src="/static/statistics.js"></script>
+    <script src="/static/search.js"></script>
+    <script src="/static/app_web.js"></script>
 </body>
 </html>

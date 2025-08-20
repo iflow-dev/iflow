@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Icon Test - Simple Filters</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .icon-display {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            margin: 20px 0;
+        }
+        .icon-item {
+            text-align: center;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        .icon-svg-test {
+            width: 40px;
+            height: 40px;
+            border: 1px solid #ccc;
+            background: white;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .filter-active {
+            background: rgba(255, 140, 0, 0.15);
+            border: 2px solid #ff8c00;
+        }
+        .filter-inactive {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+        }
+        .filter-disabled {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            opacity: 0.6;
+        }
+        .status {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .active { color: #ff8c00; }
+        .inactive { color: #6c757d; }
+        .disabled { color: #dee2e6; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Icon Test - Simple CSS Filters</h1>
+    
+    <div class="test-section">
+        <h2>🎯 Test 1: Basic Icon Display</h2>
+        <p>First, let's make sure the basic flag.svg icon is visible without any filters:</p>
+        <div class="icon-display">
+            <div class="icon-item">
+                <h3>No Filter</h3>
+                <img src="/static/icons/flag.svg" alt="Flag" class="icon-svg-test">
+                <div class="status">Should be visible</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🎨 Test 2: Simple CSS Filters</h2>
+        <p>Now let's test the simple CSS filters that should make the icons visible:</p>
+        <div class="icon-display">
+            <div class="icon-item filter-active">
+                <h3>Active State</h3>
+                <img src="/static/icons/flag.svg" alt="Flag" class="icon-svg-test" style="filter: hue-rotate(14deg) saturate(200%) brightness(1.2);">
+                <div class="status active">Orange Filter Applied</div>
+            </div>
+            
+            <div class="icon-item filter-inactive">
+                <h3>Inactive State</h3>
+                <img src="/static/icons/flag.svg" alt="Flag" class="icon-svg-test" style="filter: grayscale(100%) brightness(0.6);">
+                <div class="status inactive">Grey Filter Applied</div>
+            </div>
+            
+            <div class="icon-item filter-disabled">
+                <h3>Disabled State</h3>
+                <img src="/static/icons/flag.svg" alt="Flag" class="icon-svg-test" style="filter: grayscale(100%) brightness(0.8) opacity(0.6);">
+                <div class="status disabled">Light Grey Filter Applied</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🔧 Test 3: JavaScript Filter Application</h2>
+        <p>Test the JavaScript IconFilter class:</p>
+        <div class="icon-display">
+            <div class="icon-item">
+                <h3>JavaScript Test</h3>
+                <img src="/static/icons/flag.svg" alt="Flag" class="icon-svg-test" id="jsTestIcon">
+                <div class="status" id="jsStatus">Click buttons below</div>
+                <div style="margin-top: 10px;">
+                    <button onclick="setActive()">Set Active</button>
+                    <button onclick="setInactive()">Set Inactive</button>
+                    <button onclick="setDisabled()">Set Disabled</button>
+                    <button onclick="clearFilter()">Clear Filter</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>📋 Debug Information</h2>
+        <p>Check the browser console for filter application logs.</p>
+        <div id="debugInfo">
+            <p><strong>Current Filter:</strong> <span id="currentFilter">None</span></p>
+            <p><strong>Icon Element:</strong> <span id="iconElement">Checking...</span></p>
+        </div>
+    </div>
+
+    <script>
+        // Load the IconFilter class
+        const script = document.createElement('script');
+        script.src = '/static/icon-filter.js';
+        script.onload = function() {
+            console.log('IconFilter script loaded');
+            updateDebugInfo();
+        };
+        document.head.appendChild(script);
+        
+        function setActive() {
+            const icon = document.getElementById('jsTestIcon');
+            icon.style.filter = 'hue-rotate(14deg) saturate(200%) brightness(1.2)';
+            document.getElementById('jsStatus').textContent = 'Active (Orange)';
+            document.getElementById('currentFilter').textContent = 'hue-rotate(14deg) saturate(200%) brightness(1.2)';
+        }
+        
+        function setInactive() {
+            const icon = document.getElementById('jsTestIcon');
+            icon.style.filter = 'grayscale(100%) brightness(0.6)';
+            document.getElementById('jsStatus').textContent = 'Inactive (Grey)';
+            document.getElementById('currentFilter').textContent = 'grayscale(100%) brightness(0.6)';
+        }
+        
+        function setDisabled() {
+            const icon = document.getElementById('jsTestIcon');
+            icon.style.filter = 'grayscale(100%) brightness(0.8) opacity(0.6)';
+            document.getElementById('jsStatus').textContent = 'Disabled (Light Grey)';
+            document.getElementById('currentFilter').textContent = 'grayscale(100%) brightness(0.8) opacity(0.6)';
+        }
+        
+        function clearFilter() {
+            const icon = document.getElementById('jsTestIcon');
+            icon.style.filter = '';
+            document.getElementById('jsStatus').textContent = 'No Filter';
+            document.getElementById('currentFilter').textContent = 'None';
+        }
+        
+        function updateDebugInfo() {
+            const icon = document.getElementById('jsTestIcon');
+            document.getElementById('iconElement').textContent = icon ? 'Found' : 'Not Found';
+            document.getElementById('currentFilter').textContent = icon.style.filter || 'None';
+        }
+        
+        // Update debug info every second
+        setInterval(updateDebugInfo, 1000);
+    </script>
+</body>
+</html>
