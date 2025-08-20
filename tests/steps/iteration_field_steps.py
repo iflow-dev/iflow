@@ -2,7 +2,7 @@
 Step definitions for iteration field functionality.
 """
 
-from radish import given, when, then
+from radish import given, when, then, step
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
