@@ -127,14 +127,14 @@ body {
 .search-box {
     flex: 1;
     min-width: 200px;
-    padding: 0.5rem;
+    padding: 0.5rem 2.5rem 0.5rem 0.5rem;
     border: 1px solid #ddd;
     border-radius: 6px;
     font-size: 0.9rem;
 }
 
 .filter-select {
-    padding: 0.5rem;
+    padding: 0.5rem 2.5rem 0.5rem 0.5rem;
     border: 1px solid #ddd;
     border-radius: 6px;
     font-size: 0.9rem;
@@ -168,25 +168,24 @@ body {
 /* Clear button styling */
 .clear-btn {
     position: absolute;
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
+    right: 0;
+    top: 0;
+    bottom: 0;
     background: transparent;
-    color: #666666;
+    color: #ff8c00;
     border: none;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    font-size: 12px;
+    width: 30px;
     cursor: pointer;
     display: none;
     align-items: center;
     justify-content: center;
     transition: color 0.2s ease;
+    font-size: 16px;
+    font-weight: bold;
 }
 
 .clear-btn:hover {
-    color: #333333;
+    color: #e67e00;
 }
 
 .clear-btn.visible {
