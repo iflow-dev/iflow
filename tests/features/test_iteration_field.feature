@@ -7,15 +7,13 @@ Feature: Artifact Iteration Field
         Given I go to home
         When I create a requirement
         Then I should see the edit dialog
-        And I should see an iteration field
-        And the field iteration is set to ""
+        Then the field iteration is set to ""
 
     Scenario: Edit artifact iteration field
         Given I go to home
         And I see artifacts displayed
         When I edit the first artifact
         Then I should see the edit dialog
-        And I should see an iteration field
         And I fill the iteration field with "Sprint 1"
 
     Scenario: Save artifact with iteration information
