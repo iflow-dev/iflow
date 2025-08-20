@@ -173,9 +173,8 @@ body {
 
 /* Flag filter active state */
 .btn-icon.active {
-    /* Remove orange border - keep default styling */
     background: transparent;
-    color: #ff8c00;
+    color: #dc3545;
 }
 
 /* Clear button styling */
