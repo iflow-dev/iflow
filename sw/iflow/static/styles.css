@@ -125,8 +125,8 @@ body {
 }
 
 .search-box {
-    flex: 1;
-    min-width: 200px;
+    width: 100%;
+    min-width: 0;
     padding: 0.5rem 2.5rem 0.5rem 0.5rem;
     border: 1px solid #ddd;
     border-radius: 6px;
@@ -193,6 +193,8 @@ body {
 /* Position relative for filter containers */
 .filter-container {
     position: relative;
+    flex: 1;
+    min-width: 0;
 }
 
 /* Clear all button */
@@ -597,6 +599,11 @@ body {
     .toolbar {
         flex-direction: column;
         align-items: stretch;
+    }
+    
+    .filter-container {
+        flex: none;
+        width: 100%;
     }
     
     .artifacts-container {
