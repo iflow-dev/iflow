@@ -146,3 +146,12 @@ def click_edit_button_on_artifact(step):
     # Wait for edit modal to appear
     wait = WebDriverWait(world.driver, 10)
     wait.until(EC.visibility_of_element_located((By.ID, "artifactDescription")))
+
+@step("I click the Save button")
+def click_save_button(step):
+    """Click the Save button."""
+    from radish import world
+    from selenium.webdriver.common.by import By
+    
+    save_button = world.driver.find_element(By.XPATH, "//button[text()='Save']")
+    save_button.click()
