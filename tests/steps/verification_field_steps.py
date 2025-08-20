@@ -104,12 +104,28 @@ def fill_in_description(step, description):
     description_field.send_keys(description)
 
 
-@when("I click the Create button")
+@when("I click the \"Create\" button")
 def click_submit_button(step):
     """Click the Create button to submit the form."""
     from radish import world
-    submit_button = world.driver.find_element(By.XPATH, "//div[@id='artifactModal']//button[@type='submit']")
-    submit_button.click()
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.webdriver.common.by import By
+    from selenium.common.exceptions import ElementClickInterceptedException
+    
+    # Wait for the modal to be fully visible
+    wait = WebDriverWait(world.driver, 10)
+    wait.until(EC.visibility_of_element_located((By.ID, "artifactModal")))
+    
+    # Wait for the submit button to be clickable - be more specific to avoid toolbar button
+    submit_button = wait.until(EC.element_to_be_clickable((By.ID, "submitButton")))
+    
+    try:
+        submit_button.click()
+    except ElementClickInterceptedException:
+        # If the click is intercepted, try to scroll to the button first
+        world.driver.execute_script("arguments[0].scrollIntoView(true);", submit_button)
+        world.driver.execute_script("arguments[0].click();", submit_button)
 
 
 

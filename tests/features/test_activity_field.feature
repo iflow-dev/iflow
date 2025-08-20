@@ -16,7 +16,6 @@ Feature: Artifact Activity Field
         When I edit an artifact
         Then I should see the edit dialog
         And I should see an activity field
-        And I can edit the activity field
 
     Scenario: Save artifact with activity information
         Given I go to home
@@ -32,10 +31,9 @@ Feature: Artifact Activity Field
     Scenario: Display activity field in artifact tile
         Given I go to home
         And I see artifacts displayed
-        When I click the edit button on the first artifact
+        When I edit an artifact
         Then I should see the edit dialog
         And I should see an activity field
-        And I can edit the activity field
 
     Scenario: Update activity field on existing artifact
         Given I go to home

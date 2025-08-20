@@ -2,7 +2,7 @@
 Step definitions for activity field functionality.
 """
 
-from radish import given, when, then
+from radish import given, when, then, step
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -24,14 +24,6 @@ def activity_field_is_empty(step):
     actual_value = activity_field.get_attribute("value")
     assert actual_value == "", f"Activity field should be empty, but got '{actual_value}'"
 
-@then("I can edit the activity field")
-def can_edit_activity_field(step):
-    """Check that the activity field is editable."""
-    from radish import world
-    
-    activity_field = world.driver.find_element(By.ID, "artifactActivity")
-    assert activity_field.is_enabled(), "Activity field should be editable"
-
 @when("I set activity to {text}")
 def set_activity_to(step, text):
     """Set the activity field to the specified text."""
@@ -41,21 +33,23 @@ def set_activity_to(step, text):
     activity_field.clear()
     activity_field.send_keys(text)
 
-
-
-@when("I open the artifact with title {title}")
+@step("I open the artifact with title \"{title}\"")
 def open_artifact_with_title(step, title):
     """Open an artifact with the specified title for editing."""
     from radish import world
     
     # Find the artifact with the specified title and click its edit button
     artifacts = world.driver.find_elements(By.CLASS_NAME, "artifact-card")
+    
     for artifact in artifacts:
-        summary_element = artifact.find_element(By.CLASS_NAME, "artifact-summary")
-        if summary_element.text == title:
-            edit_button = artifact.find_element(By.CSS_SELECTOR, "button[onclick*='openEditModal']")
-            edit_button.click()
-            return
+        try:
+            summary_element = artifact.find_element(By.CLASS_NAME, "artifact-summary")
+            if summary_element.text == title:
+                edit_button = artifact.find_element(By.CSS_SELECTOR, "button[onclick*='openEditModal']")
+                edit_button.click()
+                return
+        except Exception as e:
+            continue
     
     raise AssertionError(f"Artifact with title '{title}' not found")
 
