@@ -21,24 +21,35 @@
             <div class="filter-container">
                 <input type="text" id="search-input" class="search-box" placeholder="Search artifacts...">
                 <button class="clear-btn" id="clearSearch" onclick="clearSearchFilter()" title="Clear search">×</button>
+                <div class="filter-footer">text</div>
             </div>
             
-            <select class="filter-select" id="typeFilter" onchange="filterByType(this.value)">
-                <option value="">All Types</option>
-            </select>
+            <div class="filter-wrapper">
+                <select class="filter-select" id="typeFilter" onchange="filterByType(this.value)">
+                    <option value="">All</option>
+                </select>
+                <div class="filter-footer">Type</div>
+            </div>
             
-            <select class="filter-select" id="statusFilter" onchange="filterByStatus(this.value)">
-                <option value="">All Statuses</option>
-            </select>
+            <div class="filter-wrapper">
+                <select class="filter-select" id="statusFilter" onchange="filterByStatus(this.value)">
+                    <option value="">All</option>
+                </select>
+                <div class="filter-footer">Status</div>
+            </div>
             
             <div class="filter-container">
                 <input type="text" id="categoryFilter" class="search-box" placeholder="Filter by category..." onkeyup="filterByCategory(this.value)">
                 <button class="clear-btn" id="clearCategory" onclick="clearCategoryFilter()" title="Clear category filter">×</button>
+                <div class="filter-footer">Category</div>
             </div>
             
-            <button class="btn btn-secondary btn-icon" id="flagFilter" onclick="toggleFlagFilter()" title="Filter flagged artifacts">
-                <ion-icon name="flag-outline"></ion-icon>
-            </button>
+            <div class="filter-wrapper">
+                <button class="btn btn-secondary btn-icon" id="flagFilter" onclick="toggleFlagFilter()" title="Filter flagged artifacts">
+                    <ion-icon name="flag-outline"></ion-icon>
+                </button>
+                <div class="filter-footer">Flag</div>
+            </div>
             
             <button class="btn btn-secondary btn-icon" onclick="refreshArtifacts()" title="Refresh artifacts">
                 <ion-icon name="refresh-outline"></ion-icon>
