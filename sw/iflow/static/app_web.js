@@ -556,7 +556,7 @@ function updateClearButtonVisibility() {
         }
     }
     
-    // Enable/disable clear all button
+    // Enable/disable clear all button and manage active state
     const clearAllBtn = document.getElementById('clearAllFilters');
     if (clearAllBtn) {
         const hasActiveFilters = (
@@ -568,6 +568,13 @@ function updateClearButtonVisibility() {
         );
         
         clearAllBtn.disabled = !hasActiveFilters;
+        
+        // Add/remove active class for orange styling
+        if (hasActiveFilters) {
+            clearAllBtn.classList.add('active');
+        } else {
+            clearAllBtn.classList.remove('active');
+        }
     }
 }
 
