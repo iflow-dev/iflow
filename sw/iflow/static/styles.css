@@ -190,7 +190,7 @@ body {
 .clear-btn {
     position: absolute;
     right: 0.5rem;
-    top: 50%;
+    top: calc(50% - 0.3em);
     transform: translateY(-50%);
     background: transparent;
     color: #ff8c00;
