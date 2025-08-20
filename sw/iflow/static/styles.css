@@ -126,6 +126,17 @@ body {
     border: 1px solid #ddd;
     border-radius: 6px;
     font-size: 0.9rem;
+    transition: border-color 0.2s ease;
+}
+
+.filter-select.active {
+    border: 2px solid #ff8c00;
+    box-shadow: 0 0 5px rgba(255, 140, 0, 0.3);
+}
+
+.search-box.active {
+    border: 2px solid #ff8c00;
+    box-shadow: 0 0 5px rgba(255, 140, 0, 0.3);
 }
 
 .stats-bar {

@@ -461,13 +461,23 @@ async function filterByCategory(category, exactMatch = false) {
         currentFilterState.category = category;
         
         // Update the category filter input box to show the selected category
-        const categoryFilter = document.querySelector('input[placeholder="Filter by category..."]');
+        const categoryFilter = document.getElementById('categoryFilter');
         if (categoryFilter) {
             categoryFilter.value = category;
         }
     }
     
     // Apply all active filters
+    await applyCombinedFilters();
+}
+
+// Function to clear category filter
+async function clearCategoryFilter() {
+    currentFilterState.category = '';
+    const categoryFilter = document.getElementById('categoryFilter');
+    if (categoryFilter) {
+        categoryFilter.value = '';
+    }
     await applyCombinedFilters();
 }
 
@@ -554,28 +564,53 @@ function updateFilterDOMValues() {
     const typeFilter = document.getElementById('typeFilter');
     if (typeFilter) {
         typeFilter.value = currentFilterState.type;
+        // Add/remove active class based on filter value
+        if (currentFilterState.type && currentFilterState.type !== '') {
+            typeFilter.classList.add('active');
+        } else {
+            typeFilter.classList.remove('active');
+        }
     }
     
     // Update status filter dropdown
     const statusFilter = document.getElementById('statusFilter');
     if (statusFilter) {
         statusFilter.value = currentFilterState.status;
+        // Add/remove active class based on filter value
+        if (currentFilterState.status && currentFilterState.status !== '') {
+            statusFilter.classList.add('active');
+        } else {
+            statusFilter.classList.remove('active');
+        }
     }
     
     // Update category filter input
-    const categoryFilter = document.querySelector('input[placeholder="Filter by category..."]');
+    const categoryFilter = document.getElementById('categoryFilter');
     if (categoryFilter) {
         categoryFilter.value = currentFilterState.category;
+        // Add/remove active class based on filter value
+        if (currentFilterState.category && currentFilterState.category !== '') {
+            categoryFilter.classList.add('active');
+        } else {
+            categoryFilter.classList.remove('active');
+        }
     }
     
     // Update search input
     if (searchManager) {
         searchManager.setSearchValue(currentFilterState.search);
+        // The search manager handles the active class internally
     } else {
         // Fallback to old method
         const searchBox = document.querySelector('input[placeholder="Search artifacts..."]');
         if (searchBox) {
             searchBox.value = currentFilterState.search;
+            // Add/remove active class based on search value
+            if (currentFilterState.search && currentFilterState.search !== '') {
+                searchBox.classList.add('active');
+            } else {
+                searchBox.classList.remove('active');
+            }
         }
     }
 }

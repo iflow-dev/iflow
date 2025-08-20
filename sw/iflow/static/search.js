@@ -56,6 +56,12 @@ class SearchManager {
         if (this.searchInput) {
             this.searchInput.value = value;
             this.currentFilters.search = value;
+            // Update active class based on search value
+            if (value && value !== '') {
+                this.searchInput.classList.add('active');
+            } else {
+                this.searchInput.classList.remove('active');
+            }
         }
     }
 
@@ -65,6 +71,10 @@ class SearchManager {
 
     clearSearch() {
         this.setSearchValue('');
+        // Ensure active class is removed when clearing
+        if (this.searchInput) {
+            this.searchInput.classList.remove('active');
+        }
     }
 
     updateFilters(newFilters) {
@@ -83,11 +93,16 @@ class SearchManager {
             search: ''
         };
         this.clearSearch();
+        // Remove active class from search input
+        if (this.searchInput) {
+            this.searchInput.classList.remove('active');
+        }
     }
 
     cleanup() {
         if (this.searchInput) {
             this.searchInput.removeEventListener('input', this.performSearch);
+            this.searchInput.classList.remove('active');
         }
         this.searchInput = null;
         this.currentFilters = {
