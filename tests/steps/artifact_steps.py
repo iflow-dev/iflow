@@ -393,12 +393,17 @@ def filter_dropdowns_should_show_default_values(step):
 def when_i_edit_an_artifact(step):
     """Edit an artifact (this step combines clicking edit and modifying)."""
     from radish import world
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.webdriver.common.by import By
+    
     # Click the edit button
     edit_button = world.driver.find_element(By.XPATH, "//button[.//ion-icon[@name='create-outline']]")
     edit_button.click()
     
     # Wait for edit modal to appear
-    world.wait.until(EC.visibility_of_element_located((By.ID, "artifactDescription")))
+    wait = WebDriverWait(world.driver, 10)
+    wait.until(EC.visibility_of_element_located((By.ID, "artifactDescription")))
     
     # Modify the description
     description_field = world.driver.find_element(By.ID, "artifactDescription")

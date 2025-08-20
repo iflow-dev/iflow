@@ -19,4 +19,4 @@
                 <details>
         ```
 - features:
-    - list of all available artifacts%
+    - list of all available artifacts
