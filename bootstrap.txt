@@ -1,6 +1,7 @@
 - follow those steps, STEP BY STEP, log each step
 - check run_radish.py to learn how to run a radish test
-- 
+- check start_server.py to learn how to start a local server
+
 - ALWAYS CHECK IF PORT IS FREE BEFORE STARTING A SERVER
 - NEVER EVER DO ONE OF THE FOLLOWING:
     - USE PORT 9000 FOR TESTING
@@ -19,7 +20,7 @@
 
 - read artifact 00102
 - read all procedures to have an understanding
-- github cli is available
+- github cli is available 
 
 - how to smoke test local changes:
   - for local testing, start a server on local repository with --init-db
