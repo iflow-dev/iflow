@@ -53,7 +53,8 @@ class Artifact:
         updated_at: Optional[datetime] = None,
         metadata: Optional[Dict[str, Any]] = None,
         flagged: bool = False,
-        verification: str = "BDD"
+        verification: str = "BDD",
+        activity: str = ""
     ):
         # artifact_id will be set by the database when saving
         # It will be a 5-digit number (e.g., "00001")
@@ -68,6 +69,7 @@ class Artifact:
         self.metadata = metadata or {}
         self.flagged = flagged
         self.verification = verification
+        self.activity = activity
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert artifact to dictionary representation."""
@@ -83,7 +85,8 @@ class Artifact:
                 "updated_at": self.updated_at.isoformat(),
                 "metadata": self.metadata,
                 "flagged": self.flagged,
-                "verification": self.verification
+                "verification": self.verification,
+                "activity": self.activity
             }
         }
     
@@ -106,7 +109,8 @@ class Artifact:
             updated_at=datetime.fromisoformat(artifact_data["updated_at"]).replace(tzinfo=None),
             metadata=artifact_data.get("metadata", {}),
             flagged=artifact_data.get("flagged", False),
-            verification=artifact_data.get("verification", "BDD")
+            verification=artifact_data.get("verification", "BDD"),
+            activity=artifact_data.get("activity", "")
         )
     
     @classmethod
