@@ -157,3 +157,19 @@ def click_save_button(step):
     
     save_button = world.driver.find_element(By.XPATH, "//button[text()='Save']")
     save_button.click()
+
+@step("I create a requirement")
+def create_requirement(step):
+    """Create a requirement by clicking the create button."""
+    from radish import world
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    
+    # Click the create button
+    create_button = world.driver.find_element(By.XPATH, "//button[contains(text(), 'Create')]")
+    create_button.click()
+    
+    # Wait for the modal to appear
+    wait = WebDriverWait(world.driver, 10)
+    wait.until(EC.visibility_of_element_located((By.ID, "artifactModal")))

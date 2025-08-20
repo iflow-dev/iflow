@@ -5,7 +5,7 @@ Feature: Artifact Iteration Field
 
     Scenario: Create artifact with iteration field
         Given I go to home
-        When I click the create button
+        When I create a requirement
         Then I should see the edit dialog
         And I should see an iteration field
         And the field iteration is set to ""
@@ -20,7 +20,7 @@ Feature: Artifact Iteration Field
 
     Scenario: Save artifact with iteration information
         Given I go to home
-        When I click the create button
+        When I create a requirement
         And I fill in the summary with "Test artifact with iteration"
         And I fill in the description with "This artifact has iteration tracking"
         And I fill in the iteration field with "Sprint 3"
