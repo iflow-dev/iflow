@@ -130,3 +130,19 @@ def edit_first_artifact(step):
     # Wait for edit modal to appear
     wait = WebDriverWait(world.driver, 10)
     wait.until(EC.visibility_of_element_located((By.ID, "artifactDescription")))
+
+@step("I click the edit button on the artifact")
+def click_edit_button_on_artifact(step):
+    """Click the edit button on an artifact."""
+    from radish import world
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.webdriver.common.by import By
+    
+    # Click the edit button on an artifact
+    edit_button = world.driver.find_element(By.XPATH, "//button[.//ion-icon[@name='create-outline']]")
+    edit_button.click()
+    
+    # Wait for edit modal to appear
+    wait = WebDriverWait(world.driver, 10)
+    wait.until(EC.visibility_of_element_located((By.ID, "artifactDescription")))
