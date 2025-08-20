@@ -139,6 +139,74 @@ body {
     box-shadow: 0 0 5px rgba(255, 140, 0, 0.3);
 }
 
+/* Custom dropdown active state */
+.custom-dropdown.active .custom-dropdown-button {
+    border: 2px solid #ff8c00;
+    box-shadow: 0 0 5px rgba(255, 140, 0, 0.3);
+}
+
+/* Flag filter active state */
+.btn-icon.active {
+    border: 2px solid #ff8c00;
+    box-shadow: 0 0 5px rgba(255, 140, 0, 0.3);
+    background-color: #fff3e0;
+}
+
+/* Clear button styling */
+.clear-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+}
+
+.clear-btn:hover {
+    background: #c82333;
+}
+
+.clear-btn.visible {
+    display: flex;
+}
+
+/* Position relative for filter containers */
+.filter-container {
+    position: relative;
+}
+
+/* Clear all button */
+.clear-all-btn {
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.clear-all-btn:hover {
+    background: #5a6268;
+}
+
+.clear-all-btn:disabled {
+    background: #e9ecef;
+    color: #6c757d;
+    cursor: not-allowed;
+}
+
 .stats-bar {
     background: white;
     padding: 1rem;

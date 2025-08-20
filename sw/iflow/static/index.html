@@ -17,20 +17,34 @@
     <div class="container">
         <div class="toolbar">
             <button class="btn" onclick="openCreateModal().catch(console.error)">Create</button>
-            <input type="text" id="search-input" class="search-box" placeholder="Search artifacts...">
+            
+            <div class="filter-container">
+                <input type="text" id="search-input" class="search-box" placeholder="Search artifacts...">
+                <button class="clear-btn" id="clearSearch" onclick="clearSearchFilter()" title="Clear search">×</button>
+            </div>
+            
             <select class="filter-select" id="typeFilter" onchange="filterByType(this.value)">
                 <option value="">All Types</option>
             </select>
+            
             <select class="filter-select" id="statusFilter" onchange="filterByStatus(this.value)">
                 <option value="">All Statuses</option>
             </select>
-            <input type="text" id="categoryFilter" class="search-box" placeholder="Filter by category..." onkeyup="filterByCategory(this.value)">
+            
+            <div class="filter-container">
+                <input type="text" id="categoryFilter" class="search-box" placeholder="Filter by category..." onkeyup="filterByCategory(this.value)">
+                <button class="clear-btn" id="clearCategory" onclick="clearCategoryFilter()" title="Clear category filter">×</button>
+            </div>
+            
             <button class="btn btn-secondary btn-icon" id="flagFilter" onclick="toggleFlagFilter()" title="Filter flagged artifacts">
                 <ion-icon name="flag-outline"></ion-icon>
             </button>
+            
             <button class="btn btn-secondary btn-icon" onclick="refreshArtifacts()" title="Refresh artifacts">
                 <ion-icon name="refresh-outline"></ion-icon>
             </button>
+            
+            <button class="clear-all-btn" id="clearAllFilters" onclick="clearAllFilters()" title="Clear all filters">Clear All</button>
         </div>
         
         <div class="status-line" id="status-line">

@@ -62,6 +62,11 @@ class SearchManager {
             } else {
                 this.searchInput.classList.remove('active');
             }
+            
+            // Update clear button visibility if the function exists
+            if (typeof updateClearButtonVisibility === 'function') {
+                updateClearButtonVisibility();
+            }
         }
     }
 

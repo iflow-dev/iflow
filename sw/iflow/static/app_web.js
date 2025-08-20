@@ -481,6 +481,96 @@ async function clearCategoryFilter() {
     await applyCombinedFilters();
 }
 
+// Function to clear search filter
+async function clearSearchFilter() {
+    currentFilterState.search = '';
+    if (searchManager) {
+        searchManager.setSearchValue('');
+    }
+    await applyCombinedFilters();
+}
+
+// Function to clear all filters
+async function clearAllFilters() {
+    // Clear type filter
+    currentFilterState.type = '';
+    const typeFilter = document.getElementById('typeFilter');
+    if (typeFilter) {
+        typeFilter.value = '';
+    }
+    
+    // Clear status filter
+    currentFilterState.status = '';
+    const statusFilter = document.getElementById('statusFilter');
+    if (statusFilter) {
+        statusFilter.value = '';
+    }
+    
+    // Clear category filter
+    currentFilterState.category = '';
+    const categoryFilter = document.getElementById('categoryFilter');
+    if (categoryFilter) {
+        categoryFilter.value = '';
+    }
+    
+    // Clear search filter
+    currentFilterState.search = '';
+    if (searchManager) {
+        searchManager.setSearchValue('');
+    }
+    
+    // Clear flag filter
+    currentFilterState.flagged = false;
+    const flagFilterBtn = document.getElementById('flagFilter');
+    if (flagFilterBtn) {
+        const icon = flagFilterBtn.querySelector('ion-icon');
+        icon.name = 'flag-outline';
+        flagFilterBtn.style.background = '#6c757d';
+        flagFilterBtn.style.color = 'white';
+        flagFilterBtn.classList.remove('active');
+    }
+    
+    // Apply the cleared filters
+    await applyCombinedFilters();
+}
+
+// Function to update clear button visibility
+function updateClearButtonVisibility() {
+    // Show/hide search clear button
+    const clearSearchBtn = document.getElementById('clearSearch');
+    if (clearSearchBtn) {
+        if (currentFilterState.search && currentFilterState.search !== '') {
+            clearSearchBtn.classList.add('visible');
+        } else {
+            clearSearchBtn.classList.remove('visible');
+        }
+    }
+    
+    // Show/hide category clear button
+    const clearCategoryBtn = document.getElementById('clearCategory');
+    if (clearCategoryBtn) {
+        if (currentFilterState.category && currentFilterState.category !== '') {
+            clearCategoryBtn.classList.add('visible');
+        } else {
+            clearCategoryBtn.classList.remove('visible');
+        }
+    }
+    
+    // Enable/disable clear all button
+    const clearAllBtn = document.getElementById('clearAllFilters');
+    if (clearAllBtn) {
+        const hasActiveFilters = (
+            (currentFilterState.type && currentFilterState.type !== '') ||
+            (currentFilterState.status && currentFilterState.status !== '') ||
+            (currentFilterState.category && currentFilterState.category !== '') ||
+            (currentFilterState.search && currentFilterState.search !== '') ||
+            currentFilterState.flagged
+        );
+        
+        clearAllBtn.disabled = !hasActiveFilters;
+    }
+}
+
 async function filterByStatus(status) {
     // Store the status filter value for combination with other filters
     currentFilterState.status = status;
@@ -613,6 +703,19 @@ function updateFilterDOMValues() {
             }
         }
     }
+    
+    // Update flag filter active state
+    const flagFilterBtn = document.getElementById('flagFilter');
+    if (flagFilterBtn) {
+        if (currentFilterState.flagged) {
+            flagFilterBtn.classList.add('active');
+        } else {
+            flagFilterBtn.classList.remove('active');
+        }
+    }
+    
+    // Update clear button visibility
+    updateClearButtonVisibility();
 }
 
 // Form Handling
@@ -877,11 +980,13 @@ async function toggleFlagFilter() {
                 icon.name = 'flag';
                 flagFilterBtn.style.background = '#dc3545';
                 flagFilterBtn.style.color = 'white';
+                flagFilterBtn.classList.add('active');
             } else {
                 // Inactive filter - grey flag
                 icon.name = 'flag-outline';
                 flagFilterBtn.style.background = '#6c757d';
                 flagFilterBtn.style.color = 'white';
+                flagFilterBtn.classList.remove('active');
             }
         }
         

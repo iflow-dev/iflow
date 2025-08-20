@@ -123,7 +123,7 @@ def i_clear_search_input(step):
     from radish import world
     
     # Use JavaScript to clear the search input and update the state
-    result = world.driver.execute_script("return searchManager.clearSearch();")
+    result = world.driver.execute_script("return clearSearchFilter();")
     
     # Wait for the filter to take effect
     import time

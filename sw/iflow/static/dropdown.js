@@ -323,6 +323,18 @@ class CustomDropdownManager {
             dropdownElement._originalSelect.value = value;
         }
         
+        // Update active class based on value
+        if (value && value !== '') {
+            dropdownElement.classList.add('active');
+        } else {
+            dropdownElement.classList.remove('active');
+        }
+        
+        // Update clear button visibility if the function exists
+        if (typeof updateClearButtonVisibility === 'function') {
+            updateClearButtonVisibility();
+        }
+        
         // Update the visual display
         if (value === '') {
             selectedValue.textContent = this.getDefaultText(type);
