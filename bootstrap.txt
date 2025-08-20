@@ -47,3 +47,9 @@
   - run "git merge" without commit message
   - run "git merge" without --no-edit
   - avoid running into this pitfalls
+
+
+- maintain a todo list visible for me for the jobs i give you
+- when i give you instructions while you are currently working on a task, at the new job to the end of the task list and continue working on the current task until finished
+- when i say " first do this and that" i want to stop your work on your current job, do the new insrtruction and then continue on the current job
+- report when readyk
