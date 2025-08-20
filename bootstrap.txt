@@ -21,9 +21,13 @@
 - read all procedures to have an understanding
 - github cli is available
 
-- for local testing, start a server on local repository with --init-db
-  but make sure you stop any running dev server before. Allowed port
-  range for dev servers is 7000-7010.
+- how to smoke test local changes:
+  - for local testing, start a server on local repository with --init-db
+    but make sure you stop any running dev server before. Allowed port
+    range for dev servers is 7000-7010.
+  - make sure the server is properly restarted
+  - make sure the server has your recent changes
+  - never use dev environment for testing local changes
 
 - before creating new step definitions, always:
     - search all existing steps for similar steps that can do the job
