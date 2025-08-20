@@ -22,7 +22,9 @@ def field_iteration_set_to(step, value):
     
     iteration_field = world.driver.find_element(By.ID, "artifactIteration")
     actual_value = iteration_field.get_attribute("value")
-    assert actual_value == value, f"Iteration field should be set to '{value}', but got '{actual_value}'"
+    # Handle the case where value is quoted string
+    expected_value = value.strip('"') if value.startswith('"') and value.endswith('"') else value
+    assert actual_value == expected_value, f"Iteration field should be set to '{expected_value}', but got '{actual_value}'"
 
 @step("I fill the iteration field with {text}")
 def fill_iteration_field_with(step, text):
