@@ -26,6 +26,7 @@ def is_port_free(port):
         except OSError:
             return False
 
+# TODO: add --database for the path to the database to use for this instance
 def main():
     parser = argparse.ArgumentParser(description='Start iflow web server')
     parser.add_argument('--port', type=int, default=8080, help='Port to run the server on (default: 8080)')
@@ -46,6 +47,15 @@ def main():
         if args.init_db:
             print("Initializing new database...")
             # TODO: Add database initialization logic here
+
+                # TODO: init a new git repository in path `database`
+
+                # TODO: create a new artifact 00001.yaml with summary "Initial artifact"
+
+                # TODO: commit the new artifact
+
+                # TODO: tag v0.0.0
+
         
         # Use use_reloader=False to prevent the port check issue with Flask's auto-reloader
         app.run(host='0.0.0.0', port=args.port, debug=True, use_reloader=False)
