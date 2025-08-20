@@ -37,3 +37,13 @@
     - try to follow a natural language, but with formal elements
     - always distinguish between activity (when) and verification (then),
       but use only @step decorator
+
+- reorganize all what you have learned especially with the goal
+  to follow the rules and checklists when you do any activity
+- what checklists do you need to follow and when?
+
+- common pitfalls for you:
+  - workflow is interrupted because your command opens an editor
+  - run "git merge" without commit message
+  - run "git merge" without --no-edit
+  - avoid running into this pitfalls
