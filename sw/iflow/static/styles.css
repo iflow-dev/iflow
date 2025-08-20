@@ -98,6 +98,7 @@ body {
     padding: 0.5rem;
     background: transparent;
     border: 2px solid transparent;
+    color: #666666;
     transition: all 0.2s ease;
 }
 
@@ -105,6 +106,14 @@ body {
     font-size: 1.2rem;
     width: 1.2rem;
     height: 1.2rem;
+}
+
+.btn-icon:hover {
+    color: #333333;
+}
+
+.btn-icon.active {
+    color: #ff8c00;
 }
 
 .btn-danger {
@@ -153,6 +162,7 @@ body {
     border: 2px solid #ff8c00;
     box-shadow: 0 0 5px rgba(255, 140, 0, 0.3);
     background: transparent;
+    color: #ff8c00;
 }
 
 /* Clear button styling */
