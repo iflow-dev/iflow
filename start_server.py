@@ -1,16 +1,24 @@
 #!/usr/bin/env python3
 """
-Simple script to start the iflow web server.
+Simple script to start a local iflow web server.
+
+Usage:
+    TODO
 """
 import sys
 import os
 
 # Add the current directory to Python path
+# TODO Shouldn't we add sw/iflow instead?
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 try:
     from sw.iflow.web_server import app
+    # TODO: add command line argument for the port to use
     print("Starting iflow web server on http://localhost:8080")
+
+    # todo check if port is free here, report an error if not
+
     app.run(host='0.0.0.0', port=8080, debug=True)
 except ImportError as e:
     print(f"Import error: {e}")
