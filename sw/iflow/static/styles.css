@@ -182,12 +182,13 @@ body {
 .clear-btn {
     position: absolute;
     right: 0;
-    top: 0;
-    bottom: 0;
+    top: 50%;
+    transform: translateY(-50%);
     background: transparent;
     color: #ff8c00;
     border: none;
     width: 30px;
+    height: 30px;
     cursor: pointer;
     display: none;
     align-items: center;
@@ -223,12 +224,18 @@ body {
 /* Filter footer styling */
 .filter-footer {
     font-size: 0.7rem;
-    color: #ff8c00;
+    color: #6c757d;
     margin-top: 0.25rem;
     text-align: center;
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+}
+
+/* Active filter footer styling */
+.filter-wrapper.active .filter-footer,
+.filter-container.active .filter-footer {
+    color: #ff8c00;
 }
 
 /* Clear all button */
