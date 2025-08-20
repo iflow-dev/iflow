@@ -142,25 +142,21 @@ body {
 }
 
 .filter-select.active {
-    border: 2px solid #ff8c00;
-    box-shadow: 0 0 5px rgba(255, 140, 0, 0.3);
+    /* Remove orange border - keep default styling */
 }
 
 .search-box.active {
-    border: 2px solid #ff8c00;
-    box-shadow: 0 0 5px rgba(255, 140, 0, 0.3);
+    /* Remove orange border - keep default styling */
 }
 
 /* Custom dropdown active state */
 .custom-dropdown.active .custom-dropdown-button {
-    border: 3px solid #ff8c00;
-    box-shadow: 0 0 8px rgba(255, 140, 0, 0.4);
+    /* Remove orange border - keep default styling */
 }
 
 /* Flag filter active state */
 .btn-icon.active {
-    border: 2px solid #ff8c00;
-    box-shadow: 0 0 5px rgba(255, 140, 0, 0.3);
+    /* Remove orange border - keep default styling */
     background: transparent;
     color: #ff8c00;
 }
