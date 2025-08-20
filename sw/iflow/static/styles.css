@@ -92,6 +92,11 @@ body {
     height: 1.4rem;
 }
 
+.btn.btn-icon:hover {
+    background: transparent;
+    color: #ff8c00;
+}
+
 .btn:hover {
     background: #5a6fd8;
 }
