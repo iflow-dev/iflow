@@ -1,7 +1,8 @@
 - follow those steps, STEP BY STEP, log each step
 - check run_radish.py to learn how to run a radish test
 - check start_server.py to learn how to start a local server
-
+- ensure, EDITOR is unset in your env to avoid your commands
+  to open editors
 - ALWAYS CHECK IF PORT IS FREE BEFORE STARTING A SERVER
 - NEVER EVER DO ONE OF THE FOLLOWING:
     - USE PORT 9000 FOR TESTING
