@@ -54,7 +54,8 @@ class Artifact:
         metadata: Optional[Dict[str, Any]] = None,
         flagged: bool = False,
         verification: str = "BDD",
-        activity: str = ""
+        activity: str = "",
+        iteration: str = ""
     ):
         # artifact_id will be set by the database when saving
         # It will be a 5-digit number (e.g., "00001")
@@ -70,6 +71,7 @@ class Artifact:
         self.flagged = flagged
         self.verification = verification
         self.activity = activity
+        self.iteration = iteration
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert artifact to dictionary representation."""
@@ -86,7 +88,8 @@ class Artifact:
                 "metadata": self.metadata,
                 "flagged": self.flagged,
                 "verification": self.verification,
-                "activity": self.activity
+                "activity": self.activity,
+                "iteration": self.iteration
             }
         }
     
@@ -110,7 +113,8 @@ class Artifact:
             metadata=artifact_data.get("metadata", {}),
             flagged=artifact_data.get("flagged", False),
             verification=artifact_data.get("verification", "BDD"),
-            activity=artifact_data.get("activity", "")
+            activity=artifact_data.get("activity", ""),
+            iteration=artifact_data.get("iteration", "")
         )
     
     @classmethod
