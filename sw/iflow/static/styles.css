@@ -173,8 +173,8 @@ body {
 
 /* Flag filter active state */
 .btn-icon.active {
-    background: #dc3545;
-    color: transparent;
+    background: transparent;
+    color: #dc3545;
 }
 
 /* Clear button styling */
