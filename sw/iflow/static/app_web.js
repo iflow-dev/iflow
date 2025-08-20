@@ -70,7 +70,7 @@ async function loadConfiguration() {
             
             // Initialize managers with the loaded data
             dropdownManager = new CustomDropdownManager();
-            tileManager = new TileManager();
+            tileManager = TileManager.getInstance();
             statisticsManager = new StatisticsManager();
             searchManager = new SearchManager();
             

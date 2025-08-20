@@ -66,6 +66,42 @@ body {
 
 .status-text {
     font-weight: 500;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.status-left {
+    text-align: left;
+}
+
+.status-right {
+    text-align: right;
+}
+
+.status-text #last-message {
+    font-weight: normal;
+    font-style: italic;
+}
+
+.status-text #last-message.debug {
+    color: #ff8c00;
+    font-weight: 500;
+}
+
+.status-text #last-message.info {
+    color: #667eea;
+    font-weight: 500;
+}
+
+.status-text #last-message.error {
+    color: #dc3545;
+    font-weight: 500;
+}
+
+.status-text #last-message.warning {
+    color: #ffc107;
+    font-weight: 500;
 }
 
 #filtered-count {
@@ -267,6 +303,36 @@ select.filter-select:hover,
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+}
+
+/* Inactive filter styling */
+.filter-select.inactive,
+.search-box.inactive {
+    border: 3px solid #6c757d !important;
+    box-shadow: none !important;
+}
+
+.filter-select.inactive:hover,
+.search-box.inactive:hover {
+    border: 3px solid #6c757d !important;
+    box-shadow: none !important;
+}
+
+/* Filter footer clickable styling */
+.filter-footer {
+    font-size: 0.7rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+    text-align: center;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.filter-footer:hover {
+    color: #ff8c00;
 }
 
 /* Active filter footer styling */
