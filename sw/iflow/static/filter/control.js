@@ -414,6 +414,16 @@ class FilterControl {
     }
 
     /**
+     * Get the current filter value
+     * Subclasses should override this to provide actual values
+     */
+    getValue() {
+        // Default implementation returns empty string
+        // Subclasses should override for specific types
+        return '';
+    }
+    
+    /**
      * Get the default value for this filter type when disabled
      * Subclasses can override this to provide appropriate default values
      */
