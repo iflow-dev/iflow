@@ -263,6 +263,12 @@ body {
     box-shadow: 0 0 5px rgba(255, 140, 0, 0.3);
 }
 
+.search-box:focus {
+    border: 2px solid #ff8c00 !important;
+    box-shadow: 0 0 5px rgba(255, 140, 0, 0.3) !important;
+    outline: none !important;
+}
+
 .search-box.active {
     border: 2px solid #ff8c00;
     box-shadow: 0 0 5px rgba(255, 140, 0, 0.3);
@@ -861,6 +867,14 @@ select.filter-select:hover,
     box-shadow: 0 0 5px rgba(255, 140, 0, 0.3) !important;
 }
 
+/* Focus state styling for text input fields */
+.search-box:focus,
+input[type="text"]:focus {
+    border: 2px solid #ff8c00 !important;
+    box-shadow: 0 0 5px rgba(255, 140, 0, 0.3) !important;
+    outline: none !important;
+}
+
 .filter-wrapper.filter-active .icon-svg {
     filter: brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%);
 }
@@ -913,6 +927,12 @@ select.filter-select:hover,
 .search-filter .search-box:hover {
     border: 2px solid #ff8c00;
     box-shadow: 0 0 5px rgba(255, 140, 0, 0.3);
+}
+
+.search-filter .search-box:focus {
+    border: 2px solid #ff8c00 !important;
+    box-shadow: 0 0 5px rgba(255, 140, 0, 0.3) !important;
+    outline: none !important;
 }
 
 .search-filter .search-box.active {
