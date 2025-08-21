@@ -26,7 +26,7 @@ async function runAllTests() {
         
         console.log('✅ Filter initialized, running all tests...\n');
         
-        // Run all test cases
+        // Run all test cases (some in page.evaluate, Test Case 5 using real DOM interaction)
         const results = await page.evaluate(async () => {
             const testResults = [];
             
@@ -129,51 +129,76 @@ async function runAllTests() {
                 });
             }
             
-            // Test Case 5: Cross Visibility After Text Input
-            console.log('=== Running Test Case 5: Cross Visibility After Text Input ===');
-            if (window.textFilter) {
-                // Ensure input starts empty
-                window.textFilter.setValue('');
-                
-                // Get initial clear button visibility
-                const initialClearButtonVisible = window.textFilter.clearButton.style.display === 'block';
-                
-                // Simulate user typing text
-                const testText = 'user input text';
-                window.textFilter.setValue(testText);
-                
-                // Wait a moment for state updates
-                await new Promise(resolve => setTimeout(resolve, 100));
-                
-                // Check if clear button is now visible
-                const finalClearButtonVisible = window.textFilter.clearButton.style.display === 'block';
-                const finalInputValue = window.textFilter.getValue();
-                const finalState = window.textFilter.state;
-                
-                // Check if test passed
-                const textEntered = finalInputValue === testText;
-                const clearButtonVisible = finalClearButtonVisible;
-                const stateActive = finalState === 'active';
-                
-                const allPassed = textEntered && clearButtonVisible && stateActive;
-                testResults.push({
-                    testId: 5,
-                    name: 'Cross Visibility After Text Input',
-                    passed: allPassed,
-                    details: {
-                        textEntered: textEntered,
-                        clearButtonVisible: clearButtonVisible,
-                        stateActive: stateActive,
-                        initialValue: '',
-                        finalValue: finalInputValue,
-                        finalState: finalState,
-                        clearButtonDisplay: window.textFilter.clearButton.style.display
-                    }
-                });
-            }
+            // Test Case 5 will be run outside page.evaluate() to use real user interaction
             
             return testResults;
         });
+        
+        // Test Case 5: Cross Visibility After Text Input (using real user interaction)
+        console.log('=== Running Test Case 5: Cross Visibility After Text Input (Real User Input) ===');
+        
+        // Clear the input field first
+        await page.evaluate(() => {
+            if (window.textFilter) {
+                window.textFilter.setValue('');
+            }
+        });
+        
+        // Get initial state
+        const initialState = await page.evaluate(() => {
+            if (!window.textFilter) return null;
+            return {
+                clearButtonVisible: window.textFilter.clearButton.style.display === 'block',
+                inputValue: window.textFilter.getValue(),
+                filterState: window.textFilter.state,
+                clearButtonDisplay: window.textFilter.clearButton.style.display
+            };
+        });
+        
+        // Simulate real user typing by focusing the input and typing text
+        await page.focus('#search-input');
+        const testText = 'user input text';
+        await page.type('#search-input', testText, { delay: 50 }); // Delay to simulate human typing
+        
+        // Wait for state updates
+        await page.waitForTimeout(200);
+        
+        // Get final state after real user interaction
+        const finalState = await page.evaluate(() => {
+            if (!window.textFilter) return null;
+            return {
+                clearButtonVisible: window.textFilter.clearButton.style.display === 'block',
+                inputValue: window.textFilter.getValue(),
+                filterState: window.textFilter.state,
+                clearButtonDisplay: window.textFilter.clearButton.style.display
+            };
+        });
+        
+        // Evaluate test results
+        const textEntered = finalState.inputValue === testText;
+        const clearButtonVisible = finalState.clearButtonVisible;
+        const stateActive = finalState.filterState === 'active';
+        const allPassed = textEntered && clearButtonVisible && stateActive;
+        
+        // Add Test Case 5 results to the results array
+        const testCase5Result = {
+            testId: 5,
+            name: 'Cross Visibility After Text Input (Real User Input)',
+            passed: allPassed,
+            details: {
+                textEntered: textEntered,
+                clearButtonVisible: clearButtonVisible,
+                stateActive: stateActive,
+                initialValue: initialState.inputValue,
+                finalValue: finalState.inputValue,
+                initialState: initialState.filterState,
+                finalState: finalState.filterState,
+                initialClearButtonDisplay: initialState.clearButtonDisplay,
+                finalClearButtonDisplay: finalState.clearButtonDisplay
+            }
+        };
+        
+        results.push(testCase5Result);
         
         // Display results
         console.log('📊 All Test Results:');
@@ -228,3 +253,4 @@ try {
     console.log('   Then run: node run-all-tests-headless.js');
     process.exit(1);
 }
+

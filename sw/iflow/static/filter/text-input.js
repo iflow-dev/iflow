@@ -12,7 +12,8 @@ class TextInputFilter extends FilterControl {
         // Get the clear button
         this.clearButton = this.container.querySelector('.clear-button');
         
-
+        // Track if state changes are automatic (from text input) or manual (from user interaction)
+        this.isAutoStateChange = false;
         
         // Initialize with proper styling
         this.updateVisualState();
@@ -41,16 +42,20 @@ class TextInputFilter extends FilterControl {
         
         // Don't auto-update state if it was manually set to inactive
         // This prevents automatic updates from overriding manual state changes
-        if (this.state === 'inactive') return;
+        if (this.state === 'inactive' && !this.isAutoStateChange) return;
         
         const hasContent = this.inputElement.value.trim() !== '';
         
         if (hasContent) {
             // Text entered - set to active
+            this.isAutoStateChange = true;
             this.setState('active');
+            this.isAutoStateChange = false;
         } else {
             // No text - set to inactive
+            this.isAutoStateChange = true;
             this.setState('inactive');
+            this.isAutoStateChange = false;
         }
     }
     
@@ -87,15 +92,21 @@ class TextInputFilter extends FilterControl {
         super.bindEvents();
         
         if (this.inputElement) {
-            // Listen for input changes
+            // Listen for input changes (real user typing)
             this.inputElement.addEventListener('input', () => {
+                this.isAutoStateChange = true; // Mark as automatic state change for user input
                 this.updateInputState();
+                this.updateClearButtonVisibility();
                 this.updateFilterManager();
+                this.isAutoStateChange = false;
             });
             
-            // Listen for keyup events
+            // Listen for keyup events (real user typing)
             this.inputElement.addEventListener('keyup', () => {
+                this.isAutoStateChange = true; // Mark as automatic state change for user input
                 this.updateInputState();
+                this.updateClearButtonVisibility();
+                this.isAutoStateChange = false;
             });
         }
         
@@ -134,9 +145,12 @@ class TextInputFilter extends FilterControl {
     setValue(value) {
         if (this.inputElement) {
             this.inputElement.value = value;
+            // Mark this as an automatic state change to allow proper state updates
+            this.isAutoStateChange = true;
             this.updateInputState();
             this.updateFilterManager();
             this.updateClearButtonVisibility();
+            this.isAutoStateChange = false;
         }
     }
     

@@ -4,6 +4,19 @@ AI Todo List
 COMPLETED:
 - follow those instructions
 - follow bootstrap.txt (COMPLETED - all steps logged and understood)
+  ✓ EDITOR unset to avoid workflow interruption
+  ✓ Prod server confirmed running on port 9000
+  ✓ Environment structure verified: /opt/iflow/{dev,qa,prod,integration}
+  ✓ Virtual environments confirmed in /opt/iflow/prod/venv/
+  ✓ ENVIRONMENT_SETUP.md found and accessible
+  ✓ run_radish.py understood: python run_radish.py <env> <args> [--foreground]
+  ✓ start_server.py understood: python start_server.py [--port PORT] [--database PATH] [--init-db]
+  ✓ GitHub CLI available (gh version 2.76.2)
+  ✓ Port ranges confirmed: dev servers 7000-7100, prod 9000
+  ✓ Artifact 00102 read: procedure execution instructions
+  ✓ Procedures and checklists loaded from prod database
+  ✓ Existing step definitions found with @step decorators
+  ✓ Common pitfalls identified and documented
 
 CURRENT TASK:
 - create a new test case: the cross is visible after the user inputs text
@@ -20,3 +33,6 @@ NOTES FROM BOOTSTRAP.TXT:
 - GitHub CLI available (gh version 2.76.2)
 - Port ranges: dev servers 7000-7010, prod 9000
 - Common pitfalls identified and documented
+- Step definition patterns: use @step decorator, distinguish between activity (when) and verification (then)
+- Test execution: use run_radish.py with environment specification
+- Local server: use start_server.py with --init-db for testing local changes
