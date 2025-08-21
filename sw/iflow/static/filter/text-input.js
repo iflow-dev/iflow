@@ -12,13 +12,7 @@ class TextInputFilter extends FilterControl {
         // Get the clear button
         this.clearButton = this.container.querySelector('.clear-button');
         
-        // Debug logging
-        console.log(`TextInputFilter constructor for ${filterType}:`, {
-            container: container,
-            inputElement: this.inputElement,
-            clearButton: this.clearButton,
-            clearButtonClass: this.clearButton ? this.clearButton.className : 'NOT_FOUND'
-        });
+
         
         // Initialize with proper styling
         this.updateVisualState();
@@ -93,16 +87,10 @@ class TextInputFilter extends FilterControl {
      * Clear the input and reset state
      */
     clearInput() {
-        console.log(`clearInput() called for ${this.filterType}`);
-        
         if (this.inputElement) {
             this.inputElement.value = '';
-            console.log(`Input cleared, setting state to inactive`);
             this.setState('inactive');
-            console.log(`Calling updateFilterManager()`);
             this.updateFilterManager();
-        } else {
-            console.warn(`No input element found for ${this.filterType}`);
         }
         console.log(`${this.filterType} filter cleared`);
     }

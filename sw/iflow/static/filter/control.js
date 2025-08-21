@@ -40,7 +40,13 @@ class FilterControl {
                 return;
             }
             
-            const filterType = footer.textContent.toLowerCase().trim();
+            // Use data-filter-type attribute if available, otherwise fall back to footer text
+            let filterType = wrapper.getAttribute('data-filter-type');
+            if (!filterType) {
+                filterType = footer.textContent.toLowerCase().trim();
+                console.warn(`No data-filter-type attribute found, using footer text: "${filterType}"`);
+            }
+            
             console.log(`Setting up filter: "${filterType}" in wrapper:`, wrapper);
             
             // Log what elements are found in the wrapper

@@ -53,21 +53,9 @@ class ViewLoader {
     
     static applyTemplate(html, params) {
         // Replace template placeholders {KEY} with values
-        const result = html.replace(/\{([^}]+)\}/g, (match, key) => {
-            const value = params[key];
-            if (value !== undefined) {
-                console.log(`Template substitution: ${match} → ${value}`);
-                return value;
-            } else {
-                console.warn(`Template parameter not found: ${match}`);
-                return match;
-            }
+        return html.replace(/\{([^}]+)\}/g, (match, key) => {
+            return params[key] !== undefined ? params[key] : match;
         });
-        
-        console.log(`Template applied with params:`, params);
-        console.log(`Result:`, result);
-        
-        return result;
     }
     
     static async loadCompositeView(viewName, container) {
