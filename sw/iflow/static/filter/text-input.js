@@ -27,6 +27,7 @@ class TextInputFilter extends FilterControl {
     updateVisualState() {
         super.updateVisualState();
         this.updateInputState();
+        this.updateClearButtonVisibility();
     }
     
     /**
@@ -38,17 +39,31 @@ class TextInputFilter extends FilterControl {
         // Don't auto-update state if filter is disabled
         if (this.state === 'disabled') return;
         
-        // Don't auto-update state if filter is manually set to inactive
-        if (this.state === 'inactive') return;
-        
         const hasContent = this.inputElement.value.trim() !== '';
         
         if (hasContent) {
-            // Text entered - set to active (only if not manually inactive)
+            // Text entered - set to active
             this.setState('active');
         } else {
             // No text - set to inactive
             this.setState('inactive');
+        }
+    }
+    
+    /**
+     * Update clear button visibility based on input content and filter state
+     */
+    updateClearButtonVisibility() {
+        if (!this.clearButton) return;
+        
+        const hasContent = this.inputElement && this.inputElement.value.trim() !== '';
+        
+        if (hasContent) {
+            // Show clear button when there's content (regardless of filter state)
+            this.clearButton.style.display = 'block';
+        } else {
+            // Hide clear button when there's no content
+            this.clearButton.style.display = 'none';
         }
     }
     
@@ -97,6 +112,7 @@ class TextInputFilter extends FilterControl {
             this.inputElement.value = '';
             this.setState('inactive');
             this.updateFilterManager();
+            this.updateClearButtonVisibility();
         }
         console.log(`${this.filterType} filter cleared`);
     }
@@ -116,6 +132,7 @@ class TextInputFilter extends FilterControl {
             this.inputElement.value = value;
             this.updateInputState();
             this.updateFilterManager();
+            this.updateClearButtonVisibility();
         }
     }
     

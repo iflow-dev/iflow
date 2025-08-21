@@ -941,8 +941,15 @@ select.filter-select:hover,
     pointer-events: auto; /* Re-enable clicking */
 }
 
+/* Show clear button when filter is disabled (but has content) */
+.filter-wrapper.filter-disabled .clear-button {
+    opacity: 0.5;
+    pointer-events: auto; /* Re-enable clicking */
+}
+
 /* Hover effect only when button is visible */
-.filter-wrapper.filter-active .clear-button:hover {
+.filter-wrapper.filter-active .clear-button:hover,
+.filter-wrapper.filter-disabled .clear-button:hover {
     opacity: 1;
 }
 
