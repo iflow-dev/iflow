@@ -39,17 +39,19 @@ class TextInputFilter extends FilterControl {
         // Don't auto-update state if filter is disabled
         if (this.state === 'disabled') return;
         
+        // Don't auto-update state if it was manually set to inactive
+        // This prevents automatic updates from overriding manual state changes
+        if (this.state === 'inactive') return;
+        
         const hasContent = this.inputElement.value.trim() !== '';
         
-        // Only update state if it would be a meaningful change
-        if (hasContent && this.state === 'inactive') {
-            // Text entered and currently inactive - set to active
+        if (hasContent) {
+            // Text entered - set to active
             this.setState('active');
-        } else if (!hasContent && this.state === 'active') {
-            // No text and currently active - set to inactive
+        } else {
+            // No text - set to inactive
             this.setState('inactive');
         }
-        // If state is already correct, don't change it
     }
     
     /**
