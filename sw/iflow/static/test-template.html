@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Text Input Filter Test</title>
     <!-- Use the actual project styles.css -->
-    <link rel="stylesheet" href="../static/styles.css">
+    <link rel="stylesheet" href="/static/styles.css">
     <style>
         /* Only minimal test-specific styles */
         body {
@@ -216,6 +216,28 @@
                     </div>
                 </div>
                 
+                <!-- EventManager Status -->
+                <div class="debug-info" style="margin-top: 15px;">
+                    <h4>EventManager Status</h4>
+                    <div id="event-manager-status">
+                        <p>Status: <span id="em-status">Initializing...</span></p>
+                        <p>Controls: <span id="em-controls">0</span></p>
+                        <p>Queue: <span id="em-queue">0</span></p>
+                        <p>Subscribers: <span id="em-subscribers">0</span></p>
+                        <p>Total Events: <span id="em-total-events">0</span></p>
+                        <p>Events/Second: <span id="em-events-per-second">0</span></p>
+                        <p>Last Event: <span id="em-last-event">Never</span></p>
+                        <p>Last Event Type: <span id="em-last-event-type">None</span></p>
+                        <p>Last Event Source: <span id="em-last-event-source">None</span></p>
+                        <p>Event Types: <span id="em-event-types">None</span></p>
+                        <p>Recent Events:</p>
+                        <div id="em-recent-events" style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; background: #f9f9f9; font-family: monospace; font-size: 12px;"></div>
+                        <button onclick="updateEventManagerStatus()" style="margin-top: 10px; padding: 5px 10px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer;">
+                            Refresh Status
+                        </button>
+                    </div>
+                </div>
+                
                 <!-- Test Results Summary -->
                 <div id="test-summary" style="margin-top: 20px; padding: 15px; background-color: #e9ecef; border: 1px solid #ced4da; border-radius: 6px; display: none;">
                     <h4 style="margin-top: 0; color: #495057;">Test Summary</h4>
@@ -225,11 +247,19 @@
         </div>
     </div>
 
+    <!-- Load the EventManager first -->
+    <script src="/static/filter/event-manager.js"></script>
     <!-- Load the filter classes -->
-    <script src="../static/filter/control.js"></script>
-    <script src="../static/filter/text-input.js"></script>
+    <script src="/static/filter/control.js"></script>
+    <script src="/static/filter/text-input.js"></script>
     
     <script>
+        // Check if EventManager loaded correctly
+        console.log('Scripts loaded, EventManager available:', typeof window.eventManager);
+        if (window.eventManager) {
+            console.log('EventManager instance:', window.eventManager);
+            console.log('Initial EventManager status:', window.eventManager.getStatus());
+        }
         // Button State Management Functions
         function setButtonState(testId, state) {
             const button = document.getElementById(`test${testId}-button`);
@@ -303,6 +333,82 @@
                 document.getElementById('clear-visible').textContent = window.textFilter.clearButton.style.display === 'block' ? 'true' : 'false';
                 document.getElementById('footer-text').textContent = window.textFilter.footer ? window.textFilter.footer.textContent : 'N/A';
                 document.getElementById('css-classes').textContent = window.textFilter.container.className;
+            }
+        }
+        
+        function updateEventManagerStatus() {
+            console.log('updateEventManagerStatus called');
+            if (window.eventManager) {
+                const status = window.eventManager.getStatus();
+                console.log('EventManager status:', status);
+                
+                const statusElement = document.getElementById('em-status');
+                const controlsElement = document.getElementById('em-controls');
+                const queueElement = document.getElementById('em-queue');
+                const subscribersElement = document.getElementById('em-subscribers');
+                const totalEventsElement = document.getElementById('em-total-events');
+                const eventsPerSecondElement = document.getElementById('em-events-per-second');
+                                    const lastEventElement = document.getElementById('em-last-event');
+                    const eventTypesElement = document.getElementById('em-event-types');
+                    const recentEventsElement = document.getElementById('em-recent-events');
+                
+                if (statusElement && controlsElement && queueElement && subscribersElement && 
+                    totalEventsElement && eventsPerSecondElement && lastEventElement && eventTypesElement && recentEventsElement) {
+                    
+                    statusElement.textContent = status.isProcessing ? 'Processing' : 'Idle';
+                    controlsElement.textContent = status.controlCount;
+                    queueElement.textContent = status.queueLength;
+                    subscribersElement.textContent = status.subscriberCount;
+                    totalEventsElement.textContent = status.totalEventsProcessed;
+                    eventsPerSecondElement.textContent = status.eventsPerSecond;
+                    
+                    if (status.lastEventTime > 0) {
+                        const lastEventDate = new Date(status.lastEventTime);
+                        lastEventElement.textContent = lastEventDate.toLocaleTimeString();
+                    } else {
+                        lastEventElement.textContent = 'Never';
+                    }
+                    
+                    if (Object.keys(status.eventTypeCounts).length > 0) {
+                        const eventTypeList = Object.entries(status.eventTypeCounts)
+                            .map(([type, count]) => `${type}: ${count}`)
+                            .join(', ');
+                        eventTypesElement.textContent = eventTypeList;
+                    } else {
+                        eventTypesElement.textContent = 'None';
+                    }
+                    
+                    // Display recent events
+                    if (status.recentEvents && status.recentEvents.length > 0) {
+                        const eventsHtml = status.recentEvents.map(event => {
+                            const time = new Date(event.timestamp).toLocaleTimeString();
+                            const dataStr = JSON.stringify(event.data, null, 2).substring(0, 100);
+                            return `<div style="margin-bottom: 5px; padding: 3px; border-bottom: 1px solid #ddd;">
+                                <strong>${time}</strong> - <span style="color: #007bff;">${event.type}</span> from <span style="color: #28a745;">${event.source}</span><br>
+                                <small style="color: #666;">${dataStr}${dataStr.length >= 100 ? '...' : ''}</small>
+                            </div>`;
+                        }).join('');
+                        recentEventsElement.innerHTML = eventsHtml;
+                    } else {
+                        recentEventsElement.innerHTML = '<div style="color: #666; font-style: italic;">No events yet</div>';
+                    }
+                    
+                    console.log('EventManager status updated successfully');
+                } else {
+                    console.error('Some EventManager status elements not found:', {
+                        status: !!statusElement,
+                        controls: !!controlsElement,
+                        queue: !!queueElement,
+                        subscribers: !!subscribersElement,
+                        totalEvents: !!totalEventsElement,
+                        eventsPerSecond: !!eventsPerSecondElement,
+                        lastEvent: !!lastEventElement,
+                        eventTypes: !!eventTypesElement,
+                        recentEvents: !!recentEventsElement
+                    });
+                }
+            } else {
+                console.error('EventManager not available in updateEventManagerStatus');
             }
         }
         
@@ -727,9 +833,13 @@
         // Initialize when page loads
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Page loaded, initializing filter...');
+            console.log('FilterControl available:', typeof FilterControl);
+            console.log('TextInputFilter available:', typeof TextInputFilter);
             
             // Find the filter wrapper
             const filterWrapper = document.querySelector('.filter-wrapper');
+            console.log('Filter wrapper found:', filterWrapper);
+            
             if (filterWrapper) {
                 console.log('Creating TextInputFilter...');
                 try {
@@ -745,6 +855,68 @@
                     window.textFilter.setDebugUpdateCallback(updateDebugInfo);
                     console.log('Debug update callback set up successfully');
                     
+                    // Subscribe to EventManager events for debugging
+                    if (window.eventManager) {
+                        console.log('EventManager found, setting up subscriptions...');
+                        console.log('EventManager status:', window.eventManager.getStatus());
+                        
+                        window.eventManager.subscribe('filterFooterClick', (event) => {
+                            console.log('EventManager: filterFooterClick event received:', event);
+                        }, 'debug-subscriber');
+                        
+                        window.eventManager.subscribe('filterInputChange', (event) => {
+                            console.log('EventManager: filterInputChange event received:', event);
+                        }, 'debug-subscriber');
+                        
+                        window.eventManager.subscribe('filterKeyUp', (event) => {
+                            console.log('EventManager: filterKeyUp event received:', event);
+                        }, 'debug-subscriber');
+                        
+                        console.log('EventManager subscriptions set up successfully');
+                        
+                        // Initial status update
+                        updateEventManagerStatus();
+                        
+                        // Test basic event handling
+                        console.log('Testing basic event handling...');
+                        const testInput = filterWrapper.querySelector('#search-input');
+                        if (testInput) {
+                            console.log('Input element found, testing event binding...');
+                            testInput.addEventListener('test', () => console.log('Test event works!'));
+                            testInput.dispatchEvent(new Event('test'));
+                        }
+                        
+                        const testFooter = filterWrapper.querySelector('.filter-footer');
+                        if (testFooter) {
+                            console.log('Footer element found, testing event binding...');
+                            testFooter.addEventListener('test', () => console.log('Footer test event works!'));
+                            testFooter.dispatchEvent(new Event('test'));
+                        }
+                        
+                        // Test if the filter's event handlers are working
+                        console.log('Testing filter event handlers...');
+                        if (window.textFilter && window.textFilter.inputElement) {
+                            console.log('Testing input event on filter...');
+                            window.textFilter.inputElement.dispatchEvent(new Event('input'));
+                        }
+                        
+                        if (window.textFilter && window.textFilter.footer) {
+                            console.log('Testing footer click on filter...');
+                            window.textFilter.footer.dispatchEvent(new Event('click'));
+                        }
+                    } else {
+                        console.error('EventManager not found!');
+                    }
+                    
+                    // Verify footer element configuration
+                    const footer = filterWrapper.querySelector('.filter-footer');
+                    if (footer) {
+                        console.log('Footer element found:', footer);
+                        console.log('Footer text content:', footer.textContent);
+                        console.log('Footer style cursor:', footer.style.cursor);
+                        console.log('Footer title:', footer.title);
+                    }
+                    
                     updateDebugInfo();
                     
                     // Run a quick verification test
@@ -752,6 +924,9 @@
                         console.log('Running verification test...');
                         verifyFilterInitialization();
                     }, 100);
+                    
+                    // Set up periodic EventManager status updates
+                    setInterval(updateEventManagerStatus, 500);
                     
                 } catch (error) {
                     console.error('Error creating TextInputFilter:', error);

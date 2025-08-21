@@ -9,6 +9,7 @@ class FilterControl {
         this.container = container;
         this.filterType = filterType;
         this.state = 'inactive';
+        this.controlId = `${filterType}-${Date.now()}`; // Unique identifier
         
         // Get DOM elements
         this.control = this.container.querySelector('.filter-control') || this.container;
@@ -19,6 +20,16 @@ class FilterControl {
         
         // Auto-register this filter
         FilterControl.registry.set(this.filterType, this);
+        
+        // Register with EventManager
+        if (window.eventManager) {
+            window.eventManager.registerControl(this.controlId, this);
+            
+            // Subscribe to EventManager updates
+            window.eventManager.subscribe('filterFooterClick', this.handleEventManagerUpdate.bind(this), this.controlId);
+            window.eventManager.subscribe('filterInputChange', this.handleEventManagerUpdate.bind(this), this.controlId);
+            window.eventManager.subscribe('filterKeyUp', this.handleEventManagerUpdate.bind(this), this.controlId);
+        }
         
         this.initialize();
     }
@@ -135,6 +146,13 @@ class FilterControl {
     }
     
     /**
+     * Check if events are already bound to prevent duplicate binding
+     */
+    areEventsBound() {
+        return this._eventsBound === true;
+    }
+    
+    /**
      * Set the filter manager reference
      */
     setFilterManager(filterManager) {
@@ -204,28 +222,27 @@ class FilterControl {
     }
 
     /**
-     * Toggle between active, inactive, and disabled states
-     * This allows cycling through: active -> inactive -> disabled -> active
+     * Toggle between active and disabled states
+     * This allows cycling through: active -> disabled -> active
+     * (inactive state can only be reached by clearing text or programmatically)
      */
     cycleState() {
-        console.log(`cycleState() called for ${this.filterType}, current state: ${this.state}`);
+        // Mark this as a manual state change to prevent automatic overrides
+        if (this.isAutoStateChange !== undefined) {
+            this.isAutoStateChange = false;
+        }
         
         switch (this.state) {
             case 'active':
-                console.log(`  Transitioning: active -> inactive`);
-                this.deactivate();
-                break;
-            case 'inactive':
-                console.log(`  Transitioning: inactive -> disabled`);
                 this.disable();
                 break;
+            case 'inactive':
+                this.activate();
+                break;
             case 'disabled':
-                console.log(`  Transitioning: disabled -> active`);
                 this.activate();
                 break;
         }
-        
-        console.log(`  New state: ${this.state}`);
     }
 
     /**
@@ -248,6 +265,68 @@ class FilterControl {
     setDebugUpdateCallback(callback) {
         if (typeof callback === 'function') {
             this.debugUpdateCallback = callback;
+        }
+    }
+    
+    /**
+     * Get updates from EventManager
+     * @param {Object} event - Event object from EventManager
+     */
+    handleEventManagerUpdate(event) {
+        console.log(`${this.filterType} filter received event:`, event);
+        
+        // Handle different event types
+        switch (event.type) {
+            case 'filterFooterClick':
+                // Check if this is our own click event
+                if (event.data.sourceId === this.controlId) {
+                    console.log(`${this.filterType} filter processing own click event`);
+                    // This is our own click, so cycle the state
+                    this.cycleState();
+                } else {
+                    // Another filter was clicked - could trigger coordinated behavior
+                    console.log(`${this.filterType} filter responding to other filter click`);
+                }
+                break;
+            case 'filterInputChange':
+                // Check if this is our own input change
+                if (event.data.sourceId === this.controlId) {
+                    console.log(`${this.filterType} filter processing own input change`);
+                    // This is our own input change, so update the input state
+                    if (this.updateInputState) {
+                        this.updateInputState();
+                    }
+                    // Also update clear button visibility and filter manager if methods exist
+                    if (this.updateClearButtonVisibility) {
+                        this.updateClearButtonVisibility();
+                    }
+                    if (this.updateFilterManager) {
+                        this.updateFilterManager();
+                    }
+                } else {
+                    // Another filter's input changed - could trigger coordinated behavior
+                    console.log(`${this.filterType} filter responding to other filter input change`);
+                }
+                break;
+            case 'filterKeyUp':
+                // Check if this is our own keyup event
+                if (event.data.sourceId === this.controlId) {
+                    console.log(`${this.filterType} filter processing own keyup event`);
+                    // This is our own keyup, so update the input state
+                    if (this.updateInputState) {
+                        this.updateInputState();
+                    }
+                    // Also update clear button visibility if method exists
+                    if (this.updateClearButtonVisibility) {
+                        this.updateClearButtonVisibility();
+                    }
+                } else {
+                    // Another filter's keyup - could trigger coordinated behavior
+                    console.log(`${this.filterType} filter responding to other filter keyup event`);
+                }
+                break;
+            default:
+                console.log(`${this.filterType} filter received unknown event type:`, event.type);
         }
     }
     
@@ -348,8 +427,15 @@ class FilterControl {
      * Bind event handlers
      */
     bindEvents() {
+        // Prevent duplicate event binding
+        if (this.areEventsBound()) {
+            console.log(`FilterControl: Events already bound for ${this.filterType}, skipping duplicate binding`);
+            return;
+        }
+        
         // Auto-setup click handler for filter footer
         if (this.footer) {
+            
             // Remove any existing href from parent anchor
             const link = this.footer.closest('a');
             if (link) {
@@ -359,10 +445,24 @@ class FilterControl {
             
             // Add click handler for state cycling
             this.footer.addEventListener('click', (e) => {
-                console.log(`Footer clicked for ${this.filterType} filter`);
+                console.log(`FilterControl: footer click event triggered for ${this.filterType}`);
                 e.preventDefault();
                 e.stopPropagation();
-                this.cycleState();
+                
+                // Queue user click event through EventManager
+                if (window.eventManager) {
+                    console.log(`FilterControl: queueing filterFooterClick event`);
+                    window.eventManager.queueUserEvent('filterFooterClick', {
+                        sourceId: this.controlId,
+                        filterType: this.filterType,
+                        currentState: this.state,
+                        action: 'cycleState'
+                    });
+                } else {
+                    console.error(`FilterControl: EventManager not available!`);
+                    // Fallback: call cycleState directly if EventManager is not available
+                    this.cycleState();
+                }
             });
             
             // Style as clickable
@@ -370,13 +470,24 @@ class FilterControl {
             this.footer.title = 'Click to cycle filter state: Active → Inactive → Disabled → Active';
         }
         
+        // Mark events as bound to prevent duplicate binding
+        this._eventsBound = true;
+        
         // Subclasses can override to add specific event handling
     }
     
     /**
-     * Clean up event listeners
+     * Clean up event listeners and EventManager subscriptions
      */
     destroy() {
+        // Unsubscribe from EventManager
+        if (window.eventManager) {
+            window.eventManager.unsubscribe('filterFooterClick', this.controlId);
+            window.eventManager.unsubscribe('filterInputChange', this.controlId);
+            window.eventManager.unsubscribe('filterKeyUp', this.controlId);
+            window.eventManager.unregisterControl(this.controlId);
+        }
+        
         // This method should be overridden by subclasses
         // to clean up specific event listeners
     }

@@ -37,20 +37,26 @@ class TextInputFilter extends FilterControl {
     updateInputState() {
         if (!this.inputElement) return;
         
-        // Don't auto-update state if filter is disabled
-        if (this.state === 'disabled') return;
+        // Don't auto-update state if it was manually set to disabled
+        // Allow automatic updates for inactive state and when it's an auto state change
+        if (this.state === 'disabled' && !this.isAutoStateChange) {
+            return; // Preserve manually set disabled state
+        }
         
-        // Don't auto-update state if it was manually set to inactive
-        // This prevents automatic updates from overriding manual state changes
-        if (this.state === 'inactive' && !this.isAutoStateChange) return;
+        // Don't auto-update state if it was manually set to inactive (unless it's an auto change)
+        if (this.state === 'inactive' && !this.isAutoStateChange) {
+            return; // Preserve manually set inactive state
+        }
         
         const hasContent = this.inputElement.value.trim() !== '';
         
         if (hasContent) {
-            // Text entered - set to active
-            this.isAutoStateChange = true;
-            this.setState('active');
-            this.isAutoStateChange = false;
+            // Text entered - set to active (but respect manually disabled state)
+            if (this.state !== 'disabled') {
+                this.isAutoStateChange = true;
+                this.setState('active');
+                this.isAutoStateChange = false;
+            }
         } else {
             // No text - set to inactive
             this.isAutoStateChange = true;
@@ -93,19 +99,48 @@ class TextInputFilter extends FilterControl {
         
         if (this.inputElement) {
             // Listen for input changes (real user typing)
-            this.inputElement.addEventListener('input', () => {
+            this.inputElement.addEventListener('input', (e) => {
+                console.log(`TextInputFilter: input event triggered, value: "${e.target.value}"`);
                 this.isAutoStateChange = true; // Mark as automatic state change for user input
-                this.updateInputState();
-                this.updateClearButtonVisibility();
-                this.updateFilterManager();
+                
+                // Report user input event through EventManager
+                if (window.eventManager) {
+                    console.log(`TextInputFilter: queueing filterInputChange event`);
+                    window.eventManager.queueUserEvent('filterInputChange', {
+                        sourceId: this.controlId,
+                        filterType: this.filterType,
+                        inputValue: e.target.value,
+                        eventType: 'input',
+                        currentState: this.state
+                    });
+                } else {
+                    console.error(`TextInputFilter: EventManager not available!`);
+                    // Fallback: update directly if EventManager is not available
+                    this.updateInputState();
+                    this.updateClearButtonVisibility();
+                    this.updateFilterManager();
+                }
                 this.isAutoStateChange = false;
             });
             
             // Listen for keyup events (real user typing)
-            this.inputElement.addEventListener('keyup', () => {
+            this.inputElement.addEventListener('keyup', (e) => {
                 this.isAutoStateChange = true; // Mark as automatic state change for user input
-                this.updateInputState();
-                this.updateClearButtonVisibility();
+                
+                // Report user keyup event through EventManager
+                if (window.eventManager) {
+                    window.eventManager.queueUserEvent('filterKeyUp', {
+                        sourceId: this.controlId,
+                        filterType: this.filterType,
+                        inputValue: e.target.value,
+                        key: e.key,
+                        currentState: this.state
+                    });
+                } else {
+                    // Fallback: update directly if EventManager is not available
+                    this.updateInputState();
+                    this.updateClearButtonVisibility();
+                }
                 this.isAutoStateChange = false;
             });
         }

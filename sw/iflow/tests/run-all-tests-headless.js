@@ -15,9 +15,17 @@ async function runAllTests() {
     try {
         const page = await browser.newPage();
         
-        // Load the template
-        const templatePath = path.join(__dirname, 'template.html');
-        await page.goto(`file://${templatePath}`);
+        // Capture console messages from the browser (all messages for debugging)
+        page.on('console', (msg) => {
+            if (msg.type() === 'error') {
+                console.log(`Browser Error: ${msg.text()}`);
+            } else if (msg.type() === 'log') {
+                console.log(`Browser Log: ${msg.text()}`);
+            }
+        });
+        
+        // Load the template from the test server
+        await page.goto('http://localhost:7001/static/test-template.html');
         
         console.log('📄 Template loaded, waiting for filter initialization...');
         
@@ -157,7 +165,7 @@ async function runAllTests() {
         
         // Simulate real user typing by focusing the input and typing text
         await page.focus('#search-input');
-        const testText = 'user input text';
+                const testText = 'user input text';
         await page.type('#search-input', testText, { delay: 50 }); // Delay to simulate human typing
         
         // Wait for state updates
@@ -178,17 +186,17 @@ async function runAllTests() {
         const textEntered = finalState.inputValue === testText;
         const clearButtonVisible = finalState.clearButtonVisible;
         const stateActive = finalState.filterState === 'active';
-        const allPassed = textEntered && clearButtonVisible && stateActive;
+        const testCase5Passed = textEntered && clearButtonVisible && stateActive;
         
         // Add Test Case 5 results to the results array
         const testCase5Result = {
-            testId: 5,
+                    testId: 5,
             name: 'Cross Visibility After Text Input (Real User Input)',
-            passed: allPassed,
-            details: {
-                textEntered: textEntered,
-                clearButtonVisible: clearButtonVisible,
-                stateActive: stateActive,
+            passed: testCase5Passed,
+                    details: {
+                        textEntered: textEntered,
+                        clearButtonVisible: clearButtonVisible,
+                        stateActive: stateActive,
                 initialValue: initialState.inputValue,
                 finalValue: finalState.inputValue,
                 initialState: initialState.filterState,
@@ -199,6 +207,206 @@ async function runAllTests() {
         };
         
         results.push(testCase5Result);
+        
+        // Test Case 6: Filter Name Click to Disabled State (using real user interaction)
+        console.log('=== Running Test Case 6: Filter Name Click to Disabled State (Real User Click) ===');
+        
+        // First, ensure the filter is in a known state (active) by typing some text
+        await page.evaluate(() => {
+            if (window.textFilter) {
+                window.textFilter.setValue('test text');
+            }
+        });
+        
+        // Wait for state to settle
+        await page.waitForTimeout(100);
+        
+        // Get initial state before clicking
+        const initialStateBeforeClick = await page.evaluate(() => {
+            if (!window.textFilter) return null;
+            return {
+                filterState: window.textFilter.state,
+                inputValue: window.textFilter.getValue(),
+                clearButtonVisible: window.textFilter.clearButton.style.display === 'block'
+            };
+        });
+        
+        // Simulate real user clicking on the filter footer (filter name)
+        // The filter footer is the clickable element that cycles through states
+        console.log('About to click on .filter-footer element...');
+        
+        // Check if the element exists and is visible
+        const footerElement = await page.$('.filter-footer');
+        if (!footerElement) {
+            console.error('ERROR: .filter-footer element not found!');
+        } else {
+            console.log('✓ .filter-footer element found');
+            const isVisible = await footerElement.isVisible();
+            console.log('  - Element visible:', isVisible);
+            const text = await page.evaluate(el => el.textContent, footerElement);
+            console.log('  - Element text:', text);
+        }
+        
+        // Check if the event handler is properly bound before clicking
+        const eventHandlerInfo = await page.evaluate(() => {
+            const footer = document.querySelector('.filter-footer');
+            if (!footer) return { found: false };
+            
+            return {
+                found: true,
+                footerStyle: footer.style.cursor,
+                footerTitle: footer.title,
+                filterExists: !!window.textFilter,
+                filterState: window.textFilter ? window.textFilter.state : 'no filter',
+                footerElement: !!window.textFilter?.footer
+            };
+        });
+        
+        console.log('Event handler info:', eventHandlerInfo);
+        
+
+        
+        // Perform the click and get the immediate result
+        console.log('About to click on .filter-footer...');
+        
+        // Add a click event listener to see if the click is being captured
+        await page.evaluate(() => {
+            const footer = document.querySelector('.filter-footer');
+            if (footer) {
+                footer.addEventListener('click', (e) => {
+                    console.log('DEBUG: Click event captured on footer!');
+                    console.log('DEBUG: Event target:', e.target);
+                    console.log('DEBUG: Event type:', e.type);
+                });
+            }
+        });
+        
+        // Click and wait for any console output
+        await page.click('.filter-footer');
+        
+        // Wait for the state change to complete
+        await page.waitForTimeout(200);
+        
+        // Get final state after clicking
+        const finalStateAfterClick = await page.evaluate(() => {
+            if (!window.textFilter) return null;
+            return {
+                filterState: window.textFilter.state,
+                inputValue: window.textFilter.getValue(),
+                clearButtonVisible: window.textFilter.clearButton.style.display === 'block'
+            };
+        });
+        
+        // Evaluate test results
+        const wasInitiallyActive = initialStateBeforeClick.filterState === 'active';
+        const becameDisabled = finalStateAfterClick.filterState === 'disabled';
+        const stateChanged = initialStateBeforeClick.filterState !== finalStateAfterClick.filterState;
+        const testCase6Passed = wasInitiallyActive && becameDisabled && stateChanged;
+        
+        // Add Test Case 6 results to the results array
+        const testCase6Result = {
+            testId: 6,
+            name: 'Filter Name Click to Disabled State (Real User Click)',
+            passed: testCase6Passed,
+            details: {
+                wasInitiallyActive: wasInitiallyActive,
+                becameDisabled: becameDisabled,
+                stateChanged: stateChanged,
+                initialState: initialStateBeforeClick.filterState,
+                finalState: finalStateAfterClick.filterState,
+                inputValue: finalStateAfterClick.inputValue,
+                clearButtonVisible: finalStateAfterClick.clearButtonVisible
+            }
+        };
+        
+        results.push(testCase6Result);
+        
+        // Test Case 7: Disabled Filter Click to Active State (using real user interaction)
+        console.log('=== Running Test Case 7: Disabled Filter Click to Active State (Real User Click) ===');
+        
+        // First, ensure the filter is in active state by typing text
+        await page.evaluate(() => {
+            if (window.textFilter) {
+                window.textFilter.setValue('test text');
+                // Force the state to be active after setting value
+                if (window.textFilter.inputElement && window.textFilter.inputElement.value.trim() !== '') {
+                    window.textFilter.setState('active');
+                }
+            }
+        });
+        
+        // Wait for state to settle
+        await page.waitForTimeout(200);
+        
+        // Get initial state (should be active after typing)
+        const testCase7InitialActiveState = await page.evaluate(() => {
+            if (!window.textFilter) return null;
+            return {
+                filterState: window.textFilter.state,
+                inputValue: window.textFilter.getValue(),
+                clearButtonVisible: window.textFilter.clearButton.style.display === 'block'
+            };
+        });
+        
+        console.log('Initial active state:', testCase7InitialActiveState.filterState);
+        
+        // First click: active -> disabled
+        await page.click('.filter-footer');
+        await page.waitForTimeout(100);
+        
+        // Get state after first click (should be disabled)
+        const testCase7DisabledState = await page.evaluate(() => {
+            if (!window.textFilter) return null;
+            return {
+                filterState: window.textFilter.state,
+                inputValue: window.textFilter.getValue(),
+                clearButtonVisible: window.textFilter.clearButton.style.display === 'block'
+            };
+        });
+        
+        console.log('State after first click (should be disabled):', testCase7DisabledState.filterState);
+        
+        // Second click: disabled -> active
+        await page.click('.filter-footer');
+        await page.waitForTimeout(100);
+        
+        // Get final state after second click (should be active)
+        const testCase7FinalActiveState = await page.evaluate(() => {
+            if (!window.textFilter) return null;
+            return {
+                filterState: window.textFilter.state,
+                inputValue: window.textFilter.getValue(),
+                clearButtonVisible: window.textFilter.clearButton.style.display === 'block'
+            };
+        });
+        
+        console.log('Final state after second click (should be active):', testCase7FinalActiveState.filterState);
+        
+        // Evaluate test results
+        const testCase7WasInitiallyActive = testCase7InitialActiveState.filterState === 'active';
+        const testCase7BecameDisabled = testCase7DisabledState.filterState === 'disabled';
+        const testCase7BecameActiveAgain = testCase7FinalActiveState.filterState === 'active';
+        const testCase7CycleCompleted = testCase7WasInitiallyActive && testCase7BecameDisabled && testCase7BecameActiveAgain;
+        
+        // Add Test Case 7 results to the results array
+        const testCase7Result = {
+            testId: 7,
+            name: 'Disabled Filter Click to Active State (Real User Click)',
+            passed: testCase7CycleCompleted,
+            details: {
+                wasInitiallyActive: testCase7WasInitiallyActive,
+                becameDisabled: testCase7BecameDisabled,
+                becameActiveAgain: testCase7BecameActiveAgain,
+                cycleCompleted: testCase7CycleCompleted,
+                initialActiveState: testCase7InitialActiveState.filterState,
+                disabledState: testCase7DisabledState.filterState,
+                finalActiveState: testCase7FinalActiveState.filterState,
+                inputValue: testCase7FinalActiveState.inputValue,
+                clearButtonVisible: testCase7FinalActiveState.clearButtonVisible
+            }
+        };
+        
+        results.push(testCase7Result);
         
         // Display results
         console.log('📊 All Test Results:');

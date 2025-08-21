@@ -21,6 +21,8 @@ COMPLETED:
 COMPLETED:
 - create a new test case: the cross is visible after the user inputs text ✓
   (Fixed Test Case 5 with real user interaction simulation)
+- implement new test case: filter name click to disabled state ✓
+  (Added Test Case 6 with real user click simulation and real-time debug updates)
 
 CURRENT TASK:
 - say hellow
