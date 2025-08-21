@@ -843,6 +843,29 @@ select.filter-select:hover,
 }
 
 /* Filter Control States */
+.filter-control.filter-active {
+    border: 2px solid #ff8c00;
+    border-radius: 8px;
+    padding: 0.25rem;
+    background: rgba(255, 140, 0, 0.15);
+}
+
+.filter-control.filter-inactive {
+    border: 2px solid #28a745;
+    border-radius: 8px;
+    padding: 0.25rem;
+    background: rgba(40, 167, 69, 0.1);
+}
+
+.filter-control.filter-disabled {
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    padding: 0.25rem;
+    background: #f8f9fa;
+    opacity: 0.6;
+}
+
+/* Legacy filter-wrapper states (keep for backward compatibility) */
 .filter-wrapper.filter-active {
     border: 2px solid #ff8c00;
     border-radius: 8px;
@@ -863,6 +886,20 @@ select.filter-select:hover,
     padding: 0.25rem;
     background: #f8f9fa;
     opacity: 0.6;
+}
+
+.filter-control.filter-active .filter-footer {
+    color: #ff8c00;
+    font-weight: 600;
+}
+
+.filter-control.filter-inactive .filter-footer {
+    color: #28a745;
+    font-weight: 600;
+}
+
+.filter-control.filter-disabled .filter-footer {
+    color: #dee2e6;
 }
 
 .filter-wrapper.filter-active .filter-footer {

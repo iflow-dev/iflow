@@ -13,6 +13,16 @@ class IconFilter extends FilterControl {
             ...iconConfig
         };
         
+        // Ensure container has proper class and id attributes
+        this.container.classList.add('filter-control');
+        
+        // Get the footer text to use as ID
+        const footer = this.container.querySelector('.filter-footer');
+        if (footer && footer.textContent) {
+            const idText = footer.textContent.trim().toLowerCase();
+            this.container.id = idText;
+        }
+        
         // Get the icon element
         this.iconElement = this.container.querySelector('.icon-svg');
         
@@ -38,37 +48,23 @@ class IconFilter extends FilterControl {
         const iconPath = `/static/icons/${this.iconConfig.activeIcon}.svg`;
         this.iconElement.src = iconPath;
         
-        // Apply color filters based on state
+        // Apply CSS classes based on state
         this.updateIconColors();
     }
     
     /**
-     * Update icon colors using CSS filters
+     * Update icon colors using CSS classes
      */
     updateIconColors() {
         if (!this.iconElement) return;
         
-        let filterValue = '';
-        switch (this.state) {
-            case 'active':
-                // Simple orange filter - much more reliable
-                filterValue = 'hue-rotate(14deg) saturate(200%) brightness(1.2)';
-                break;
-            case 'inactive':
-                // Simple grey filter - much more reliable
-                filterValue = 'grayscale(100%) brightness(0.6)';
-                break;
-            case 'disabled':
-                // Simple light grey filter - much more reliable
-                filterValue = 'grayscale(100%) brightness(0.8) opacity(0.6)';
-                break;
-            default:
-                // Default grey
-                filterValue = 'grayscale(100%) brightness(0.6)';
-        }
+        // Remove all state classes
+        this.container.classList.remove('filter-active', 'filter-inactive', 'filter-disabled');
         
-        this.iconElement.style.filter = filterValue;
-        console.log(`IconFilter: Applied filter "${filterValue}" for state "${this.state}"`);
+        // Add the current state class
+        this.container.classList.add(`filter-${this.state}`);
+        
+        console.log(`IconFilter: Applied CSS class filter-${this.state}`);
     }
     
     /**
@@ -122,5 +118,12 @@ class IconFilter extends FilterControl {
      */
     getIconConfig() {
         return { ...this.iconConfig };
+    }
+    
+    /**
+     * Get current state for debugging
+     */
+    getCurrentState() {
+        return this.state;
     }
 }

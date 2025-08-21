@@ -1000,15 +1000,8 @@ async function toggleArtifactFlag(artifactId) {
 }
 
 // Initialize the new FilterControl system for the flag filter
-function initializeFlagFilterControl(filterWrapper) {
+async function initializeFlagFilterControl(filterWrapper) {
     try {
-        // Wait for ColorSchemeLoader to be ready
-        if (!window.colorSchemeLoader) {
-            console.log('Waiting for ColorSchemeLoader...');
-            setTimeout(() => initializeFlagFilterControl(filterWrapper), 100);
-            return;
-        }
-        
         // Create IconFilter instance for the flag
         const flagFilter = new IconFilter(filterWrapper, 'flagged', {
             inactiveIcon: 'flag',
@@ -1021,8 +1014,8 @@ function initializeFlagFilterControl(filterWrapper) {
             flagFilter.setFilterManager(window.filterManager);
         }
         
-        // Apply the color scheme from YAML
-        window.colorSchemeLoader.applyColorScheme(flagFilter, 'default');
+        // The IconFilter class now has default colors built-in
+        console.log('Flag filter initialized with default colors');
         
         // Store reference to the filter control for later use
         filterWrapper.flagFilterControl = flagFilter;
