@@ -7,6 +7,56 @@
 let currentArtifacts = [];
 let editingArtifactId = null;
 
+// Global function for cycling filter states
+function cyclestate() {
+    console.log('cyclestate() called - this function needs to be implemented to cycle through filter states');
+    // TODO: Implement the actual state cycling logic
+    // For now, just log that it was called
+}
+
+// Load view files
+async function loadViews() {
+    try {
+        console.log('Loading views...');
+        
+        // Load toolbar with filter controls
+        const toolbarResponse = await fetch('/static/view/filter.html');
+        if (!toolbarResponse.ok) {
+            throw new Error(`Failed to load filter.html: ${toolbarResponse.status}`);
+        }
+        const toolbarHtml = await toolbarResponse.text();
+        document.getElementById('toolbar-container').innerHTML = `
+            <div class="toolbar">
+                ${toolbarHtml}
+            </div>
+        `;
+        console.log('Toolbar loaded successfully');
+        
+        // Load status bar
+        const statusbarResponse = await fetch('/static/view/statusbar.html');
+        if (!statusbarResponse.ok) {
+            throw new Error(`Failed to load statusbar.html: ${statusbarResponse.status}`);
+        }
+        const statusbarHtml = await statusbarResponse.text();
+        document.getElementById('statusbar-container').innerHTML = statusbarHtml;
+        console.log('Status bar loaded successfully');
+        
+        console.log('All views loaded successfully');
+        
+        // Initialize filter controls after views are loaded
+        if (window.toolbar && typeof window.toolbar.initialize === 'function') {
+            console.log('Initializing toolbar...');
+            await window.toolbar.initialize();
+        }
+        
+    } catch (error) {
+        console.error('Error loading views:', error);
+        // Show error in the containers
+        document.getElementById('toolbar-container').innerHTML = `<div class="error">Error loading toolbar: ${error.message}</div>`;
+        document.getElementById('statusbar-container').innerHTML = `<div class="error">Error loading status bar: ${error.message}</div>`;
+    }
+}
+
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, waiting for pywebview...');
@@ -15,6 +65,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Starting to load data...');
         loadStats();
         loadArtifacts();
+        loadViews(); // Call loadViews here
     }, 1000);
 });
 

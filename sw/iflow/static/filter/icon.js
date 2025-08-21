@@ -71,17 +71,23 @@ class IconFilter extends FilterControl {
      * Override updateFilterManager to provide specific filter updates
      */
     updateFilterManager() {
-        if (!this.filterManager) return;
-        
-        if (this.state === 'active') {
-            // Activate the filter in FilterManager
-            this.filterManager.updateFilter(this.filterType, true);
-        } else {
-            // Deactivate the filter in FilterManager
-            this.filterManager.updateFilter(this.filterType, false);
-        }
-        
-        console.log(`IconFilter ${this.filterType} updated FilterManager: ${this.state}`);
+        // Call the base class implementation which handles disabled state
+        super.updateFilterManager();
+    }
+
+    /**
+     * Get the current filter value
+     * Returns true if active, false otherwise
+     */
+    getValue() {
+        return this.state === 'active';
+    }
+
+    /**
+     * Override getDefaultValue to return false for boolean filters
+     */
+    getDefaultValue() {
+        return false;
     }
     
     /**
@@ -94,6 +100,13 @@ class IconFilter extends FilterControl {
                 this.toggle();
             });
         }
+    }
+
+    /**
+     * Set the filter manager reference
+     */
+    setFilterManager(filterManager) {
+        this.filterManager = filterManager;
     }
     
     /**

@@ -20,6 +20,221 @@ let statisticsManager = null;
 // API base URL
 const API_BASE = '/api';
 
+// Global function for cycling filter states (legacy - now handled by proper click handlers)
+function cyclestate() {
+    console.log('cyclestate() called - this function is deprecated, using proper click handlers instead');
+    // The actual functionality is now handled by setupFilterClickHandlers() and cycleFilterState()
+}
+
+// Load view files
+async function loadViews() {
+    try {
+        console.log('Loading views...');
+        
+        // Load toolbar with filter controls
+        const toolbarResponse = await fetch('/static/view/filter.html');
+        if (!toolbarResponse.ok) {
+            throw new Error(`Failed to load filter.html: ${toolbarResponse.status}`);
+        }
+        const toolbarHtml = await toolbarResponse.text();
+        document.getElementById('toolbar-container').innerHTML = `
+            <div class="toolbar">
+                ${toolbarHtml}
+            </div>
+        `;
+        console.log('Toolbar loaded successfully');
+        
+        // Load status bar
+        const statusbarResponse = await fetch('/static/view/statusbar.html');
+        if (!statusbarResponse.ok) {
+            throw new Error(`Failed to load statusbar.html: ${statusbarResponse.status}`);
+        }
+        const statusbarHtml = await statusbarResponse.text();
+        document.getElementById('statusbar-container').innerHTML = statusbarHtml;
+        console.log('Status bar loaded successfully');
+        
+        console.log('All views loaded successfully');
+        
+        // Set up click handlers for filter footers
+        setupFilterClickHandlers();
+        
+        // Now that views are loaded, initialize managers with the loaded data
+        await initializeManagers();
+        
+        // Initialize toolbar after views are loaded
+        if (window.toolbar && typeof window.toolbar.initialize === 'function') {
+            console.log('Initializing toolbar...');
+            await window.toolbar.initialize();
+        }
+        
+    } catch (error) {
+        console.error('Error loading views:', error);
+        // Show error in the containers
+        document.getElementById('toolbar-container').innerHTML = `<div class="error">Error loading toolbar: ${error.message}</div>`;
+        document.getElementById('statusbar-container').innerHTML = `<div class="error">Error loading status bar: ${error.message}</div>`;
+    }
+}
+
+// Set up click event handlers for filter footers
+function setupFilterClickHandlers() {
+    try {
+        console.log('Setting up filter click handlers...');
+        
+        // Find all filter footers
+        const filterFooters = document.querySelectorAll('.filter-footer');
+        console.log(`Found ${filterFooters.length} filter footers`);
+        
+        // Add click handlers to each filter footer
+        filterFooters.forEach((footer, index) => {
+            const filterWrapper = footer.closest('.filter-wrapper');
+            if (filterWrapper) {
+                // Remove the javascript:cyclestate() href and add proper click handler
+                const link = footer.closest('a');
+                if (link) {
+                    link.removeAttribute('href');
+                    link.style.cursor = 'pointer';
+                }
+                
+                // Add click handler
+                footer.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    cycleFilterState(filterWrapper);
+                });
+                
+                // Add visual feedback
+                footer.style.cursor = 'pointer';
+                footer.title = 'Click to cycle filter state: Active → Inactive → Disabled → Active';
+                
+                console.log(`Added click handler to filter footer ${index + 1}: ${footer.textContent}`);
+            }
+        });
+        
+        console.log('Filter click handlers set up successfully');
+        
+    } catch (error) {
+        console.error('Error setting up filter click handlers:', error);
+    }
+}
+
+// Cycle the state of a specific filter
+function cycleFilterState(filterWrapper) {
+    if (!filterWrapper) return;
+    
+    const filterFooter = filterWrapper.querySelector('.filter-footer');
+    if (!filterFooter) return;
+    
+    const filterType = filterFooter.textContent.toLowerCase();
+    console.log(`Cycling state for filter: ${filterType}`);
+    
+    // Get current state classes
+    const currentClasses = filterWrapper.className;
+    let newState = 'inactive';
+    
+    if (currentClasses.includes('filter-active')) {
+        // Currently active -> inactive
+        filterWrapper.classList.remove('filter-active');
+        filterWrapper.classList.add('filter-inactive');
+        newState = 'inactive';
+    } else if (currentClasses.includes('filter-inactive')) {
+        // Currently inactive -> disabled
+        filterWrapper.classList.remove('filter-inactive');
+        filterWrapper.classList.add('filter-disabled');
+        newState = 'disabled';
+    } else if (currentClasses.includes('filter-disabled')) {
+        // Currently disabled -> active
+        filterWrapper.classList.remove('filter-disabled');
+        filterWrapper.classList.add('filter-active');
+        newState = 'active';
+    } else {
+        // No state class -> active
+        filterWrapper.classList.add('filter-active');
+        newState = 'active';
+    }
+    
+    console.log(`Filter ${filterType} state changed to: ${newState}`);
+    
+    // TODO: Update the FilterManager with the new state
+    // This will need to be implemented once the filter controls are properly connected
+}
+
+// Initialize all managers after views are loaded
+async function initializeManagers() {
+    try {
+        console.log('Initializing managers...');
+        
+        // Update filter options now that DOM elements exist
+        updateStatusFilterOptions();
+        updateStatusFormOptions();
+        
+        // Initialize managers with the loaded data
+        dropdownManager = new CustomDropdownManager();
+        statisticsManager = new StatisticsManager();
+        
+        // Get singleton instances (these set window.tileManager, window.searchManager, window.filterManager)
+        TileManager.getInstance();
+        SearchManager.getInstance();
+        FilterManager.getInstance();
+        
+        // Initialize managers in dependency order
+        if (dropdownManager.initializeData(workItemTypes, artifactStatuses)) {
+            dropdownManager.createCustomDropdowns();
+            // Expose dropdown accessibility functions for testing (Ticket #00073)
+            dropdownManager.exposeForTesting();
+        }
+        
+        if (window.tileManager.initializeData(workItemTypes, artifactStatuses)) {
+            console.log('Tile manager initialized successfully');
+        }
+        
+        if (statisticsManager) {
+            statisticsManager.initialize(projectConfig);
+        }
+        
+        // Initialize search manager with tile manager reference
+        if (window.searchManager) {
+            window.searchManager.initialize(window.tileManager);
+        }
+        
+        // Initialize filter manager with search manager reference
+        if (window.filterManager) {
+            window.filterManager.initialize(window.searchManager);
+        }
+        
+        // Create and initialize toolbar
+        if (typeof Toolbar !== 'undefined') {
+            window.toolbar = new Toolbar();
+            console.log('Toolbar created successfully');
+        } else {
+            console.warn('Toolbar class not available');
+        }
+        
+        // Initialize UI components
+        if (window.statusLine) {
+            window.statusLine.initialize();
+        }
+        
+        if (window.statisticsLine) {
+            window.statisticsLine.initialize();
+        }
+        
+        if (window.statusLine) {
+            window.statusLine.showInfo(`Loaded ${artifactStatuses.length} artifact statuses`);
+        }
+        
+        console.log('All managers initialized successfully');
+        
+        // Load artifacts after everything is initialized
+        await loadArtifacts();
+        
+    } catch (error) {
+        console.error('Error initializing managers:', error);
+        if (window.statusLine) {
+            window.statusLine.showError('Manager initialization failed: ' + error.message);
+        }
+    }
+}
+
 // Initialize the application
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('DOM loaded, starting to load data...');
@@ -33,9 +248,12 @@ document.addEventListener('DOMContentLoaded', async function() {
         await loadConfiguration();
         console.log('Configuration loaded successfully');
         
-        if (statisticsManager) {
-            statisticsManager.loadStats();
-        }
+        // Load views after configuration is loaded
+        await loadViews();
+        console.log('Views loaded successfully');
+        
+        // Statistics manager stats are now loaded in initializeManagers()
+        
     } catch (error) {
         console.error('Error during application initialization:', error);
         if (window.statusLine) {
@@ -137,72 +355,14 @@ async function loadConfiguration() {
         if (statusesResponse.ok) {
             artifactStatuses = await statusesResponse.json();
             console.log('Artifact statuses loaded:', artifactStatuses);
-            updateStatusFilterOptions();
-            updateStatusFormOptions();
             
-            // Initialize managers with the loaded data
-            dropdownManager = new CustomDropdownManager();
-            statisticsManager = new StatisticsManager();
-            
-            // Get singleton instances (these set window.tileManager, window.searchManager, window.filterManager)
-            TileManager.getInstance();
-            SearchManager.getInstance();
-            FilterManager.getInstance();
-            
-            // Initialize managers in dependency order
-            if (dropdownManager.initializeData(workItemTypes, artifactStatuses)) {
-                dropdownManager.createCustomDropdowns();
-                // Expose dropdown accessibility functions for testing (Ticket #00073)
-                dropdownManager.exposeForTesting();
-            }
-            
-            if (window.tileManager.initializeData(workItemTypes, artifactStatuses)) {
-                console.log('Tile manager initialized successfully');
-            }
-            
-            if (statisticsManager) {
-                statisticsManager.initialize(projectConfig);
-            }
-            
-            // Initialize search manager with tile manager reference
-            if (window.searchManager) {
-                window.searchManager.initialize(window.tileManager);
-            }
-            
-            // Initialize filter manager with search manager reference
-            if (window.filterManager) {
-                window.filterManager.initialize(window.searchManager);
-            }
-            
-            // Initialize UI components
-            if (window.statusLine) {
-                window.statusLine.initialize();
-            }
-            
-            if (window.statisticsLine) {
-                window.statisticsLine.initialize();
-            }
-            
-            if (window.toolbar) {
-                await window.toolbar.initialize();
-            }
-            
-            if (window.statusLine) {
-            window.statusLine.showInfo(`Loaded ${artifactStatuses.length} artifact statuses`);
-        }
-            
-                    // Filter controls are now handled by the toolbar class
-            
-            // Initialize clear filter controls
-            // initializeClearFilterControls(); // No longer needed - using simple clear functions
-            
-            // Load artifacts after everything is initialized
-            await loadArtifacts();
+            // Don't initialize managers here - wait for views to be loaded
+            console.log('Artifact statuses loaded, waiting for views to initialize managers...');
         } else {
             console.error('Failed to load artifact statuses:', statusesResponse.status);
             if (window.statusLine) {
-            window.statusLine.showError(`Failed to load artifact statuses: HTTP ${statusesResponse.status}`);
-        }
+                window.statusLine.showError(`Failed to load artifact statuses: HTTP ${statusesResponse.status}`);
+            }
         }
     } catch (error) {
         console.error('Error loading configuration:', error);

@@ -62,6 +62,11 @@ class Toolbar {
                         disabledIcon: 'flag-outline'
                     });
                     
+                    // Connect to FilterManager
+                    if (window.filterManager) {
+                        this.flagFilter.setFilterManager(window.filterManager);
+                    }
+                    
                     // Add new event listener
                     flagFilterBtn.addEventListener('click', (e) => {
                         e.preventDefault();

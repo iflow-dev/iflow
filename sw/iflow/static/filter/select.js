@@ -18,6 +18,9 @@ class SelectFilter extends FilterControl {
     updateSelectState() {
         if (!this.selectElement) return;
         
+        // Don't auto-update state if filter is disabled
+        if (this.state === 'disabled') return;
+        
         const hasValue = this.selectElement.value && this.selectElement.value !== '';
         if (hasValue) {
             this.setState('active');
@@ -27,15 +30,8 @@ class SelectFilter extends FilterControl {
     }
     
     updateFilterManager() {
-        if (!this.filterManager) return;
-        
-        const currentValue = this.selectElement ? this.selectElement.value : '';
-        if (this.state === 'active' && currentValue !== '') {
-            this.filterManager.updateFilter(this.filterType, currentValue);
-        } else {
-            this.filterManager.updateFilter(this.filterType, '');
-        }
-        console.log(`SelectFilter ${this.filterType} updated FilterManager: ${currentValue}`);
+        // Call the base class implementation which handles disabled state
+        super.updateFilterManager();
     }
     
     bindEvents() {

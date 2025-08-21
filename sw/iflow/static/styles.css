@@ -398,10 +398,15 @@ select.filter-select:hover,
     text-transform: uppercase;
     letter-spacing: 0.5px;
     transition: color 0.2s ease;
+    cursor: pointer;
+    user-select: none;
+    padding: 2px 4px;
+    border-radius: 3px;
 }
 
 .filter-footer:hover {
     color: #ff8c00;
+    background-color: rgba(255, 140, 0, 0.1);
 }
 
 /* Active filter footer styling */

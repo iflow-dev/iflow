@@ -33,6 +33,9 @@ class TextInputFilter extends FilterControl {
     updateInputState() {
         if (!this.inputElement) return;
         
+        // Don't auto-update state if filter is disabled
+        if (this.state === 'disabled') return;
+        
         const hasContent = this.inputElement.value.trim() !== '';
         
         if (hasContent) {
@@ -48,19 +51,8 @@ class TextInputFilter extends FilterControl {
      * Override updateFilterManager to provide specific filter updates
      */
     updateFilterManager() {
-        if (!this.filterManager) return;
-        
-        const currentValue = this.inputElement ? this.inputElement.value.trim() : '';
-        
-        if (this.state === 'active' && currentValue !== '') {
-            // Update the filter with the current value
-            this.filterManager.updateFilter(this.filterType, currentValue);
-        } else {
-            // Clear the filter
-            this.filterManager.updateFilter(this.filterType, '');
-        }
-        
-        console.log(`TextInputFilter ${this.filterType} updated FilterManager: ${currentValue}`);
+        // Call the base class implementation which handles disabled state
+        super.updateFilterManager();
     }
     
     /**

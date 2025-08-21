@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Loading Test</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="header">
+        <h1>View Loading Test</h1>
+    </div>
+    
+    <div class="container">
+        <!-- Test toolbar container -->
+        <div id="toolbar-container">
+            <div class="loading">Loading toolbar...</div>
+        </div>
+        
+        <!-- Test status bar container -->
+        <div id="statusbar-container">
+            <div class="loading">Loading status bar...</div>
+        </div>
+        
+        <div class="artifacts-container">
+            <div class="loading">Test page loaded</div>
+        </div>
+    </div>
+    
+    <script>
+        // Simple test function
+        function cyclestate() {
+            console.log('cyclestate() called successfully!');
+            alert('cyclestate() function is working!');
+        }
+        
+        // Test view loading
+        async function testLoadViews() {
+            try {
+                console.log('Testing view loading...');
+                
+                // Load toolbar
+                const toolbarResponse = await fetch('/static/view/filter.html');
+                if (!toolbarResponse.ok) {
+                    throw new Error(`Failed to load filter.html: ${toolbarResponse.status}`);
+                }
+                const toolbarHtml = await toolbarResponse.text();
+                document.getElementById('toolbar-container').innerHTML = `
+                    <div class="toolbar">
+                        ${toolbarHtml}
+                    </div>
+                `;
+                console.log('Toolbar loaded successfully');
+                
+                // Load status bar
+                const statusbarResponse = await fetch('/static/view/statusbar.html');
+                if (!statusbarResponse.ok) {
+                    throw new Error(`Failed to load statusbar.html: ${statusbarResponse.status}`);
+                }
+                const statusbarHtml = await statusbarResponse.text();
+                document.getElementById('statusbar-container').innerHTML = statusbarHtml;
+                console.log('Status bar loaded successfully');
+                
+                console.log('All views loaded successfully');
+                
+            } catch (error) {
+                console.error('Error loading views:', error);
+                document.getElementById('toolbar-container').innerHTML = `<div class="error">Error loading toolbar: ${error.message}</div>`;
+                document.getElementById('statusbar-container').innerHTML = `<div class="error">Error loading status bar: ${error.message}</div>`;
+            }
+        }
+        
+        // Load views when page loads
+        document.addEventListener('DOMContentLoaded', testLoadViews);
+    </script>
+</body>
+</html>

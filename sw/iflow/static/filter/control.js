@@ -113,6 +113,51 @@ class FilterControl {
             this.activate();
         }
     }
+
+    /**
+     * Toggle between active, inactive, and disabled states
+     * This allows cycling through: active -> inactive -> disabled -> active
+     */
+    cycleState() {
+        
+        switch (this.state) {
+            case 'active':
+                this.deactivate();
+                break;
+            case 'inactive':
+                this.disable();
+                break;
+            case 'disabled':
+                this.activate();
+                break;
+        }
+        
+    }
+
+    /**
+     * Check if filter is currently applying its value
+     */
+    isApplying() {
+        return this.state === 'active';
+    }
+
+    /**
+     * Check if filter is disabled (not applying but keeping settings)
+     */
+    isDisabled() {
+        return this.state === 'disabled';
+    }
+
+    /**
+     * Get filter value for current state
+     * Returns null if filter is disabled, otherwise returns the actual value
+     */
+    getEffectiveValue() {
+        if (this.state === 'disabled') {
+            return null; // Disabled filters don't apply their values
+        }
+        return this.getValue(); // Subclasses should implement this
+    }
     
     /**
      * Update visual appearance based on state
@@ -173,15 +218,50 @@ class FilterControl {
     updateFilterManager() {
         if (!this.filterManager) return;
         
-        // This method should be overridden by subclasses
-        // to provide specific filter value updates
-        console.log(`FilterControl ${this.filterType} state changed to: ${this.state}`);
+        // Get the effective value (null if disabled, actual value otherwise)
+        const effectiveValue = this.getEffectiveValue();
+        
+        // Update the filter manager with the effective value
+        if (effectiveValue !== null) {
+            this.filterManager.updateFilter(this.filterType, effectiveValue);
+        } else {
+            // Disabled filters don't apply their values
+            this.filterManager.updateFilter(this.filterType, this.getDefaultValue());
+        }
+        
+    }
+
+    /**
+     * Get the default value for this filter type when disabled
+     * Subclasses can override this to provide appropriate default values
+     */
+    getDefaultValue() {
+        // Default implementation returns empty string/false
+        // Subclasses can override for specific types
+        return '';
     }
     
     /**
      * Bind event handlers
      */
     bindEvents() {
+        // Add click handler to filter footer for state cycling
+        if (this.footer) {
+            
+            this.footer.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.cycleState();
+            });
+            
+            // Add cursor pointer to indicate it's clickable
+            this.footer.style.cursor = 'pointer';
+            this.footer.title = 'Click to cycle filter state: Active → Inactive → Disabled → Active';
+            
+        } else {
+            console.warn(`No footer element found for ${this.filterType} filter control`);
+        }
+        
         // This method should be overridden by subclasses
         // to provide specific event handling
     }
