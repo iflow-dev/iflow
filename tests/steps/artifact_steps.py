@@ -282,6 +282,18 @@ def only_status_artifacts_should_be_displayed(step, status):
 def i_enter_text_in_search_box(step, text):
     """Enter text in the search box."""
     from radish import world
+    from selenium.webdriver.common.by import By
+    
+    search_input = world.driver.find_element(By.ID, "search-input")
+    search_input.clear()
+    search_input.send_keys(text)
+
+@step("I type \"{text}\" in the search box")
+def i_type_text_in_search_box(step, text):
+    """Type text in the search box."""
+    from radish import world
+    from selenium.webdriver.common.by import By
+    
     search_input = world.driver.find_element(By.ID, "search-input")
     search_input.clear()
     search_input.send_keys(text)
