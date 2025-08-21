@@ -200,19 +200,24 @@ class FilterControl {
      * This allows cycling through: active -> inactive -> disabled -> active
      */
     cycleState() {
+        console.log(`cycleState() called for ${this.filterType}, current state: ${this.state}`);
         
         switch (this.state) {
             case 'active':
+                console.log(`  Transitioning: active -> inactive`);
                 this.deactivate();
                 break;
             case 'inactive':
+                console.log(`  Transitioning: inactive -> disabled`);
                 this.disable();
                 break;
             case 'disabled':
+                console.log(`  Transitioning: disabled -> active`);
                 this.activate();
                 break;
         }
         
+        console.log(`  New state: ${this.state}`);
     }
 
     /**
@@ -337,6 +342,7 @@ class FilterControl {
             
             // Add click handler for state cycling
             this.footer.addEventListener('click', (e) => {
+                console.log(`Footer clicked for ${this.filterType} filter`);
                 e.preventDefault();
                 e.stopPropagation();
                 this.cycleState();
