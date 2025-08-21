@@ -125,32 +125,9 @@ class FilterControl {
         
         // Add current state class
         this.container.classList.add(`filter-${this.state}`);
-        
-        // Update control styling
-        this.updateControlStyling();
-
-        // Apply border and area colors
-        this.applyBorderColors();
-        this.applyAreaColors();
     }
     
-    /**
-     * Update control element styling
-     */
-    updateControlStyling() {
-        if (!this.control) return;
-        
-        const colors = this.getStateColors();
-        
-        // Update border color
-        this.control.style.borderColor = colors.border;
-        
-        // Update background color if it's a button
-        if (this.control.tagName === 'BUTTON') {
-            this.control.style.backgroundColor = colors.background;
-            this.control.style.color = colors.text;
-        }
-    }
+
     
 
     
@@ -307,67 +284,7 @@ class FilterControl {
         return { ...this.options.textColors };
     }
     
-    /**
-     * Apply border colors to the container based on current state
-     */
-    applyBorderColors() {
-        if (!this.container) return;
-        
-        const colors = this.options.borderColors;
-        
-        // Apply Border 1 (dotted outline) - always visible
-        this.container.style.outline = `3px dotted ${colors.border1}`;
-        this.container.style.outlineOffset = '6px';
-        
-        // Apply Border 2 (filter state border) - based on current state
-        const stateColor = this.getStateColors().border;
-        this.container.style.border = `${this.options.borderWidth} solid ${stateColor}`;
-        
-        // Note: Border 3 and 4 are typically handled by child elements
-        // and would need specific implementation in subclasses
-    }
+
     
-    /**
-     * Apply area colors to the container
-     */
-    applyAreaColors() {
-        if (!this.container) return;
-        
-        const colors = this.options.areaColors;
-        
-        // Apply area A (border area) to the container background
-        this.container.style.backgroundColor = colors.areaA;
-        
-        // Apply area C (button area) to the button element if it exists
-        if (this.control && this.control.tagName === 'BUTTON') {
-            if (this.state === 'inactive') {
-                this.control.style.backgroundColor = colors.areaC; // Red background for inactive button
-            } else {
-                this.control.style.backgroundColor = 'transparent'; // Transparent for other states
-            }
-        }
-        
-        // Apply area D (icon area) to the icon element if it exists
-        const iconElement = this.container.querySelector('.icon-svg');
-        if (iconElement) {
-            if (this.state === 'inactive') {
-                iconElement.style.backgroundColor = colors.areaD; // Red background for inactive icon
-            } else {
-                iconElement.style.backgroundColor = 'transparent'; // Transparent for other states
-            }
-        }
-        
-        // Apply area B (content area) based on current state
-        switch (this.state) {
-            case 'active':
-                // Keep area A background, content area handled by CSS
-                break;
-            case 'inactive':
-                // Keep area A background, content area handled by CSS
-                break;
-            case 'disabled':
-                // Keep area A background, content area handled by CSS
-                break;
-        }
-    }
+
 }
