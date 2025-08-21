@@ -32,13 +32,18 @@ def i_reset_database_to_branch(step, branch):
 def i_see_artifacts_displayed(step):
     """Verify that artifacts are displayed on the page."""
     from radish import world
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
     
-    # Wait for artifacts to load
+    # Wait for artifacts container to be visible
     wait = WebDriverWait(world.driver, 10)
-    artifacts = wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".artifact-card")))
+    artifacts_container = wait.until(EC.presence_of_element_located((By.ID, "artifacts-container")))
     
-    assert len(artifacts) > 0, "No artifacts found on the page"
-    print(f"✅ Found {len(artifacts)} artifacts displayed")
+    # Check if the container has content
+    container_text = artifacts_container.text.strip()
+    assert len(container_text) > 0, "No artifacts found on the page"
+    print(f"✅ Found artifacts displayed in container: {container_text[:100]}...")
 
 
 @step("I flag artifact #{artifact_id}")

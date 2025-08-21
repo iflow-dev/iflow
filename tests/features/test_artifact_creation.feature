@@ -10,9 +10,9 @@ Feature: Test Artifact Creation
     When I create a new requirement
     Then I see the artifact creation form
     When I set the type to "requirement"
-    When I set the summary to "Test requirement for BDD testing"
-    When I set the description to "This is a test requirement created during BDD test execution"
-    When I set the status to "open"
+    And I set the summary to "Test requirement for BDD testing"
+    And I set the description to "This is a test requirement created during BDD test execution"
+    And I set the status to "open"
     When I save the new artifact
     # TODO: Then I see 2 artifacts
     # TODO: replace step below
@@ -25,9 +25,9 @@ Feature: Test Artifact Creation
     When I create a new requirement
     Then I see the artifact creation form
     When I set the type to "requirement"
-    When I set the summary to "This will be cancelled"
-    When I set the description to "This description will not be saved"
-    When I set the status to "in_progress"
+    And I set the summary to "This will be cancelled"
+    And I set the description to "This description will not be saved"
+    And I set the status to "in_progress"
     When I cancel the artifact creation
     Then I do not see the artifact creation form
     Then I remain on the search view

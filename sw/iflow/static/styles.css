@@ -719,6 +719,12 @@ select.filter-select:hover,
     margin-bottom: 1.5rem;
 }
 
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
 .modal-title {
     font-size: 1.5rem;
     font-weight: 600;
@@ -788,6 +794,14 @@ select.filter-select:hover,
     gap: 1rem;
     justify-content: flex-end;
     margin-top: 1.5rem;
+}
+
+.form-actions-top {
+    justify-content: flex-end;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e9ecef;
 }
 
 .loading {

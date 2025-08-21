@@ -1,0 +1,24 @@
+- NOTES:
+    -   if during the following steps you run into step syntax collisions (duplicate steps)
+        this indicates that the other step might be replaced by our more generic version.
+    -   try to do changes step by step and test progress regularely
+- Instructions:
+    - count the number of total existing step definitions
+    - create a step @step('I fill the {field} field with {text}'), replacing:
+
+        tests/steps/iteration_field_steps.py:@step("I fill the iteration field with {text}")
+        tests/steps/iteration_field_steps.py:@when("I update the iteration field to {text}")
+        tests/steps/iteration_field_steps.py:@when("I fill in the iteration field with {text}")
+
+    - remove completely (and is usage)
+
+        tests/steps/iteration_field_steps.py:@then("I should see an iteration field")
+
+    - check for concrete iteration expected using existing steps
+        tests/steps/iteration_field_steps.py:@then("I should see the iteration information displayed")
+        tests/steps/iteration_field_steps.py:@then("it should show {iteration}")
+        tests/steps/iteration_field_steps.py:@then("the artifact should be updated with new iteration {iteration}")
+        tests/steps/iteration_field_steps.py:@then("I see the iteration is set to {iteration}")
+        tests/steps/iteration_field_steps.py:@then("the artifact should be saved with iteration {iteration}")
+    - make sure all smoke tests pass by running `run_radish.py local tests/features/ --tags=smoke --trace`
+    - count the number of total existing step definitions
