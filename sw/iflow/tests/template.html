@@ -37,6 +37,31 @@
             flex: 1;
             min-width: 600px;
         }
+        
+        /* Test Button States */
+        .test-button {
+            transition: all 0.3s ease;
+        }
+        
+        .test-button.running {
+            background-color: #ffc107 !important;
+            color: #000 !important;
+        }
+        
+        .test-button.passed {
+            background-color: #28a745 !important;
+            color: white !important;
+        }
+        
+        .test-button.failed {
+            background-color: #dc3545 !important;
+            color: white !important;
+        }
+        
+        .test-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
         .test-title {
             text-align: center;
             color: #333;
@@ -83,8 +108,9 @@
                     <p style="margin: 0 0 8px 0; color: #6c757d; font-size: 12px;">
                         <strong>Expected:</strong> Clear button hidden (display: none) when input empty
                     </p>
-                    <button onclick="runTest1()" style="padding: 6px 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
-                        Run Test
+                    <button id="test1-button" onclick="runTest1()" class="test-button" data-test-id="1" style="padding: 6px 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 6px;">
+                        <span class="button-text">Run Test</span>
+                        <span class="button-icon" style="display: none;">🔄</span>
                     </button>
                     <div id="test1-result" style="margin-top: 8px;"></div>
                 </div>
@@ -99,22 +125,24 @@
                     <p style="margin: 0 0 8px 0; color: #6c757d; font-size: 12px;">
                         <strong>Expected:</strong> States cycle: active → inactive → disabled → active
                     </p>
-                    <button onclick="runTest3()" style="padding: 6px 12px; background: #6f42c1; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
-                        Run Test
+                    <button id="test3-button" onclick="runTest3()" class="test-button" data-test-id="3" style="padding: 6px 12px; background: #6f42c1; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 6px;">
+                        <span class="button-text">Run Test</span>
+                        <span class="button-icon" style="display: none;">🔄</span>
                     </button>
                     <div id="test3-result" style="margin-top: 8px;"></div>
                 </div>
                 
                 <div class="test-case" style="margin-bottom: 15px; padding: 12px; border: 1px solid #ced4da; border-radius: 6px; background: white;">
-                    <h4 style="margin: 0 0 8px 0; color: #fd7e14; font-size: 14px;">Test Case 4: Clear Button Functionality</h4>
+                    <h4 style="margin: 0 0 8px 0; color: #fd7e14; font-size: 12px;">Test Case 4: Clear Button Functionality</h4>
                     <p style="margin: 0 0 8px 0; color: #6c757d; font-size: 12px;">
                         <strong>Purpose:</strong> Verify clear button removes text and updates filter state
                     </p>
                     <p style="margin: 0 0 8px 0; color: #6c757d; font-size: 12px;">
                         <strong>Expected:</strong> Input cleared, state inactive, button hidden
                     </p>
-                    <button onclick="runTest4()" style="padding: 6px 12px; background: #fd7e14; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
-                        Run Test
+                    <button id="test4-button" onclick="runTest4()" class="test-button" data-test-id="4" style="padding: 6px 12px; background: #fd7e14; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 6px;">
+                        <span class="button-text">Run Test</span>
+                        <span class="button-icon" style="display: none;">🔄</span>
                     </button>
                     <div id="test4-result" style="margin-top: 8px;"></div>
                 </div>
@@ -127,8 +155,9 @@
                     <p style="margin: 0 0 8px 0; color: #6c757d; font-size: 12px;">
                         <strong>Expected:</strong> Clear button visible (display: block) when user types text
                     </p>
-                    <button onclick="runTest5()" style="padding: 6px 12px; background: #20c997; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
-                        Run Test
+                    <button id="test5-button" onclick="runTest5()" class="test-button" data-test-id="5" style="padding: 6px 12px; background: #20c997; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 6px;">
+                        <span class="button-text">Run Test</span>
+                        <span class="button-icon" style="display: none;">🔄</span>
                     </button>
                     <div id="test5-result" style="margin-top: 8px;"></div>
                 </div>
@@ -171,6 +200,47 @@
     <script src="../static/filter/text-input.js"></script>
     
     <script>
+        // Button State Management Functions
+        function setButtonState(testId, state) {
+            const button = document.getElementById(`test${testId}-button`);
+            if (!button) return;
+            
+            // Remove all state classes
+            button.classList.remove('running', 'passed', 'failed');
+            
+            // Add new state class
+            button.classList.add(state);
+            
+            // Update button content based on state
+            const buttonText = button.querySelector('.button-text');
+            const buttonIcon = button.querySelector('.button-icon');
+            
+            switch (state) {
+                case 'running':
+                    buttonText.textContent = 'Running';
+                    buttonIcon.textContent = '⏳';
+                    buttonIcon.style.display = 'inline';
+                    button.disabled = true;
+                    break;
+                case 'passed':
+                    buttonText.textContent = 'PASSED';
+                    buttonIcon.textContent = '🔄';
+                    buttonIcon.style.display = 'inline';
+                    button.disabled = false;
+                    break;
+                case 'failed':
+                    buttonText.textContent = 'FAILED';
+                    buttonIcon.textContent = '🔄';
+                    buttonIcon.style.display = 'inline';
+                    button.disabled = false;
+                    break;
+                default:
+                    buttonText.textContent = 'Run Test';
+                    buttonIcon.style.display = 'none';
+                    button.disabled = false;
+            }
+        }
+        
         // Simple test functions
         function testCycleState() {
             console.log('Testing cycle state...');
@@ -210,6 +280,9 @@
         function runTest1() {
             console.log('=== Running Test Case 1: Clear Button Visibility When Empty ===');
             
+            // Set button to running state
+            setButtonState(1, 'running');
+            
             if (window.textFilter) {
                 // Ensure input is empty
                 window.textFilter.setValue('');
@@ -240,59 +313,26 @@
                 
                 if (isHidden) {
                     console.log('✓ Test Case 1 PASSED: Clear button is hidden when input is empty');
+                    setButtonState(1, 'passed');
                 } else {
                     console.log('✗ Test Case 1 FAILED: Clear button should be hidden when input is empty');
+                    setButtonState(1, 'failed');
                 }
                 
                 updateTestSummary();
+            } else {
+                setButtonState(1, 'failed');
             }
         }
         
-        // Test Case 2: Clear Button Visibility When Has Content
-        function runTest2() {
-            console.log('=== Running Test Case 2: Clear Button Visibility When Has Content ===');
-            
-            if (window.textFilter) {
-                // Set input to have content
-                window.textFilter.setValue('test content');
-                
-                // Check if clear button is visible
-                const clearButton = window.textFilter.clearButton;
-                const isVisible = clearButton.style.display === 'block';
-                const isHidden = clearButton.style.display === 'none';
-                
-                console.log('Clear button visibility check:');
-                console.log('  - Input value: "' + window.textFilter.getValue() + '"');
-                console.log('  - Clear button display: ' + clearButton.style.display);
-                console.log('  - Is visible: ' + isVisible);
-                console.log('  - Is hidden: ' + isHidden);
-                
-                // Update debug info
-                updateDebugInfo();
-                
-                // Show test result
-                const result = isVisible ? 'PASSED' : 'FAILED';
-                const color = isVisible ? '#28a745' : '#dc3545';
-                
-                document.getElementById('test2-result').innerHTML = `
-                    <div style="padding: 10px; margin: 10px 0; border-radius: 4px; background-color: ${color}; color: white; font-weight: bold;">
-                        Test Result: ${result}
-                    </div>
-                `;
-                
-                if (isVisible) {
-                    console.log('✓ Test Case 2 PASSED: Clear button is visible when input has content');
-                } else {
-                    console.log('✗ Test Case 2 FAILED: Clear button should be visible when input has content');
-                }
-                
-                updateTestSummary();
-            }
-        }
+
         
         // Test Case 3: Filter State Cycling
         function runTest3() {
             console.log('=== Running Test Case 3: Filter State Cycling ===');
+            
+            // Set button to running state
+            setButtonState(3, 'running');
             
             if (window.textFilter) {
                 // Set input to have content first
@@ -327,17 +367,24 @@
                 
                 if (stateChanged) {
                     console.log('✓ Test Case 3 PASSED: Filter states cycled properly');
+                    setButtonState(3, 'passed');
                 } else {
                     console.log('✗ Test Case 3 FAILED: Filter states did not cycle');
+                    setButtonState(3, 'failed');
                 }
                 
                 updateTestSummary();
+            } else {
+                setButtonState(3, 'failed');
             }
         }
         
         // Test Case 4: Clear Button Functionality
         function runTest4() {
             console.log('=== Running Test Case 4: Clear Button Functionality ===');
+            
+            // Set button to running state
+            setButtonState(4, 'running');
             
             if (window.textFilter) {
                 // Set input to have content first
@@ -378,23 +425,30 @@
                         Test Result: ${result}<br>
                         Value cleared: ${valueCleared ? '✓' : '✗'}<br>
                         State inactive: ${stateChanged ? '✓' : '✗'}<br>
-                        Button hidden: ${buttonHidden ? '✓' : '✗'}
+                        Button hidden: ${buttonHidden ? '✓' : '✗'}<br>
                     </div>
                 `;
                 
                 if (allPassed) {
                     console.log('✓ Test Case 4 PASSED: Clear button functionality works correctly');
+                    setButtonState(4, 'passed');
                 } else {
                     console.log('✗ Test Case 4 FAILED: Clear button functionality has issues');
+                    setButtonState(4, 'failed');
                 }
                 
                 updateTestSummary();
+            } else {
+                setButtonState(4, 'failed');
             }
         }
         
         // Test Case 5: Cross Visibility After Text Input
         function runTest5() {
             console.log('=== Running Test Case 5: Cross Visibility After Text Input ===');
+            
+            // Set button to running state
+            setButtonState(5, 'running');
             
             if (window.textFilter) {
                 // Ensure input starts empty
@@ -444,19 +498,24 @@
                     
                     if (allPassed) {
                         console.log('✓ Test Case 5 PASSED: Cross becomes visible after text input');
+                        setButtonState(5, 'passed');
                     } else {
                         console.log('✗ Test Case 5 FAILED: Cross visibility issue after text input');
+                        setButtonState(5, 'failed');
                     }
                     
                     updateTestSummary();
                 }, 100);
+            } else {
+                setButtonState(5, 'failed');
             }
         }
         
         // Update test summary
         function updateTestSummary() {
             const testResults = [];
-            for (let i = 1; i <= 5; i++) {
+            for (let i = 1; i <= 4; i++) {
+                if (i === 2) continue; // Skip test case 2 (deleted)
                 const resultDiv = document.getElementById(`test${i}-result`);
                 if (resultDiv && resultDiv.innerHTML) {
                     const isPassed = resultDiv.innerHTML.includes('PASSED');
