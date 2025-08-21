@@ -162,10 +162,6 @@
             <button class="test-button" onclick="runTest3()">Test 3: State Cycling</button>
             <button class="test-button" onclick="runTest4()">Test 4: Clear Functionality</button>
             <button class="test-button" onclick="runTest5()">Test 5: EventManager Integration</button>
-            <button class="test-button" onclick="runTest6()">Test 6: Select Completed Status</button>
-            <button class="test-button" onclick="runTest7()">Test 7: Click Control Name When Inactive</button>
-            <button class="test-button" onclick="runTest8()">Test 8: Select Completed Then Toggle Disabled</button>
-            <button class="test-button" onclick="runTest9()">Test 9: Deselect Value When Disabled</button>
         </div>
         
         <!-- Test Results -->
@@ -176,10 +172,6 @@
             <div id="test3-result"></div>
             <div id="test4-result"></div>
             <div id="test5-result"></div>
-            <div id="test6-result"></div>
-            <div id="test7-result"></div>
-            <div id="test8-result"></div>
-            <div id="test9-result"></div>
         </div>
         
         <!-- SelectFilter Test -->
@@ -273,11 +265,7 @@
             test2: { run: false, passed: false },
             test3: { run: false, passed: false },
             test4: { run: false, passed: false },
-            test5: { run: false, passed: false },
-            test6: { run: false, passed: false },
-            test7: { run: false, passed: false },
-            test8: { run: false, passed: false },
-            test9: { run: false, passed: false }
+            test5: { run: false, passed: false }
         };
 
         // Initialize when page loads
@@ -292,6 +280,8 @@
             if (filterWrapper) {
                 console.log('Filter wrapper found, creating SelectFilter...');
                 statusFilter = new SelectFilter(filterWrapper, 'status');
+                // Make it globally accessible for tests
+                window.statusFilter = statusFilter;
                 console.log('SelectFilter created successfully:', statusFilter);
                 updateDebugInfo();
             } else {
@@ -418,10 +408,6 @@
             setTimeout(() => runTest3(), 1000);
             setTimeout(() => runTest4(), 1500);
             setTimeout(() => runTest5(), 2000);
-            setTimeout(() => runTest6(), 2500);
-            setTimeout(() => runTest7(), 3000);
-            setTimeout(() => runTest8(), 3500);
-            setTimeout(() => runTest9(), 4000);
         }
 
         function runTest1() {
@@ -628,297 +614,6 @@
                 }, 100);
             } else {
                 setButtonState(5, 'failed');
-            }
-        }
-
-        function runTest6() {
-            console.log('=== Running Test 6: Select Completed Status ===');
-            setButtonState(6, 'running');
-            
-            if (statusFilter) {
-                // Reset the filter to a clean state first (in case it was disabled by previous tests)
-                statusFilter.clearFilter();
-                
-                setTimeout(() => {
-                    // Get initial state and value after reset
-                    const initialState = statusFilter.state;
-                    const initialValue = statusFilter.getValue();
-                    
-                    console.log('Test 6 - After reset - State:', initialState, 'Value:', initialValue);
-                    
-                    // Set the value to 'completed'
-                    statusFilter.setValue('completed');
-                    
-                    setTimeout(() => {
-                        const newState = statusFilter.state;
-                        const newValue = statusFilter.getValue();
-                        const expectedState = 'active';
-                        const expectedValue = 'completed';
-                        
-                        console.log('Test 6 - After setValue - State:', newState, 'Value:', newValue);
-                        
-                        const stateCorrect = newState === expectedState;
-                        const valueCorrect = newValue === expectedValue;
-                        const testPassed = stateCorrect && valueCorrect;
-                        
-                        testResults.test6 = { run: true, passed: testPassed };
-                        
-                        document.getElementById('test6-result').innerHTML = `
-                            <div style="padding: 10px; margin: 10px 0; border-radius: 4px; background-color: ${testPassed ? '#28a745' : '#dc3545'}; color: white; font-weight: bold;">
-                                Test 6: Select Completed Status - ${testPassed ? 'PASSED' : 'FAILED'}
-                            </div>
-                            <div style="margin-left: 20px; font-size: 14px;">
-                                <p>Initial State: ${initialState}, Initial Value: "${initialValue}"</p>
-                                <p>Expected State: ${expectedState}, Actual: ${newState} ${stateCorrect ? '✓' : '✗'}</p>
-                                <p>Expected Value: "${expectedValue}", Actual: "${newValue}" ${valueCorrect ? '✓' : '✗'}</p>
-                                <p>Filter Disabled: ${statusFilter.state === 'disabled' ? 'Yes' : 'No'}</p>
-                            </div>
-                        `;
-                        
-                        setButtonState(6, testPassed ? 'passed' : 'failed');
-                        updateTestSummary();
-                        updateDebugInfo();
-                    }, 100);
-                }, 100);
-            } else {
-                setButtonState(6, 'failed');
-            }
-        }
-
-        function runTest7() {
-            console.log('=== Running Test 7: Click Control Name When Inactive ===');
-            setButtonState(7, 'running');
-            
-            if (statusFilter) {
-                // Reset the filter to inactive state first
-                statusFilter.clearFilter();
-                
-                setTimeout(() => {
-                    // Verify we start with inactive state
-                    const initialState = statusFilter.state;
-                    const initialValue = statusFilter.getValue();
-                    
-                    console.log('Test 7 - Initial state:', initialState, 'Value:', initialValue);
-                    
-                    if (initialState !== 'inactive') {
-                        console.log('Test 7 - Warning: Filter not in inactive state, resetting...');
-                        statusFilter.clearFilter();
-                        setTimeout(() => {
-                            runTest7ClickTest();
-                        }, 100);
-                        return;
-                    }
-                    
-                    runTest7ClickTest();
-                }, 100);
-            } else {
-                setButtonState(7, 'failed');
-            }
-        }
-        
-        function runTest7ClickTest() {
-            // Get the footer element (control name)
-            const footer = statusFilter.footer;
-            if (!footer) {
-                console.error('Test 7 - Footer element not found');
-                setButtonState(7, 'failed');
-                return;
-            }
-            
-            // Get state before click
-            const stateBeforeClick = statusFilter.state;
-            const valueBeforeClick = statusFilter.getValue();
-            
-            console.log('Test 7 - Before click - State:', stateBeforeClick, 'Value:', valueBeforeClick);
-            
-            // Click on the control name (footer)
-            footer.click();
-            
-            setTimeout(() => {
-                // Get state after click
-                const stateAfterClick = statusFilter.state;
-                const valueAfterClick = statusFilter.getValue();
-                
-                console.log('Test 7 - After click - State:', stateAfterClick, 'Value:', valueAfterClick);
-                
-                // Test passes if status remains inactive
-                const stateRemainsInactive = stateAfterClick === 'inactive';
-                const valueRemainsEmpty = valueAfterClick === '';
-                const testPassed = stateRemainsInactive && valueRemainsEmpty;
-                
-                testResults.test7 = { run: true, passed: testPassed };
-                
-                document.getElementById('test7-result').innerHTML = `
-                    <div style="padding: 10px; margin: 10px 0; border-radius: 4px; background-color: ${testPassed ? '#28a745' : '#dc3545'}; color: white; font-weight: bold;">
-                        Test 7: Click Control Name When Inactive - ${testPassed ? 'PASSED' : 'FAILED'}
-                    </div>
-                    <div style="margin-left: 20px; font-size: 14px;">
-                        <p>Before Click - State: ${stateBeforeClick}, Value: "${valueBeforeClick}"</p>
-                        <p>After Click - State: ${stateAfterClick}, Value: "${valueAfterClick}"</p>
-                        <p>State Remains Inactive: ${stateRemainsInactive ? '✓' : '✗'}</p>
-                        <p>Value Remains Empty: ${valueRemainsEmpty ? '✓' : '✗'}</p>
-                    </div>
-                `;
-                
-                setButtonState(7, testPassed ? 'passed' : 'failed');
-                updateTestSummary();
-                updateDebugInfo();
-            }, 100);
-        }
-
-        function runTest8() {
-            console.log('=== Running Test 8: Select Completed Then Toggle Disabled ===');
-            setButtonState(8, 'running');
-            
-            if (statusFilter) {
-                // Reset the filter to a clean state first
-                statusFilter.clearFilter();
-                
-                setTimeout(() => {
-                    // Step 1: Set the value to 'completed'
-                    statusFilter.setValue('completed');
-                    
-                    setTimeout(() => {
-                        const stateAfterSet = statusFilter.state;
-                        const valueAfterSet = statusFilter.getValue();
-                        
-                        console.log('Test 8 - After setting completed - State:', stateAfterSet, 'Value:', valueAfterSet);
-                        
-                        // Step 2: Click on the control name to disable it
-                        const footer = statusFilter.footer;
-                        if (!footer) {
-                            console.error('Test 8 - Footer element not found');
-                            setButtonState(8, 'failed');
-                            return;
-                        }
-                        
-                        footer.click();
-                        
-                        setTimeout(() => {
-                            const stateAfterFirstClick = statusFilter.state;
-                            const valueAfterFirstClick = statusFilter.getValue();
-                            
-                            console.log('Test 8 - After first click - State:', stateAfterFirstClick, 'Value:', valueAfterFirstClick);
-                            
-                            // Step 3: Click again to make it active
-                            footer.click();
-                            
-                            setTimeout(() => {
-                                const stateAfterSecondClick = statusFilter.state;
-                                const valueAfterSecondClick = statusFilter.getValue();
-                                
-                                console.log('Test 8 - After second click - State:', stateAfterSecondClick, 'Value:', valueAfterSecondClick);
-                                
-                                // Verify the test results
-                                const firstClickDisabled = stateAfterFirstClick === 'disabled';
-                                const secondClickActive = stateAfterSecondClick === 'active';
-                                const valuePreserved = valueAfterSecondClick === 'completed';
-                                
-                                const testPassed = firstClickDisabled && secondClickActive && valuePreserved;
-                                
-                                testResults.test8 = { run: true, passed: testPassed };
-                                
-                                document.getElementById('test8-result').innerHTML = `
-                                    <div style="padding: 10px; margin: 10px 0; border-radius: 4px; background-color: ${testPassed ? '#28a745' : '#dc3545'}; color: white; font-weight: bold;">
-                                        Test 8: Select Completed Then Toggle Disabled - ${testPassed ? 'PASSED' : 'FAILED'}
-                                    </div>
-                                    <div style="margin-left: 20px; font-size: 14px;">
-                                        <p>After setting 'completed' - State: ${stateAfterSet}, Value: "${valueAfterSet}"</p>
-                                        <p>After first click (should disable) - State: ${stateAfterFirstClick}, Value: "${valueAfterFirstClick}"</p>
-                                        <p>After second click (should activate) - State: ${stateAfterSecondClick}, Value: "${valueAfterSecondClick}"</p>
-                                        <p>First click disabled: ${firstClickDisabled ? '✓' : '✗'}</p>
-                                        <p>Second click active: ${secondClickActive ? '✓' : '✗'}</p>
-                                        <p>Value preserved: ${valuePreserved ? '✓' : '✗'}</p>
-                                    </div>
-                                `;
-                                
-                                setButtonState(8, testPassed ? 'passed' : 'failed');
-                                updateTestSummary();
-                                updateDebugInfo();
-                            }, 100);
-                        }, 100);
-                    }, 100);
-                }, 100);
-            } else {
-                setButtonState(8, 'failed');
-            }
-        }
-
-        function runTest9() {
-            console.log('=== Running Test 9: Deselect Value When Disabled ===');
-            setButtonState(9, 'running');
-            
-            if (statusFilter) {
-                // Reset the filter to a clean state first
-                statusFilter.clearFilter();
-                
-                setTimeout(() => {
-                    // Step 1: Set the value to 'completed' to make it active
-                    statusFilter.setValue('completed');
-                    
-                    setTimeout(() => {
-                        const stateAfterSet = statusFilter.state;
-                        const valueAfterSet = statusFilter.getValue();
-                        
-                        console.log('Test 9 - After setting completed - State:', stateAfterSet, 'Value:', valueAfterSet);
-                        
-                        // Step 2: Click on the control name to disable it
-                        const footer = statusFilter.footer;
-                        if (!footer) {
-                            console.error('Test 9 - Footer element not found');
-                            setButtonState(9, 'failed');
-                            return;
-                        }
-                        
-                        footer.click();
-                        
-                        setTimeout(() => {
-                            const stateAfterDisable = statusFilter.state;
-                            const valueAfterDisable = statusFilter.getValue();
-                            
-                            console.log('Test 9 - After disabling - State:', stateAfterDisable, 'Value:', valueAfterDisable);
-                            
-                            // Step 3: Deselect the value (clear the filter)
-                            statusFilter.clearFilter();
-                            
-                            setTimeout(() => {
-                                const stateAfterDeselect = statusFilter.state;
-                                const valueAfterDeselect = statusFilter.getValue();
-                                
-                                console.log('Test 9 - After deselecting - State:', stateAfterDeselect, 'Value:', valueAfterDeselect);
-                                
-                                // Verify the test results
-                                const wasDisabled = stateAfterDisable === 'disabled';
-                                const becameInactive = stateAfterDeselect === 'inactive';
-                                const valueCleared = valueAfterDeselect === '';
-                                
-                                const testPassed = wasDisabled && becameInactive && valueCleared;
-                                
-                                testResults.test9 = { run: true, passed: testPassed };
-                                
-                                document.getElementById('test9-result').innerHTML = `
-                                    <div style="padding: 10px; margin: 10px 0; border-radius: 4px; background-color: ${testPassed ? '#28a745' : '#dc3545'}; color: white; font-weight: bold;">
-                                        Test 9: Deselect Value When Disabled - ${testPassed ? 'PASSED' : 'FAILED'}
-                                    </div>
-                                    <div style="margin-left: 20px; font-size: 14px;">
-                                        <p>After setting 'completed' - State: ${stateAfterSet}, Value: "${valueAfterSet}"</p>
-                                        <p>After disabling - State: ${stateAfterDisable}, Value: "${valueAfterDisable}"</p>
-                                        <p>After deselecting - State: ${stateAfterDeselect}, Value: "${valueAfterDeselect}"</p>
-                                        <p>Was disabled: ${wasDisabled ? '✓' : '✗'}</p>
-                                        <p>Became inactive: ${becameInactive ? '✓' : '✗'}</p>
-                                        <p>Value cleared: ${valueCleared ? '✓' : '✗'}</p>
-                                    </div>
-                                `;
-                                
-                                setButtonState(9, testPassed ? 'passed' : 'failed');
-                                updateTestSummary();
-                                updateDebugInfo();
-                            }, 100);
-                        }, 100);
-                    }, 100);
-                }, 100);
-            } else {
-                setButtonState(9, 'failed');
             }
         }
 

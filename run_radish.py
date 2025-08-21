@@ -99,7 +99,7 @@ def stop_local_server(process: subprocess.Popen, port: int) -> None:
     else:
         typer.echo(f"Local server on port {port} is not running")
 
-def setup_environment(environment: str, foreground: bool = False, debug: bool = False) -> None:
+def setup_environment(environment: str, foreground: bool = False, debug: bool = False, trace: bool = False) -> None:
     """Set up environment variables for the specified environment."""
     if environment not in ENVIRONMENT_URLS:
         typer.echo(f"Error: Invalid environment '{environment}'. Must be one of: {', '.join(ENVIRONMENT_URLS.keys())}")
@@ -107,7 +107,14 @@ def setup_environment(environment: str, foreground: bool = False, debug: bool = 
     
     url = ENVIRONMENT_URLS[environment]
     os.environ["IFLOW_BASE_URL"] = url
-    os.environ["PYTHON_LOG_LEVEL"] = "DEBUG" if debug else "INFO"  # Set logging level for tests
+    
+    # Set logging level based on flags (TRACE takes precedence over DEBUG)
+    if trace:
+        os.environ["PYTHON_LOG_LEVEL"] = "TRACE"
+    elif debug:
+        os.environ["PYTHON_LOG_LEVEL"] = "DEBUG"
+    else:
+        os.environ["PYTHON_LOG_LEVEL"] = "INFO"
     
     # Set headless mode based on foreground flag
     if foreground:
@@ -119,7 +126,7 @@ def setup_environment(environment: str, foreground: bool = False, debug: bool = 
     
     typer.echo(f"Using environment: {environment} (URL: {url})")
     typer.echo(f"Set IFLOW_BASE_URL={url}")
-    typer.echo(f"Set PYTHON_LOG_LEVEL={'DEBUG' if debug else 'INFO'}")
+    typer.echo(f"Set PYTHON_LOG_LEVEL={'TRACE' if trace else 'DEBUG' if debug else 'INFO'}")
     typer.echo(f"Set HEADLESS_MODE={headless_message}")
 
 def setup_python_path() -> None:
@@ -184,6 +191,11 @@ def main(
         False,
         "--debug", "-d",
         help="Enable debug logging (sets PYTHON_LOG_LEVEL=DEBUG)"
+    ),
+    trace: bool = typer.Option(
+        False,
+        "--trace", "-t",
+        help="Enable TRACE level logging (sets PYTHON_LOG_LEVEL=TRACE for detailed function tracing)"
     )
 ):
     """
@@ -192,6 +204,7 @@ def main(
     The environment parameter is required and must be one of: dev, qa, prod.
     Use --local flag to automatically start a local server with temporary database.
     Use --debug flag to enable debug logging (sets PYTHON_LOG_LEVEL=DEBUG).
+    Use --trace flag to enable TRACE level logging (sets PYTHON_LOG_LEVEL=TRACE).
     
     All other arguments are passed directly to the radish command.
     
@@ -203,6 +216,7 @@ def main(
         run_radish.py local tests/features/ --tags @smoke --local
         run_radish.py local tests/features/test_artifact_creation.feature --local --foreground
         run_radish.py local tests/features/ --tags @smoke --local --debug
+        run_radish.py local tests/features/ --tags @smoke --local --trace
     """
     
     local_server_process = None
@@ -219,16 +233,24 @@ def main(
             
             # Set up environment variables for local server
             os.environ["IFLOW_BASE_URL"] = f"http://localhost:{local_port}"
-            os.environ["PYTHON_LOG_LEVEL"] = "DEBUG" if debug else "INFO"
+            
+            # Set logging level based on flags (TRACE takes precedence over DEBUG)
+            if trace:
+                os.environ["PYTHON_LOG_LEVEL"] = "TRACE"
+            elif debug:
+                os.environ["PYTHON_LOG_LEVEL"] = "DEBUG"
+            else:
+                os.environ["PYTHON_LOG_LEVEL"] = "INFO"
+                
             os.environ["HEADLESS_MODE"] = "false" if foreground else "true"
             
             typer.echo(f"Using local environment (URL: http://localhost:{local_port})")
             typer.echo(f"Set IFLOW_BASE_URL=http://localhost:{local_port}")
-            typer.echo(f"Set PYTHON_LOG_LEVEL={'DEBUG' if debug else 'INFO'}")
+            typer.echo(f"Set PYTHON_LOG_LEVEL={'TRACE' if trace else 'DEBUG' if debug else 'INFO'}")
             typer.echo(f"Set HEADLESS_MODE={'false (Chrome will be visible)' if foreground else 'true (Chrome will run in headless mode)'}")
         else:
             # Set up environment normally
-            setup_environment(environment, foreground)
+            setup_environment(environment, foreground, debug, trace)
         
         # Set up Python path
         setup_python_path()
@@ -247,12 +269,13 @@ def main(
 def main_simple():
     """Simple version that doesn't use typer for argument parsing."""
     if len(sys.argv) < 3:
-        print("Usage: run_radish.py <environment> <radish_args...> [--foreground] [--local] [--debug]")
+        print("Usage: run_radish.py <environment> <radish_args...> [--foreground] [--local] [--debug] [--trace]")
         print("Example: run_radish.py dev tests/features/ --tags @smoke")
         print("Example: run_radish.py dev tests/features/test_status_filtering.feature --foreground")
         print("Example: run_radish.py local tests/features/ --tags @smoke --local")
         print("Example: run_radish.py local tests/features/test_artifact_creation.feature --local --foreground")
         print("Example: run_radish.py local tests/features/ --tags @smoke --local --debug")
+        print("Example: run_radish.py local tests/features/ --tags @smoke --local --trace")
         sys.exit(1)
     
     environment = sys.argv[1]
@@ -262,6 +285,7 @@ def main_simple():
     foreground = False
     local = False
     debug = False
+    trace = False
     
     if "--foreground" in radish_args:
         foreground = True
@@ -274,6 +298,10 @@ def main_simple():
     if "--debug" in radish_args:
         debug = True
         radish_args.remove("--debug")
+    
+    if "--trace" in radish_args:
+        trace = True
+        radish_args.remove("--trace")
     
     local_server_process = None
     local_port = None
@@ -301,16 +329,24 @@ def main_simple():
             
             # Set up environment variables for local server
             os.environ["IFLOW_BASE_URL"] = f"http://localhost:{local_port}"
-            os.environ["PYTHON_LOG_LEVEL"] = "DEBUG" if debug else "INFO"
+            
+            # Set logging level based on flags (TRACE takes precedence over DEBUG)
+            if trace:
+                os.environ["PYTHON_LOG_LEVEL"] = "TRACE"
+            elif debug:
+                os.environ["PYTHON_LOG_LEVEL"] = "DEBUG"
+            else:
+                os.environ["PYTHON_LOG_LEVEL"] = "INFO"
+                
             os.environ["HEADLESS_MODE"] = "false" if foreground else "true"
             
             print(f"Using local environment (URL: http://localhost:{local_port})")
             print(f"Set IFLOW_BASE_URL=http://localhost:{local_port}")
-            print(f"Set PYTHON_LOG_LEVEL={'DEBUG' if debug else 'INFO'}")
+            print(f"Set PYTHON_LOG_LEVEL={'TRACE' if trace else 'DEBUG' if debug else 'INFO'}")
             print(f"Set HEADLESS_MODE={'false (Chrome will be visible)' if foreground else 'true (Chrome will run in headless mode)'}")
         else:
             # Set up environment normally
-            setup_environment(environment, foreground)
+            setup_environment(environment, foreground, debug, trace)
         
         # Set up Python path
         setup_python_path()

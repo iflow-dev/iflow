@@ -10,6 +10,7 @@ REQUIREMENTS:
 - Directory independence: Works from any directory, manages Python path itself
 - Environment override: Uses local directories, overrides any Python environment
 - No virtual environment dependencies
+- --trace: Enable TRACE level logging (level 15) for detailed function tracing
 
 SCRIPT REQUIREMENTS:
 - Starting a local server from any directory
@@ -23,14 +24,16 @@ SCRIPT REQUIREMENTS:
 - Static folder override to use local files
 - Comprehensive error handling with exit codes
 - Logging with timestamps and levels
+- TRACE level logging for function tracing
 
 Usage:
-    python start_server.py [--port PORT] [--database PATH] [--init-db]
+    python start_server.py [--port PORT] [--database PATH] [--init-db] [--trace]
     
     Options:
         --port PORT        Port to run the server on (default: auto-find in 7000-7100)
         --database PATH    Path to the database to use for this instance
         --init-db          Initialize a new database in /tmp
+        --trace            Enable TRACE level logging (level 15) for detailed function tracing
 """
 import sys
 import os
@@ -40,6 +43,19 @@ import tempfile
 import logging
 import subprocess
 from pathlib import Path
+
+# Define custom TRACE level (15) - between DEBUG (10) and INFO (20)
+TRACE = 15
+logging.addLevelName(TRACE, 'TRACE')
+
+def trace(self, message, *args, **kwargs):
+    """Add trace method to logger if it doesn't exist."""
+    if self.isEnabledFor(TRACE):
+        self._log(TRACE, message, args, **kwargs)
+
+# Add trace method to Logger class if it doesn't exist
+if not hasattr(logging.Logger, 'trace'):
+    logging.Logger.trace = trace
 
 # Configure logging
 logging.basicConfig(
@@ -53,6 +69,8 @@ logger = logging.getLogger(__name__)
 
 def setup_environment():
     """Set up Python environment to use local files regardless of current directory."""
+    logger.trace("Setting up Python environment...")
+    
     # Get the absolute path to the script's directory
     script_dir = os.path.dirname(os.path.abspath(__file__))
     
@@ -70,30 +88,37 @@ def setup_environment():
     
     # Change to sw directory so relative imports work
     os.chdir(sw_path)
-    logger.info(f"Changed working directory to: {sw_path}")
-    logger.info(f"Python path: {sys.path[:3]}")
+    logger.trace(f"Changed working directory to: {sw_path}")
+    logger.trace(f"Python path: {sys.path[:3]}")
 
 def find_free_port(start_port=7000, end_port=7100):
     """Find a free port in the specified range."""
+    logger.trace(f"Searching for free port in range {start_port}-{end_port}")
     for port in range(start_port, end_port + 1):
         if is_port_free(port):
+            logger.trace(f"Found free port: {port}")
             return port
+    logger.trace("No free ports found in specified range")
     return None
 
 def is_port_free(port):
     """Check if a port is free to use."""
+    logger.trace(f"Checking if port {port} is free")
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         try:
             s.bind(('localhost', port))
+            logger.trace(f"Port {port} is free")
             return True
         except OSError:
+            logger.trace(f"Port {port} is not free")
             return False
 
 def create_temp_database():
     """Create a temporary database directory."""
+    logger.trace("Creating temporary database directory...")
     try:
         temp_dir = tempfile.mkdtemp(prefix='iflow-', suffix='-db')
-        logger.info(f"Created temporary database directory: {temp_dir}")
+        logger.trace(f"Created temporary database directory: {temp_dir}")
         return temp_dir
     except Exception as e:
         logger.error(f"Failed to create temporary database: {e}")
@@ -168,6 +193,7 @@ def main():
     parser.add_argument('--port', type=int, help='Port to run the server on (default: auto-find in 7000-7100)')
     parser.add_argument('--database', type=str, help='Path to the database to use for this instance')
     parser.add_argument('--init-db', action='store_true', help='Initialize a new database in /tmp')
+    parser.add_argument('--trace', action='store_true', help='Enable TRACE level logging (level 15) for detailed function tracing')
     
     args = parser.parse_args()
     

@@ -26,9 +26,9 @@ class Button(ControlBase):
         if icon:
             # For icon-based buttons, look for buttons containing the specified icon
             if context == "toolbar":
-                xpath = f"//div[@class='toolbar']//button[.//ion-icon[@name='{icon}']]"
+                xpath = f"//div[@class='toolbar']//button[.//img[contains(@src, '{icon}')]]"
             else:
-                xpath = f"//button[.//ion-icon[@name='{icon}']]"
+                xpath = f"//button[.//img[contains(@src, '{icon}')]]"
         else:
             # For text-based buttons
             if context == "modal":

@@ -20,29 +20,30 @@ from logging_config import logger as log
 @before.all
 def setup_test_environment(features, marker):
     """Set up the test environment before all tests."""
-    log.debug("Starting BDD tests...")
+    log.trace("Starting BDD test environment setup...")
     
     # Set base URL for the application
     base_url = os.getenv('IFLOW_BASE_URL')
     if not base_url:
+        log.trace("IFLOW_BASE_URL environment variable not set")
         raise ValueError("IFLOW_BASE_URL environment variable must be set")
-    log.debug(f"Testing against: {base_url}")
+    log.trace(f"Testing against: {base_url}")
     
     # Store base URL directly in world object for easy access
     world.base_url = base_url
-    log.debug(f"Base URL set in world: {world.base_url}")
+    log.trace(f"Base URL set in world: {world.base_url}")
     
     # Initialize the web driver once for the entire test session
-    log.debug("Initializing Chrome driver for entire test session...")
+    log.trace("Initializing Chrome driver for entire test session...")
     chrome_options = Options()
     
     # Check if headless mode should be disabled
     headless_mode = os.environ.get("HEADLESS_MODE", "true").lower() == "true"
     if headless_mode:
         chrome_options.add_argument("--headless")  # Run headless by default
-        log.debug("Chrome running in headless mode")
+        log.trace("Chrome running in headless mode")
     else:
-        log.debug("Chrome running in visible mode (headless disabled)")
+        log.trace("Chrome running in visible mode (headless disabled)")
     
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
@@ -50,28 +51,31 @@ def setup_test_environment(features, marker):
     chrome_options.add_argument("--window-size=1920,1080")
     
     try:
+        log.trace("Creating Chrome driver with options...")
         world.driver = webdriver.Chrome(options=chrome_options)
         world.driver.implicitly_wait(10)
-        log.debug("Chrome driver initialized successfully for entire test session")
+        log.trace("Chrome driver initialized successfully for entire test session")
     except Exception as e:
-        log.debug(f"Warning: Could not initialize Chrome driver: {e}")
-        log.debug("Tests will run but may fail without a web driver")
+        log.trace(f"Warning: Could not initialize Chrome driver: {e}")
+        log.trace("Tests will run but may fail without a web driver")
 
 # @after.all
 def cleanup_test_environment(features, marker):
     """Clean up after all tests complete."""
-    log.debug("BDD testing completed")
+    log.trace("Starting BDD test environment cleanup...")
     
     # Clean up the web driver from world
     if hasattr(world, 'driver') and world.driver:
         try:
-            log.debug("Closing Chrome driver...")
+            log.trace("Closing Chrome driver...")
             world.driver.quit()
-            log.debug("Chrome driver closed successfully")
+            log.trace("Chrome driver closed successfully")
         except Exception as e:
-            log.debug(f"Error closing driver: {e}")
+            log.trace(f"Error closing driver: {e}")
     else:
-        log.debug("No driver to clean up")
+        log.trace("No driver to clean up")
+    
+    log.trace("BDD test environment cleanup completed")
 
 # ============================================================================
 # SCENARIO-LEVEL HOOKS
@@ -80,30 +84,33 @@ def cleanup_test_environment(features, marker):
 @before.each_scenario
 def before_scenario(scenario):
     """Set up the test environment before each scenario."""
-    log.debug(f"Setting up scenario: {scenario.sentence}")
+    log.trace(f"Setting up scenario: {scenario.sentence}")
     
     # Initialize scenario-specific state
     scenario.scenario_start_time = time.time()
     scenario.current_page = None
     scenario.last_action = None
+    log.trace("Scenario state initialized")
     
     # Navigate to the base URL for each scenario to ensure clean state
     try:
+        log.trace(f"Navigating to base URL: {world.base_url}")
         world.driver.get(world.base_url)
-        log.debug(f"Navigated to: {world.base_url}")
+        log.trace(f"Successfully navigated to: {world.base_url}")
     except Exception as e:
-        log.debug(f"Warning: Could not navigate to base URL: {e}")
+        log.trace(f"Warning: Could not navigate to base URL: {e}")
 
 @after.each_scenario
 def after_scenario(scenario):
     """Clean up after each scenario."""
-    # Calculate scenario duration
-    scenario_duration = time.time() - scenario.scenario_start_time
-    log.debug(f"Completed scenario: {scenario.sentence} in {scenario_duration:.2f}s")
+    log.trace(f"Cleaning up scenario: {scenario.sentence}")
     
-    # Clean up scenario state
-    scenario.current_page = None
-    scenario.last_action = None
+    # Calculate scenario duration
+    if hasattr(scenario, 'scenario_start_time'):
+        duration = time.time() - scenario.scenario_start_time
+        log.trace(f"Scenario completed in {duration:.2f} seconds")
+    
+    log.trace("Scenario cleanup completed")
     
     # Close any open modal to ensure clean state for next scenario
     try:

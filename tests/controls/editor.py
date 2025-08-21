@@ -38,7 +38,8 @@ class Editor(ControlBase):
     def open(self):
         """Open the artifact creation modal."""
         from controls.button import Button
-        create_button = Button("Create", context="toolbar")
+        # The create button is an icon button, not a text button
+        create_button = Button(icon="create-outline", context="toolbar")
         create_button.click(self.driver)
         
         # Wait for modal to be visible using locate()

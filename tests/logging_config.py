@@ -6,12 +6,26 @@ This file provides a centralized way to control logging levels.
 import logging
 import os
 
+# Define custom TRACE level (15) - between DEBUG (10) and INFO (20)
+TRACE = 15
+logging.addLevelName(TRACE, 'TRACE')
+
+def trace(self, message, *args, **kwargs):
+    """Add trace method to logger if it doesn't exist."""
+    if self.isEnabledFor(TRACE):
+        self._log(TRACE, message, args, **kwargs)
+
+# Add trace method to Logger class if it doesn't exist
+if not hasattr(logging.Logger, 'trace'):
+    logging.Logger.trace = trace
+
 def configure_logging():
     """Configure logging level based on environment variable or default to INFO."""
     log_level = os.getenv('PYTHON_LOG_LEVEL', 'INFO').upper()
     
     # Map string levels to logging constants
     level_map = {
+        'TRACE': TRACE,
         'DEBUG': logging.DEBUG,
         'INFO': logging.INFO,
         'WARNING': logging.WARNING,

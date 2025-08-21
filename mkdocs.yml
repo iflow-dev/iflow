@@ -1,0 +1,153 @@
+site_name: iFlow Documentation
+site_description: Comprehensive documentation for the iFlow system
+site_author: iFlow Development Team
+site_url: https://iflow-dev.github.io/iflow
+
+# Repository information
+repo_name: iflow-dev/iflow
+repo_url: https://github.com/iflow-dev/iflow
+edit_uri: edit/main/
+
+# Documentation directory
+docs_dir: doc
+
+# Theme configuration
+theme:
+  name: material
+  language: en
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to dark mode
+    - scheme: slate
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to light mode
+  font:
+    text: Roboto
+    code: Roboto Mono
+
+# Navigation structure
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - Quick Start: getting-started/quick-start.md
+    - Configuration: getting-started/configuration.md
+  - User Guide:
+    - Filters: user-guide/filters.md
+    - Event Manager: user-guide/event-manager.md
+    - State Management: user-guide/state-management.md
+  - Developer Guide:
+    - Architecture: developer-guide/architecture.md
+    - Testing: developer-guide/testing.md
+    - Contributing: developer-guide/contributing.md
+  - API Reference:
+    - Filter Controls: api/filter-controls.md
+    - Event Manager: api/event-manager.md
+    - CSS Classes: api/css-classes.md
+
+# Plugins
+plugins:
+  - search
+  - ezglossary:
+      glossary_file: glossary.md
+      glossary_file_encoding: utf-8
+      glossary_file_parser: markdown
+      glossary_file_parser_options:
+        extensions:
+          - pymdownx.superfences
+          - pymdownx.highlight
+      glossary_file_parser_options_encoding: utf-8
+      glossary_file_parser_options_parser: markdown
+      glossary_file_parser_options_parser_options:
+        extensions:
+          - pymdownx.superfences
+          - pymdownx.highlight
+      glossary_file_parser_options_parser_options_encoding: utf-8
+      glossary_file_parser_options_parser_options_parser: markdown
+      glossary_file_parser_options_parser_options_parser_options:
+        extensions:
+          - pymdownx.superfences
+          - pymdownx.highlight
+
+# Markdown extensions
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - codehilite:
+      guess_lang: false
+      use_pygments: true
+  - def_list
+  - footnotes
+  - md_in_html
+  - toc:
+      permalink: true
+      title: On this page
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.magiclink
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.snippets:
+      check_paths: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+      combine_header_slug: true
+      slug_ separator: '-'
+      tabs_style: is-boxed
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+# Extra CSS and JavaScript
+extra_css:
+  - stylesheets/extra.css
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+# Copyright
+copyright: |
+  &copy; 2024 <a href="https://github.com/iflow-dev" target="_blank" rel="noopener">iFlow Development Team</a>
+
+# Extra configuration
+extra:
+  version:
+    provider: mike
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/iflow-dev/iflow
+    - icon: fontawesome/brands/discord
+      link: https://discord.gg/iflow
+
