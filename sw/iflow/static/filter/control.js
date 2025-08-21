@@ -1,45 +1,120 @@
 /**
  * Base Filter Control Class
- * Manages filter state, styling, and coordination with FilterManager
+ * Self-managing filter with auto-registration and state management
  */
 class FilterControl {
+    static registry = new Map();
+    
     constructor(container, filterType, options = {}) {
         this.container = container;
         this.filterType = filterType;
-        this.options = {
-            activeColor: '#ff8c00',      // Orange for active state
-            inactiveColor: 'transparent', // Transparent for inactive state (changed from grey)
-            disabledColor: '#dee2e6',    // Light grey for disabled state
-            borderWidth: '2px',
-            // New color configuration options
-            borderColors: {
-                border1: '#333',         // Dotted outline (always black)
-                border2: 'transparent',  // Filter state border (transparent for inactive)
-                border3: '#4ecdc4',      // Button border (teal)
-                border4: '#45b7d1'       // Icon border (blue)
-            },
-            areaColors: {
-                areaA: 'transparent',    // Border area (transparent for inactive)
-                areaB: 'transparent',    // Content area (transparent for inactive)
-                areaC: 'rgba(255,0,0,0.1)',  // Button area (red for inactive)
-                areaD: 'rgba(255,0,0,0.1)'     // Icon area (red for inactive)
-            },
-            textColors: {
-                active: '#ffffff',       // White text for active state
-                inactive: '#495057',     // Dark grey text for inactive state
-                disabled: '#6c757d'      // Medium grey text for disabled state
-            },
-            ...options
-        };
-        
-        this.state = 'inactive'; // inactive, active, disabled
-        this.filterManager = null;
+        this.state = 'inactive';
         
         // Get DOM elements
         this.control = this.container.querySelector('.filter-control') || this.container;
         this.footer = this.container.querySelector('.filter-footer');
         
+        // Auto-register this filter
+        FilterControl.registry.set(this.filterType, this);
+        
         this.initialize();
+    }
+    
+    // Static methods for registry management
+    static getFilter(filterType) {
+        return FilterControl.registry.get(filterType);
+    }
+    
+    static getAllFilters() {
+        return Array.from(FilterControl.registry.values());
+    }
+    
+    static setupAllFilters() {
+        // Auto-discover and setup all filter controls in the DOM
+        const filterWrappers = document.querySelectorAll('.filter-wrapper');
+        
+        filterWrappers.forEach(wrapper => {
+            const footer = wrapper.querySelector('.filter-footer');
+            if (!footer) {
+                console.warn('No footer found in wrapper:', wrapper);
+                return;
+            }
+            
+            const filterType = footer.textContent.toLowerCase().trim();
+            console.log(`Setting up filter: "${filterType}" in wrapper:`, wrapper);
+            
+            // Log what elements are found in the wrapper
+            const hasInput = wrapper.querySelector('input[type="text"]');
+            const hasSelect = wrapper.querySelector('select');
+            const hasButton = wrapper.querySelector('button');
+            
+            console.log(`  - Has input: ${!!hasInput}, Has select: ${!!hasSelect}, Has button: ${!!hasButton}`);
+            
+            // Determine filter type and create appropriate instance with proper config
+            if (hasInput) {
+                console.log(`Creating TextInputFilter for: ${filterType}`);
+                new TextInputFilter(wrapper, filterType);
+            } else if (hasSelect) {
+                console.log(`Creating SelectFilter for: ${filterType}`);
+                new SelectFilter(wrapper, filterType);
+            } else if (hasButton && !hasInput && !hasSelect) {
+                // Only create IconFilter for pure button-based filters (no inputs/selects)
+                console.log(`Creating IconFilter for: ${filterType}`);
+                const iconConfig = FilterControl.getDefaultIconConfig(filterType);
+                console.log(`  - Icon config:`, iconConfig);
+                new IconFilter(wrapper, filterType, iconConfig);
+            } else {
+                console.log(`Creating base FilterControl for: ${filterType}`);
+                new FilterControl(wrapper, filterType);
+            }
+        });
+        
+        console.log(`Auto-discovered and set up ${FilterControl.registry.size} filters`);
+    }
+    
+    static getDefaultIconConfig(filterType) {
+        // Provide default icon configurations for different filter types
+        const configs = {
+            'flag': {
+                inactiveIcon: 'flag-outline',
+                activeIcon: 'flag',
+                disabledIcon: 'flag-outline'
+            },
+            'refresh': {
+                inactiveIcon: 'refresh-outline',
+                activeIcon: 'refresh-outline',
+                disabledIcon: 'refresh-outline'
+            },
+            'create': {
+                inactiveIcon: 'create-outline',
+                activeIcon: 'create-outline',
+                disabledIcon: 'create-outline'
+            },
+            'clear': {
+                inactiveIcon: 'close',
+                activeIcon: 'close',
+                disabledIcon: 'close'
+            }
+        };
+        
+        // Return config for the filter type, or default flag config
+        const config = configs[filterType];
+        if (!config) {
+            console.warn(`No icon config found for filter type: ${filterType}, using default`);
+        }
+        return config || {
+            inactiveIcon: 'flag-outline',
+            activeIcon: 'flag',
+            disabledIcon: 'flag-outline'
+        };
+    }
+    
+    static connectToFilterManager(filterManager) {
+        // Connect all registered filters to the FilterManager
+        FilterControl.getAllFilters().forEach(filter => {
+            filter.setFilterManager(filterManager);
+        });
+        console.log(`Connected ${FilterControl.registry.size} filters to FilterManager`);
     }
     
     /**
@@ -245,25 +320,28 @@ class FilterControl {
      * Bind event handlers
      */
     bindEvents() {
-        // Add click handler to filter footer for state cycling
+        // Auto-setup click handler for filter footer
         if (this.footer) {
+            // Remove any existing href from parent anchor
+            const link = this.footer.closest('a');
+            if (link) {
+                link.removeAttribute('href');
+                link.style.textDecoration = 'none';
+            }
             
+            // Add click handler for state cycling
             this.footer.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 this.cycleState();
             });
             
-            // Add cursor pointer to indicate it's clickable
+            // Style as clickable
             this.footer.style.cursor = 'pointer';
             this.footer.title = 'Click to cycle filter state: Active → Inactive → Disabled → Active';
-            
-        } else {
-            console.warn(`No footer element found for ${this.filterType} filter control`);
         }
         
-        // This method should be overridden by subclasses
-        // to provide specific event handling
+        // Subclasses can override to add specific event handling
     }
     
     /**

@@ -20,142 +20,33 @@ let statisticsManager = null;
 // API base URL
 const API_BASE = '/api';
 
-// Global function for cycling filter states (legacy - now handled by proper click handlers)
+// Legacy function - no longer needed
 function cyclestate() {
-    console.log('cyclestate() called - this function is deprecated, using proper click handlers instead');
-    // The actual functionality is now handled by setupFilterClickHandlers() and cycleFilterState()
+    console.log('cyclestate() deprecated - filters handle their own state now');
 }
 
-// Load view files
-async function loadViews() {
+// Initialize application components
+async function initializeApp() {
     try {
-        console.log('Loading views...');
+        // Load views first
+        await ViewLoader.loadAll();
         
-        // Load toolbar with filter controls
-        const toolbarResponse = await fetch('/static/view/filter.html');
-        if (!toolbarResponse.ok) {
-            throw new Error(`Failed to load filter.html: ${toolbarResponse.status}`);
-        }
-        const toolbarHtml = await toolbarResponse.text();
-        document.getElementById('toolbar-container').innerHTML = `
-            <div class="toolbar">
-                ${toolbarHtml}
-            </div>
-        `;
-        console.log('Toolbar loaded successfully');
+        // Auto-discover and setup filter controls
+        FilterControl.setupAllFilters();
         
-        // Load status bar
-        const statusbarResponse = await fetch('/static/view/statusbar.html');
-        if (!statusbarResponse.ok) {
-            throw new Error(`Failed to load statusbar.html: ${statusbarResponse.status}`);
-        }
-        const statusbarHtml = await statusbarResponse.text();
-        document.getElementById('statusbar-container').innerHTML = statusbarHtml;
-        console.log('Status bar loaded successfully');
-        
-        console.log('All views loaded successfully');
-        
-        // Set up click handlers for filter footers
-        setupFilterClickHandlers();
-        
-        // Now that views are loaded, initialize managers with the loaded data
+        // Initialize managers after views are loaded
         await initializeManagers();
         
-        // Initialize toolbar after views are loaded
-        if (window.toolbar && typeof window.toolbar.initialize === 'function') {
-            console.log('Initializing toolbar...');
-            await window.toolbar.initialize();
+        // Connect filters to FilterManager
+        if (window.filterManager) {
+            FilterControl.connectToFilterManager(window.filterManager);
         }
         
-    } catch (error) {
-        console.error('Error loading views:', error);
-        // Show error in the containers
-        document.getElementById('toolbar-container').innerHTML = `<div class="error">Error loading toolbar: ${error.message}</div>`;
-        document.getElementById('statusbar-container').innerHTML = `<div class="error">Error loading status bar: ${error.message}</div>`;
-    }
-}
-
-// Set up click event handlers for filter footers
-function setupFilterClickHandlers() {
-    try {
-        console.log('Setting up filter click handlers...');
-        
-        // Find all filter footers
-        const filterFooters = document.querySelectorAll('.filter-footer');
-        console.log(`Found ${filterFooters.length} filter footers`);
-        
-        // Add click handlers to each filter footer
-        filterFooters.forEach((footer, index) => {
-            const filterWrapper = footer.closest('.filter-wrapper');
-            if (filterWrapper) {
-                // Remove the javascript:cyclestate() href and add proper click handler
-                const link = footer.closest('a');
-                if (link) {
-                    link.removeAttribute('href');
-                    link.style.cursor = 'pointer';
-                }
-                
-                // Add click handler
-                footer.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    cycleFilterState(filterWrapper);
-                });
-                
-                // Add visual feedback
-                footer.style.cursor = 'pointer';
-                footer.title = 'Click to cycle filter state: Active → Inactive → Disabled → Active';
-                
-                console.log(`Added click handler to filter footer ${index + 1}: ${footer.textContent}`);
-            }
-        });
-        
-        console.log('Filter click handlers set up successfully');
+        console.log('Application initialized successfully');
         
     } catch (error) {
-        console.error('Error setting up filter click handlers:', error);
+        console.error('Error initializing application:', error);
     }
-}
-
-// Cycle the state of a specific filter
-function cycleFilterState(filterWrapper) {
-    if (!filterWrapper) return;
-    
-    const filterFooter = filterWrapper.querySelector('.filter-footer');
-    if (!filterFooter) return;
-    
-    const filterType = filterFooter.textContent.toLowerCase();
-    console.log(`Cycling state for filter: ${filterType}`);
-    
-    // Get current state classes
-    const currentClasses = filterWrapper.className;
-    let newState = 'inactive';
-    
-    if (currentClasses.includes('filter-active')) {
-        // Currently active -> inactive
-        filterWrapper.classList.remove('filter-active');
-        filterWrapper.classList.add('filter-inactive');
-        newState = 'inactive';
-    } else if (currentClasses.includes('filter-inactive')) {
-        // Currently inactive -> disabled
-        filterWrapper.classList.remove('filter-inactive');
-        filterWrapper.classList.add('filter-disabled');
-        newState = 'disabled';
-    } else if (currentClasses.includes('filter-disabled')) {
-        // Currently disabled -> active
-        filterWrapper.classList.remove('filter-disabled');
-        filterWrapper.classList.add('filter-active');
-        newState = 'active';
-    } else {
-        // No state class -> active
-        filterWrapper.classList.add('filter-active');
-        newState = 'active';
-    }
-    
-    console.log(`Filter ${filterType} state changed to: ${newState}`);
-    
-    // TODO: Update the FilterManager with the new state
-    // This will need to be implemented once the filter controls are properly connected
 }
 
 // Initialize all managers after views are loaded
@@ -201,13 +92,7 @@ async function initializeManagers() {
             window.filterManager.initialize(window.searchManager);
         }
         
-        // Create and initialize toolbar
-        if (typeof Toolbar !== 'undefined') {
-            window.toolbar = new Toolbar();
-            console.log('Toolbar created successfully');
-        } else {
-            console.warn('Toolbar class not available');
-        }
+        // Toolbar initialization is now handled by filter auto-discovery
         
         // Initialize UI components
         if (window.statusLine) {
@@ -248,11 +133,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         await loadConfiguration();
         console.log('Configuration loaded successfully');
         
-        // Load views after configuration is loaded
-        await loadViews();
-        console.log('Views loaded successfully');
-        
-        // Statistics manager stats are now loaded in initializeManagers()
+        // Initialize application with auto-discovery approach
+        await initializeApp();
         
     } catch (error) {
         console.error('Error during application initialization:', error);
@@ -361,8 +243,8 @@ async function loadConfiguration() {
         } else {
             console.error('Failed to load artifact statuses:', statusesResponse.status);
             if (window.statusLine) {
-                window.statusLine.showError(`Failed to load artifact statuses: HTTP ${statusesResponse.status}`);
-            }
+            window.statusLine.showError(`Failed to load artifact statuses: HTTP ${statusesResponse.status}`);
+        }
         }
     } catch (error) {
         console.error('Error loading configuration:', error);

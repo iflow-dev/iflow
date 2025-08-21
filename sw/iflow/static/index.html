@@ -14,13 +14,13 @@
     </div>
     
     <div class="container">
-        <!-- Include toolbar with filter controls -->
-        <div id="toolbar-container">
+        <!-- Auto-loading toolbar with filter controls -->
+        <div class="toolbar" data-view="filter">
             <div class="loading">Loading toolbar...</div>
         </div>
         
-        <!-- Include status bar -->
-        <div id="statusbar-container">
+        <!-- Auto-loading status bar -->
+        <div data-view="statusbar">
             <div class="loading">Loading status bar...</div>
         </div>
         
@@ -99,6 +99,7 @@
         </div>
     </div>
     
+    <script src="/static/view-loader.js"></script>
     <script src="/static/filter/manager.js"></script>
     <script src="/static/filter/control.js"></script>
     <script src="/static/filter/icon.js"></script>

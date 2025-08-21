@@ -3,13 +3,14 @@
  * Extends FilterControl to provide icon-based filter functionality
  */
 class IconFilter extends FilterControl {
-    constructor(container, filterType, iconConfig, options = {}) {
+    constructor(container, filterType, iconConfig = {}, options = {}) {
         super(container, filterType, options);
         
+        // Ensure iconConfig has default values
         this.iconConfig = {
-            inactiveIcon: iconConfig.inactiveIcon || 'flag-outline',
-            activeIcon: iconConfig.activeIcon || 'flag',
-            disabledIcon: iconConfig.disabledIcon || 'flag-outline',
+            inactiveIcon: 'flag-outline',
+            activeIcon: 'flag',
+            disabledIcon: 'flag-outline',
             ...iconConfig
         };
         
