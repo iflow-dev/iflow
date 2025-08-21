@@ -84,3 +84,15 @@ This infrastructure can be extended with:
 - Integration tests with the full application
 - Performance testing
 - Cross-browser compatibility testing
+
+
+## requirements to template.thml
+
+1. run test button:
+    - name: run
+    - turns yellow when running and shows "running"
+    - turns green with name "PASSED" when test passed
+    - shows a "redo" icon to rerun the test
+    - turns red with "FAILED" when test fails
+    
+
