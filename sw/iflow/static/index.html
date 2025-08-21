@@ -6,6 +6,7 @@
     <title>iflow - Project Artifact Manager</title>
     <link rel="stylesheet" href="/static/styles.css">
     <!-- Icons handled by CSS classes -->
+    <script src="/static/clear-filter.js"></script>
 </head>
 <body>
     <div class="header">
@@ -24,7 +25,12 @@
             
             <div class="filter-container">
                 <input type="text" id="search-input" class="search-box" placeholder="type to filter...">
-                <button class="clear-btn" id="clearSearch" onclick="clearSearchFilter()" title="Clear search">×</button>
+                <div class="filter-wrapper" id="searchClearWrapper">
+                    <button class="btn btn-icon" id="clearSearch" title="Clear search">
+                        <img src="/static/icons/close-outline.svg" alt="Clear" class="icon-svg">
+                    </button>
+                    <div class="filter-footer">clear</div>
+                </div>
                 <div class="filter-footer">text</div>
             </div>
             
@@ -44,7 +50,12 @@
             
             <div class="filter-container">
                 <input type="text" id="categoryFilter" class="search-box" placeholder="type to filter...">
-                <button class="clear-btn" id="clearCategory" onclick="clearCategoryFilter()" title="Clear category filter">×</button>
+                <div class="filter-wrapper" id="categoryClearWrapper">
+                    <button class="btn btn-icon" id="clearCategory" title="Clear category filter">
+                        <img src="/static/icons/close-outline.svg" alt="Clear" class="icon-svg">
+                    </button>
+                    <div class="filter-footer">clear</div>
+                </div>
                 <div class="filter-footer">Category</div>
             </div>
             
@@ -55,8 +66,8 @@
                 <div class="filter-footer">Flag</div>
             </div>
             
-            <div class="filter-wrapper">
-                <button class="clear-all-btn" id="clearAllFilters" onclick="clearAllFilters()" title="Clear all filters">
+            <div class="filter-wrapper" id="clearAllWrapper">
+                <button class="btn btn-icon" id="clearAllFilters" title="Clear all filters">
                     <img src="/static/icons/close-outline.svg" alt="Clear" class="icon-svg">
                 </button>
                 <div class="filter-footer">clear</div>

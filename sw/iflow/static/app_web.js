@@ -240,6 +240,9 @@ async function loadConfiguration() {
                 }
             }
             
+            // Initialize clear filter controls
+            initializeClearFilterControls();
+            
             // Load artifacts after everything is initialized
             await loadArtifacts();
         } else {
@@ -1035,6 +1038,47 @@ async function initializeFlagFilterControl(filterWrapper) {
         
     } catch (error) {
         console.error('Error initializing flag filter control:', error);
+    }
+}
+
+// Initialize the clear filter controls
+function initializeClearFilterControls() {
+    try {
+        // Initialize search clear filter
+        const searchClearWrapper = document.getElementById('searchClearWrapper');
+        if (searchClearWrapper) {
+            const searchClearFilter = new ClearFilter(searchClearWrapper, 'search');
+            if (window.filterManager) {
+                searchClearFilter.setFilterManager(window.filterManager);
+            }
+            searchClearWrapper.clearFilterControl = searchClearFilter;
+            console.log('Search clear filter initialized');
+        }
+        
+        // Initialize category clear filter
+        const categoryClearWrapper = document.getElementById('categoryClearWrapper');
+        if (categoryClearWrapper) {
+            const categoryClearFilter = new ClearFilter(categoryClearWrapper, 'category');
+            if (window.filterManager) {
+                categoryClearFilter.setFilterManager(window.filterManager);
+            }
+            categoryClearWrapper.clearFilterControl = categoryClearFilter;
+            console.log('Category clear filter initialized');
+        }
+        
+        // Initialize clear all filters
+        const clearAllWrapper = document.getElementById('clearAllWrapper');
+        if (clearAllWrapper) {
+            const clearAllFilter = new ClearFilter(clearAllWrapper, 'all');
+            if (window.filterManager) {
+                clearAllFilter.setFilterManager(window.filterManager);
+            }
+            clearAllWrapper.clearFilterControl = clearAllFilter;
+            console.log('Clear all filters initialized');
+        }
+        
+    } catch (error) {
+        console.error('Error initializing clear filter controls:', error);
     }
 }
 
