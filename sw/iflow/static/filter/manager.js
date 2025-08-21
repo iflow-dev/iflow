@@ -151,8 +151,10 @@ class FilterManager {
      * Trigger search manager update with current filters
      */
     triggerSearchUpdate() {
+        console.log(`triggerSearchUpdate called for filter: ${JSON.stringify(this.currentFilters)}`);
+        
         if (this.searchManager) {
-            console.log('Triggering search update with filters:', this.currentFilters);
+            console.log('SearchManager available, calling updateSearchResults');
             this.searchManager.updateSearchResults(this.currentFilters);
         } else {
             console.warn('SearchManager not available for filter update');
