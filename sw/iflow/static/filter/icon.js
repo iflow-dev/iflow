@@ -95,6 +95,9 @@ class IconFilter extends FilterControl {
      * Override bindEvents to handle icon-specific interactions
      */
     bindEvents() {
+        // Call base class bindEvents to get footer click handler for state cycling
+        super.bindEvents();
+        
         if (this.control && this.control.tagName === 'BUTTON') {
             this.control.addEventListener('click', (e) => {
                 e.preventDefault();

@@ -35,6 +35,9 @@ class SelectFilter extends FilterControl {
     }
     
     bindEvents() {
+        // Call base class bindEvents to get footer click handler for state cycling
+        super.bindEvents();
+        
         if (this.selectElement) {
             this.selectElement.addEventListener('change', () => {
                 this.updateSelectState();

@@ -61,6 +61,9 @@ class TextInputFilter extends FilterControl {
      * Override bindEvents to handle input-specific interactions
      */
     bindEvents() {
+        // Call base class bindEvents to get footer click handler for state cycling
+        super.bindEvents();
+        
         if (this.inputElement) {
             // Listen for input changes
             this.inputElement.addEventListener('input', () => {
