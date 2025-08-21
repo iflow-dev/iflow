@@ -1,0 +1,9 @@
+<!-- Reusable Text Filter Component -->
+<!-- Usage: data-filter-type="search" data-placeholder="type to filter..." data-clear-title="Clear search" -->
+<div class="search-filter filter-wrapper" data-filter-type="{FILTER_TYPE}">
+    <input type="text" id="{FILTER_ID}" class="search-box" placeholder="{PLACEHOLDER}">
+    <button class="clear-button" id="clear{FILTER_ID_TITLE}" title="{CLEAR_TITLE}">
+        <img src="/static/icons/close.svg" alt="Clear" class="icon-svg">
+    </button>
+    <div class="filter-footer">{FILTER_LABEL}</div>
+</div>

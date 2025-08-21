@@ -28,8 +28,17 @@ function cyclestate() {
 // Initialize application components
 async function initializeApp() {
     try {
-        // Load views first
-        await ViewLoader.loadAll();
+        // Load views using composite approach for complex views
+        const containers = document.querySelectorAll('[data-view]');
+        
+        for (const container of containers) {
+            const viewName = container.dataset.view;
+            if (viewName === 'filter') {
+                await ViewLoader.loadCompositeView(viewName, container);
+            } else {
+                await ViewLoader.load(viewName, container);
+            }
+        }
         
         // Auto-discover and setup filter controls
         FilterControl.setupAllFilters();
