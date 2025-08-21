@@ -18,11 +18,15 @@ COMPLETED:
   ✓ Existing step definitions found with @step decorators
   ✓ Common pitfalls identified and documented
 
+COMPLETED:
+- create a new test case: the cross is visible after the user inputs text ✓
+  (Fixed Test Case 5 with real user interaction simulation)
+
 CURRENT TASK:
-- create a new test case: the cross is visible after the user inputs text
+- say hellow
 
 PENDING:
-- say hellow
+(no pending tasks)
 
 NOTES FROM BOOTSTRAP.TXT:
 - EDITOR is now unset to avoid workflow interruption
