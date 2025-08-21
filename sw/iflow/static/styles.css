@@ -329,7 +329,6 @@ select.filter-select:hover,
 .clear-btn {
     position: absolute;
     right: 0.5rem;
-    top: calc(50% - 0.5em);
     transform: translateY(-50%);
     background: transparent;
     color: #ff8c00;
@@ -362,6 +361,7 @@ select.filter-select:hover,
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding: 0.25rem; /* Consistent padding for all states */
     /* Ensure content is not clipped */
     overflow: visible;
 }
@@ -369,7 +369,6 @@ select.filter-select:hover,
 /* Filter footer styling */
 .filter-footer {
     font-size: 0.7rem;
-    color: red;
     margin-top: 0.25rem;
     text-align: center;
     font-weight: 500;
@@ -398,7 +397,6 @@ select.filter-select:hover,
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    cursor: pointer;
     transition: color 0.2s ease;
 }
 
@@ -840,25 +838,34 @@ select.filter-select:hover,
     vertical-align: text-bottom;
 }
 
+.filter-wrapper .filter-footer {
+    padding-top: 0.25rem;
+    font-size: 0.6em;
+}
+
 /* Filter Wrapper States */
 .filter-wrapper.filter-active {
-    border: 2px solid #ff8c00;
     border-radius: 8px;
-    padding: 0.25rem;
-    background: rgba(255, 140, 0, 0.15);
+    fill: red;
+}
+
+.filter-wrapper.filter-active .icon-svg {
+    filter: brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%);
+}
+
+/* More specific rule for flag icon */
+.filter-wrapper.filter-active #flagIcon {
+    filter: brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%) !important;
 }
 
 .filter-wrapper.filter-inactive {
-    border: 2px solid #28a745;
+    border: 2px solid transparent;
     border-radius: 8px;
-    padding: 0.25rem;
-    background: rgba(40, 167, 69, 0.1);
 }
 
 .filter-wrapper.filter-disabled {
     border: 2px solid #dee2e6;
     border-radius: 8px;
-    padding: 0.25rem;
     background: #f8f9fa;
     opacity: 0.6;
 }
@@ -866,13 +873,75 @@ select.filter-select:hover,
 .filter-wrapper.filter-active .filter-footer {
     color: #ff8c00;
     font-weight: 600;
+   
 }
 
-.filter-wrapper.filter-inactive .filter-footer {
-    color: #28a745;
-    font-weight: 600;
+
+/* Search Filter Base Class */
+.search-filter {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
 }
 
-.filter-wrapper.filter-disabled .filter-footer {
-    color: #dee2e6;
+.search-filter .search-box {
+    width: 100%;
+    min-width: 0;
+    height: 2.5rem;
+    padding: 0.5rem 2.5rem 0.5rem 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
+
+.search-filter .search-box:hover {
+    border: 2px solid #ff8c00;
+    box-shadow: 0 0 5px rgba(255, 140, 0, 0.3);
+}
+
+.search-filter .search-box.active {
+    border: 2px solid #ff8c00;
+    box-shadow: 0 0 5px rgba(255, 140, 0, 0.3);
+}
+
+.search-filter .clear-button {
+    position: absolute;
+    right: 0.5rem;
+    top: 1rem; /* Back to original positioning since padding is now consistent */
+    background: transparent;
+    border: none;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s ease;
+    opacity: 0.7;
+}
+
+/* Hide clear button when filter is inactive */
+.filter-wrapper.filter-inactive .clear-button {
+    opacity: 0;
+    pointer-events: none; /* Prevent clicking when invisible */
+}
+
+/* Show clear button when filter is active */
+.filter-wrapper.filter-active .clear-button {
+    opacity: 0.7;
+    pointer-events: auto; /* Re-enable clicking */
+}
+
+/* Hover effect only when button is visible */
+.filter-wrapper.filter-active .clear-button:hover {
+    opacity: 1;
+}
+
+.search-filter .clear-button .icon-svg {
+    width: 16px;
+    height: 16px;
 }

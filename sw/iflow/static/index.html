@@ -6,7 +6,6 @@
     <title>iflow - Project Artifact Manager</title>
     <link rel="stylesheet" href="/static/styles.css">
     <!-- Icons handled by CSS classes -->
-    <script src="/static/clear-filter.js"></script>
 </head>
 <body>
     <div class="header">
@@ -23,44 +22,38 @@
                 <div class="filter-footer">create</div>
             </div>
             
-            <div class="filter-container">
+            <div class="search-filter filter-wrapper">
                 <input type="text" id="search-input" class="search-box" placeholder="type to filter...">
-                <div class="filter-wrapper" id="searchClearWrapper">
-                    <button class="btn btn-icon" id="clearSearch" title="Clear search">
-                        <img src="/static/icons/close.svg" alt="Clear" class="icon-svg">
-                    </button>
-                    <div class="filter-footer">clear</div>
-                </div>
+                <button class="clear-button" id="clearSearch" title="Clear search">
+                    <img src="/static/icons/close.svg" alt="Clear" class="icon-svg">
+                </button>
                 <div class="filter-footer">text</div>
             </div>
             
             <div class="filter-wrapper">
-                <select class="filter-select" id="typeFilter" onchange="filterByType(this.value)">
+                <select class="filter-select" id="typeFilter">
                     <option value="">All</option>
                 </select>
                 <div class="filter-footer">Type</div>
             </div>
             
             <div class="filter-wrapper">
-                <select class="filter-select" id="statusFilter" onchange="filterByStatus(this.value)">
+                <select class="filter-select" id="statusFilter">
                     <option value="">All</option>
                 </select>
                 <div class="filter-footer">Status</div>
             </div>
             
-            <div class="filter-container">
+            <div class="search-filter filter-wrapper">
                 <input type="text" id="categoryFilter" class="search-box" placeholder="type to filter...">
-                <div class="filter-wrapper" id="categoryClearWrapper">
-                    <button class="btn btn-icon" id="clearCategory" title="Clear category filter">
-                        <img src="/static/icons/close.svg" alt="Clear" class="icon-svg">
-                    </button>
-                    <div class="filter-footer">clear</div>
-                </div>
+                <button class="clear-button" id="clearCategory" title="Clear category filter">
+                    <img src="/static/icons/close.svg" alt="Clear" class="icon-svg">
+                </button>
                 <div class="filter-footer">Category</div>
             </div>
             
             <div class="filter-wrapper">
-                <button class="btn btn-secondary btn-icon" id="flagFilter" onclick="toggleFlagFilter()" title="Filter flagged artifacts">
+                <button class="btn btn-secondary btn-icon" id="flagFilter" title="Filter flagged artifacts">
                     <img src="/static/icons/flag.svg" alt="Flag" class="icon-svg" id="flagIcon">
                 </button>
                 <div class="filter-footer">Flag</div>
@@ -74,7 +67,7 @@
             </div>
             
             <div class="filter-wrapper">
-                <button class="btn btn-secondary btn-icon" onclick="refreshArtifacts()" title="Refresh artifacts">
+                <button class="btn btn-secondary btn-icon" id="refreshArtifacts" title="Refresh artifacts">
                     <img src="/static/icons/refresh-outline.svg" alt="Refresh" class="icon-svg">
                 </button>
                 <div class="filter-footer">refresh</div>
@@ -163,9 +156,13 @@
     <script src="/static/filter-manager.js"></script>
     <script src="/static/filter-control.js"></script>
     <script src="/static/icon-filter.js"></script>
+    <script src="/static/select-filter.js"></script>
+    <script src="/static/text-input-filter.js"></script>
+    <script src="/static/clear-filter.js"></script>
+    <script src="/static/toolbar.js"></script>
+    <script src="/static/statusline.js"></script>
+    <script src="/static/statistics-line.js"></script>
     <script src="/static/filter-demo.js"></script>
-    <script src="/static/colorscheme-loader.js"></script>
-    <script src="/static/colorscheme-demo.js"></script>
     <script src="/static/dropdown.js"></script>
     <script src="/static/tile.js"></script>
     <script src="/static/statistics.js"></script>

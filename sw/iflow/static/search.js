@@ -10,6 +10,7 @@ class SearchManager {
         this.searchInput = null;
         this.isInitialized = false;
         this.tileManager = null;
+        this.currentFilters = {}; // Initialize currentFilters object
         
         // Store the singleton instance
         SearchManager.instance = this;

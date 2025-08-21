@@ -38,7 +38,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     } catch (error) {
         console.error('Error during application initialization:', error);
-        showErrorInStatusLine('Application initialization failed: ' + error.message);
+        if (window.statusLine) {
+            window.statusLine.showError('Application initialization failed: ' + error.message);
+        }
     }
 });
 
@@ -47,14 +49,18 @@ function setupGlobalErrorHandling() {
     // Catch unhandled promise rejections
     window.addEventListener('unhandledrejection', function(event) {
         console.error('Unhandled promise rejection:', event.reason);
-        showErrorInStatusLine('Unhandled error: ' + (event.reason?.message || event.reason || 'Unknown error'));
+        if (window.statusLine) {
+            window.statusLine.showError('Unhandled error: ' + (event.reason?.message || event.reason || 'Unknown error'));
+        }
         event.preventDefault();
     });
     
     // Catch global JavaScript errors
     window.addEventListener('error', function(event) {
         console.error('Global JavaScript error:', event.error);
-        showErrorInStatusLine('JavaScript error: ' + (event.error?.message || event.message || 'Unknown error'));
+        if (window.statusLine) {
+            window.statusLine.showError('JavaScript error: ' + (event.error?.message || event.message || 'Unknown error'));
+        }
         event.preventDefault();
     });
     
@@ -66,91 +72,26 @@ function setupGlobalErrorHandling() {
             if (!response.ok) {
                 const errorText = `HTTP ${response.status}: ${response.statusText}`;
                 console.error('Fetch error:', errorText);
-                showErrorInStatusLine(errorText);
+                if (window.statusLine) {
+                    window.statusLine.showError(errorText);
+                }
             }
             return response;
         } catch (error) {
             console.error('Fetch error:', error);
-            showErrorInStatusLine('Network error: ' + error.message);
+            if (window.statusLine) {
+                window.statusLine.showError('Network error: ' + error.message);
+            }
             throw error;
         }
     };
 }
 
-function showErrorInStatusLine(message) {
-    const statusLine = document.getElementById('status-line');
-    if (statusLine) {
-        // Remove existing classes and add error class
-        statusLine.className = 'status-line error';
-        
-        statusLine.innerHTML = `
-            <div class="status-text">
-                <span class="status-left error-message">
-                    ⚠️ ERROR: ${message}
-                </span>
-                <span class="status-right">Results: <span id="filtered-count">0</span></span>
-            </div>
-        `;
-        
-        // Also update the last message
-        const lastMessage = document.getElementById('last-message');
-        if (lastMessage) {
-            lastMessage.textContent = 'ERROR: ' + message;
-            lastMessage.style.color = '#dc3545';
-            lastMessage.style.fontWeight = 'bold';
-        }
-    }
-}
+// Error status line functionality is now handled by the StatusLine class
 
-function showSuccessInStatusLine(message) {
-    const statusLine = document.getElementById('status-line');
-    if (statusLine) {
-        // Remove existing classes and add success class
-        statusLine.className = 'status-line success';
-        
-        statusLine.innerHTML = `
-            <div class="status-text">
-                <span class="status-left success-message">
-                    ✅ ${message}
-                </span>
-                <span class="status-right">Results: <span id="filtered-count">0</span></span>
-            </div>
-        `;
-        
-        // Also update the last message
-        const lastMessage = document.getElementById('last-message');
-        if (lastMessage) {
-            lastMessage.textContent = message;
-            lastMessage.style.color = '#28a745';
-            lastMessage.style.fontWeight = 'bold';
-        }
-    }
-}
+// Success status line functionality is now handled by the StatusLine class
 
-function showInfoInStatusLine(message) {
-    const statusLine = document.getElementById('status-line');
-    if (statusLine) {
-        // Remove existing classes and add info class
-        statusLine.className = 'status-line info';
-        
-        statusLine.innerHTML = `
-            <div class="status-text">
-                <span class="status-left info-message">
-                    ℹ️ ${message}
-                </span>
-                <span class="status-right">Results: <span id="filtered-count">0</span></span>
-            </div>
-        `;
-        
-        // Also update the last message
-        const lastMessage = document.getElementById('last-message');
-        if (lastMessage) {
-            lastMessage.textContent = message;
-            lastMessage.style.color = '#17a2b8';
-            lastMessage.style.fontWeight = 'bold';
-        }
-    }
-}
+// Info status line functionality is now handled by the StatusLine class
 
 // Configuration Management
 async function loadConfiguration() {
@@ -165,9 +106,13 @@ async function loadConfiguration() {
             projectConfig = await projectResponse.json();
             console.log('Project config loaded:', projectConfig);
             updateProjectHeader();
-            showInfoInStatusLine('Project configuration loaded');
+            if (window.statusLine) {
+            window.statusLine.showInfo('Project configuration loaded');
+        }
         } else {
-            showErrorInStatusLine(`Failed to load project info: HTTP ${projectResponse.status}`);
+            if (window.statusLine) {
+            window.statusLine.showError(`Failed to load project info: HTTP ${projectResponse.status}`);
+        }
         }
         
         // Load work item types
@@ -177,10 +122,14 @@ async function loadConfiguration() {
             console.log('Work item types loaded:', workItemTypes);
             console.log('workItemTypes array length:', workItemTypes.length);
             updateTypeFilterOptions();
-            showInfoInStatusLine(`Loaded ${workItemTypes.length} work item types`);
+            if (window.statusLine) {
+            window.statusLine.showInfo(`Loaded ${workItemTypes.length} work item types`);
+        }
         } else {
             console.error('Failed to load work item types:', typesResponse.status);
-            showErrorInStatusLine(`Failed to load work item types: HTTP ${typesResponse.status}`);
+            if (window.statusLine) {
+            window.statusLine.showError(`Failed to load work item types: HTTP ${typesResponse.status}`);
+        }
         }
         
         // Load artifact statuses
@@ -225,29 +174,35 @@ async function loadConfiguration() {
                 window.filterManager.initialize(window.searchManager);
             }
             
-            showInfoInStatusLine(`Loaded ${artifactStatuses.length} artifact statuses`);
-            
-            // Initialize filter controls
-            const flagFilterBtn = document.getElementById('flagFilter');
-            if (flagFilterBtn) {
-                const filterWrapper = flagFilterBtn.closest('.filter-wrapper');
-                if (filterWrapper) {
-                    // Start in inactive state (blue border)
-                    filterWrapper.classList.add('filter-inactive');
-                    
-                    // Initialize the new FilterControl system for the flag filter
-                    initializeFlagFilterControl(filterWrapper);
-                }
+            // Initialize UI components
+            if (window.statusLine) {
+                window.statusLine.initialize();
             }
             
+            if (window.statisticsLine) {
+                window.statisticsLine.initialize();
+            }
+            
+            if (window.toolbar) {
+                await window.toolbar.initialize();
+            }
+            
+            if (window.statusLine) {
+            window.statusLine.showInfo(`Loaded ${artifactStatuses.length} artifact statuses`);
+        }
+            
+                    // Filter controls are now handled by the toolbar class
+            
             // Initialize clear filter controls
-            initializeClearFilterControls();
+            // initializeClearFilterControls(); // No longer needed - using simple clear functions
             
             // Load artifacts after everything is initialized
             await loadArtifacts();
         } else {
             console.error('Failed to load artifact statuses:', statusesResponse.status);
-            showErrorInStatusLine(`Failed to load artifact statuses: HTTP ${statusesResponse.status}`);
+            if (window.statusLine) {
+            window.statusLine.showError(`Failed to load artifact statuses: HTTP ${statusesResponse.status}`);
+        }
         }
     } catch (error) {
         console.error('Error loading configuration:', error);
@@ -567,36 +522,38 @@ async function loadArtifacts() {
         console.log('Artifacts received:', artifacts);
         currentArtifacts = artifacts;
         
-        // Update the filtered count display
-        updateFilteredCount(artifacts.length);
+        // Update the filtered count display using StatusLine
+        if (window.statusLine) {
+            window.statusLine.updateFilteredCount(artifacts.length);
+        }
         
         // Update tile manager with artifacts
         if (window.tileManager) {
             window.tileManager.updateArtifacts(artifacts);
             window.tileManager.displayArtifacts(artifacts);
-            showSuccessInStatusLine(`Loaded ${artifacts.length} artifacts successfully`);
+            if (window.statusLine) {
+                window.statusLine.showSuccess(`Loaded ${artifacts.length} artifacts successfully`);
+            }
         } else {
             // Fallback to old method if tile manager not available
             displayArtifacts(artifacts);
-            showInfoInStatusLine(`Loaded ${artifacts.length} artifacts (using fallback display)`);
+            if (window.statusLine) {
+            window.statusLine.showInfo(`Loaded ${artifacts.length} artifacts (using fallback display)`);
+        }
         }
     } catch (error) {
         console.error('Error loading artifacts:', error);
         console.error('Error details:', error.message, error.stack);
-        showErrorInStatusLine('Failed to load artifacts: ' + error.message);
+        if (window.statusLine) {
+            window.statusLine.showError('Failed to load artifacts: ' + error.message);
+        }
         document.getElementById('artifacts-container').innerHTML = '<div class="error">Error loading artifacts: ' + error.message + '</div>';
     }
 }
 
 // Artifact display is now handled by the TileManager class
 
-// Update filtered count display
-function updateFilteredCount(count) {
-    const filteredCountElement = document.getElementById('filtered-count');
-    if (filteredCountElement) {
-        filteredCountElement.textContent = count;
-    }
-}
+// Filtered count is now handled by the StatusLine class
 
 // Fallback display function if TileManager is not available
 function displayArtifacts(artifacts) {
@@ -632,154 +589,17 @@ function displayArtifacts(artifacts) {
     });
 }
 
-// Search and Filter
-async function searchArtifacts(query) {
-    if (window.searchManager) {
-        window.searchManager.setSearchValue(query);
-        if (window.filterManager) {
-            window.filterManager.updateFilter('search', query.trim());
-        }
-    } else {
-        console.warn('SearchManager not available');
-    }
-}
+// Search and filter functionality is now handled by the toolbar and filter managers
+
+// Clear all filters functionality is now handled by the toolbar
+
+
 
 async function filterByType(type) {
     if (window.filterManager) {
         window.filterManager.updateFilter('type', type);
     } else {
         console.warn('FilterManager not available');
-    }
-}
-
-async function filterByCategory(category, exactMatch = false) {
-    if (window.filterManager) {
-        if (category.trim() === '') {
-            window.filterManager.clearFilter('category');
-        } else {
-            window.filterManager.updateFilter('category', category);
-            
-            // Update the category filter input box to show the selected category
-            const categoryFilter = document.getElementById('categoryFilter');
-            if (categoryFilter) {
-                categoryFilter.value = category;
-            }
-        }
-    } else {
-        console.warn('FilterManager not available');
-    }
-}
-
-// Function to clear category filter
-async function clearCategoryFilter() {
-    if (window.filterManager) {
-        window.filterManager.clearFilter('category');
-        const categoryFilter = document.getElementById('categoryFilter');
-        if (categoryFilter) {
-            categoryFilter.value = '';
-        }
-    } else {
-        console.warn('FilterManager not available');
-    }
-}
-
-// Function to clear search filter
-async function clearSearchFilter() {
-    if (window.filterManager) {
-        window.filterManager.clearFilter('search');
-        if (window.searchManager) {
-            window.searchManager.setSearchValue('');
-        }
-    } else {
-        console.warn('FilterManager not available');
-    }
-}
-
-// Function to clear all filters
-async function clearAllFilters() {
-    if (window.filterManager) {
-        // Clear all filters in the manager
-        window.filterManager.clearAllFilters();
-        
-        // TODO CHECK IF this code is really require danymore,s should not all this be done by the clearAllFitlers()?
-        // if yes, directly call window.filterManager.clearAllFilters() instead of this function.
-        
-        // Clear UI elements
-        const typeFilter = document.getElementById('typeFilter');
-        if (typeFilter) {
-            typeFilter.value = '';
-        }
-        
-        const statusFilter = document.getElementById('statusFilter');
-        if (statusFilter) {
-            statusFilter.value = '';
-        }
-        
-        const categoryFilter = document.getElementById('categoryFilter');
-        if (categoryFilter) {
-            categoryFilter.value = '';
-        }
-        
-        if (window.searchManager) {
-            window.searchManager.setSearchValue('');
-        }
-        
-        // Clear flag filter UI
-        const flagFilterBtn = document.getElementById('flagFilter');
-        if (flagFilterBtn) {
-            const icon = flagFilterBtn.querySelector('#flagIcon');
-            icon.src = '/static/icons/flag-outline.svg';
-            flagFilterBtn.classList.remove('active');
-        }
-    } else {
-        console.warn('FilterManager not available');
-    }
-}
-
-// Function to update clear button visibility
-function updateClearButtonVisibility() {
-    // Get current filter state from FilterManager
-    const currentFilters = window.filterManager ? window.filterManager.getFilter() : {};
-    
-    // Show/hide search clear button
-    const clearSearchBtn = document.getElementById('clearSearch');
-    if (clearSearchBtn) {
-        if (currentFilters.search && currentFilters.search !== '') {
-            clearSearchBtn.classList.add('visible');
-        } else {
-            clearSearchBtn.classList.remove('visible');
-        }
-    }
-    
-    // Show/hide category clear button
-    const clearCategoryBtn = document.getElementById('clearCategory');
-    if (clearCategoryBtn) {
-        if (currentFilters.category && currentFilters.category !== '') {
-            clearCategoryBtn.classList.add('visible');
-        } else {
-            clearCategoryBtn.classList.remove('visible');
-        }
-    }
-    
-    // Enable/disable clear all button and manage active state
-    const clearAllBtn = document.getElementById('clearAllFilters');
-    if (clearAllBtn) {
-        const hasActiveFilters = (
-            (currentFilters.type && currentFilters.type !== '') ||
-            (currentFilters.status && currentFilters.status !== '') ||
-            (currentFilters.category && currentFilters.category !== '') ||
-            (currentFilters.search && currentFilters.search !== '') ||
-            currentFilters.flagged
-        );
-        
-        clearAllBtn.disabled = !hasActiveFilters;
-        
-        // Add/remove active class for orange styling
-        if (hasActiveFilters) {
-            clearAllBtn.classList.add('active');
-        } else {
-            clearAllBtn.classList.remove('active');
-        }
     }
 }
 
@@ -1000,145 +820,7 @@ async function toggleArtifactFlag(artifactId) {
     }
 }
 
-// Initialize the new FilterControl system for the flag filter
-async function initializeFlagFilterControl(filterWrapper) {
-    try {
-        // Create IconFilter instance for the flag
-        const flagFilter = new IconFilter(filterWrapper, 'flagged', {
-            inactiveIcon: 'flag',
-            activeIcon: 'flag',
-            disabledIcon: 'flag'
-        });
-        
-        // Set the filter manager reference
-        if (window.filterManager) {
-            flagFilter.setFilterManager(window.filterManager);
-        }
-        
-        // The IconFilter class now has default colors built-in
-        console.log('Flag filter initialized with default colors');
-        
-        // Store reference to the filter control for later use
-        filterWrapper.flagFilterControl = flagFilter;
-        
-        // Override the onclick to use the new system
-        const flagButton = filterWrapper.querySelector('#flagFilter');
-        if (flagButton) {
-            // Remove the old onclick
-            flagButton.removeAttribute('onclick');
-            
-            // Add new event listener
-            flagButton.addEventListener('click', (e) => {
-                e.preventDefault();
-                toggleFlagFilterWithControl(flagFilter);
-            });
-        }
-        
-        console.log('Flag filter control initialized with new system');
-        
-    } catch (error) {
-        console.error('Error initializing flag filter control:', error);
-    }
-}
+// Flag filter functionality is now handled by the toolbar class
 
-// Initialize the clear filter controls
-function initializeClearFilterControls() {
-    try {
-        // Initialize search clear filter
-        const searchClearWrapper = document.getElementById('searchClearWrapper');
-        if (searchClearWrapper) {
-            const searchClearFilter = new ClearFilter(searchClearWrapper, 'search');
-            if (window.filterManager) {
-                searchClearFilter.setFilterManager(window.filterManager);
-            }
-            searchClearWrapper.clearFilterControl = searchClearFilter;
-            console.log('Search clear filter initialized');
-        }
-        
-        // Initialize category clear filter
-        const categoryClearWrapper = document.getElementById('categoryClearWrapper');
-        if (categoryClearWrapper) {
-            const categoryClearFilter = new ClearFilter(categoryClearWrapper, 'category');
-            if (window.filterManager) {
-                categoryClearFilter.setFilterManager(window.filterManager);
-            }
-            categoryClearWrapper.clearFilterControl = categoryClearFilter;
-            console.log('Category clear filter initialized');
-        }
-        
-        // Initialize clear all filters
-        const clearAllWrapper = document.getElementById('clearAllWrapper');
-        if (clearAllWrapper) {
-            const clearAllFilter = new ClearFilter(clearAllWrapper, 'all');
-            if (window.filterManager) {
-                clearAllFilter.setFilterManager(window.filterManager);
-            }
-            clearAllWrapper.clearFilterControl = clearAllFilter;
-            console.log('Clear all filters initialized');
-        }
-        
-    } catch (error) {
-        console.error('Error initializing clear filter controls:', error);
-    }
-}
-
-// New toggle function that works with the FilterControl system
-async function toggleFlagFilterWithControl(flagFilterControl) {
-    try {
-        // Toggle the filter control state
-        flagFilterControl.toggle();
-        
-        // Update the FilterManager
-        if (window.filterManager) {
-            const currentState = flagFilterControl.getState();
-            window.filterManager.updateFilter('flagged', currentState === 'active');
-            
-            // Trigger search update
-            window.filterManager.triggerSearchUpdate();
-        }
-        
-        console.log(`Flag filter toggled to: ${flagFilterControl.getState()}`);
-        
-    } catch (error) {
-        console.error('Error toggling flag filter with control:', error);
-    }
-}
-
-// Original toggle function for backward compatibility
-async function toggleFlagFilter() {
-    try {
-        // Toggle the flag filter state using FilterManager
-        window.filterManager.toggleFlagFilter();
-        
-        // Update the flag filter button UI
-        const flagFilterBtn = document.getElementById('flagFilter');
-        if (flagFilterBtn) {
-            const icon = flagFilterBtn.querySelector('#flagIcon');
-            const currentFlagState = window.filterManager.getFilter().flagged;
-            
-            // Get the filter wrapper container
-            const filterWrapper = flagFilterBtn.closest('.filter-wrapper');
-            
-            if (currentFlagState) {
-                // Active state
-                flagFilterBtn.classList.add('active');
-                if (filterWrapper) {
-                    filterWrapper.classList.remove('filter-inactive');
-                    filterWrapper.classList.add('filter-active');
-                }
-            } else {
-                // Inactive state
-                flagFilterBtn.classList.remove('active');
-                if (filterWrapper) {
-                    filterWrapper.classList.remove('filter-active');
-                    filterWrapper.classList.add('filter-inactive');
-                }
-            }
-            
-            console.log(`Flag filter toggled to: ${window.filterManager.getFilter().flagged}`);
-        }
-    } catch (error) {
-        console.error('Error toggling flag filter:', error);
-    }
-}
+// Text input filter functionality is now handled by the toolbar class
 
