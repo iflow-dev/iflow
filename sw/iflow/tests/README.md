@@ -4,8 +4,7 @@ This directory contains a simple test setup for testing the TextInputFilter func
 
 ## Files
 
-- **`template.html`** - A minimal HTML page containing only the text-input filter
-- **`TextInputFilterTest.java`** - JUnit test class (placeholder tests only)
+- **`template.html`** - A minimal HTML page containing only the text-input filter with built-in tests
 - **`README.md`** - This file
 
 ## How to Test
@@ -51,12 +50,23 @@ Open browser console to see:
 - **Test Cycle State**: Manually trigger state cycling
 - **Set Value "test"**: Programmatically set input value
 - **Clear Value**: Programmatically clear input
+- **Test Clear Button Visibility**: Run automated test for clear button visibility when input is empty
 
 ## Expected Behavior
 
 - **inactive**: Filter is empty, no clear button
 - **active**: Filter has value, clear button visible
 - **disabled**: Filter is disabled but has content, clear button visible
+
+## Automated Test
+
+The template includes a built-in test for clear button visibility:
+
+**Test: Clear Button Not Visible When Empty**
+- **Purpose**: Verify that the clearing cross is not visible when the search text field is empty
+- **How to Run**: Click the "Test Clear Button Visibility" button
+- **Expected Result**: Clear button should be hidden (display: none) when input is empty
+- **Test Output**: Shows PASSED/FAILED result with visual feedback and console logging
 
 ## Troubleshooting
 

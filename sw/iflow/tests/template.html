@@ -84,7 +84,13 @@
             <button onclick="testClearValue()" style="margin: 5px; padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">
                 Clear Value
             </button>
+            <button onclick="testClearButtonVisibilityWhenEmpty()" style="margin: 5px; padding: 10px 20px; background: #6f42c1; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                Test Clear Button Visibility
+            </button>
         </div>
+        
+        <!-- Test Results -->
+        <div id="test-result" style="margin-top: 20px;"></div>
     </div>
 
     <!-- Load the filter classes -->
@@ -124,6 +130,46 @@
                 document.getElementById('clear-visible').textContent = window.textFilter.clearButton.style.display === 'block' ? 'true' : 'false';
                 document.getElementById('footer-text').textContent = window.textFilter.footer ? window.textFilter.footer.textContent : 'N/A';
                 document.getElementById('css-classes').textContent = window.textFilter.container.className;
+            }
+        }
+        
+        // Test function to verify clear button visibility when empty
+        function testClearButtonVisibilityWhenEmpty() {
+            console.log('Testing clear button visibility when input is empty...');
+            
+            if (window.textFilter) {
+                // Ensure input is empty
+                window.textFilter.setValue('');
+                
+                // Check if clear button is hidden
+                const clearButton = window.textFilter.clearButton;
+                const isVisible = clearButton.style.display === 'block';
+                const isHidden = clearButton.style.display === 'none';
+                
+                console.log('Clear button visibility check:');
+                console.log('  - Input value: "' + window.textFilter.getValue() + '"');
+                console.log('  - Clear button display: ' + clearButton.style.display);
+                console.log('  - Is visible: ' + isVisible);
+                console.log('  - Is hidden: ' + isHidden);
+                
+                // Update debug info
+                updateDebugInfo();
+                
+                // Show test result
+                const result = isHidden ? 'PASSED' : 'FAILED';
+                const color = isHidden ? '#28a745' : '#dc3545';
+                
+                document.getElementById('test-result').innerHTML = `
+                    <div style="padding: 10px; margin: 10px 0; border-radius: 4px; background-color: ${color}; color: white; font-weight: bold;">
+                        Test Result: ${result}
+                    </div>
+                `;
+                
+                if (isHidden) {
+                    console.log('✓ Test PASSED: Clear button is hidden when input is empty');
+                } else {
+                    console.log('✗ Test FAILED: Clear button should be hidden when input is empty');
+                }
             }
         }
         
