@@ -42,7 +42,22 @@ class SelectFilter extends FilterControl {
         super.bindEvents();
         
         if (this.selectElement) {
-            this.selectElement.addEventListener('change', () => {
+            this.selectElement.addEventListener('change', (e) => {
+                // Report user selection event through EventManager
+                if (window.eventManager) {
+                    console.log(`SelectFilter: queueing filterSelectChange event`);
+                    window.eventManager.queueUserEvent('filterSelectChange', {
+                        sourceId: this.controlId,
+                        filterType: this.filterType,
+                        selectedValue: e.target.value,
+                        previousValue: this.getValue(),
+                        currentState: this.state,
+                        eventType: 'change'
+                    });
+                } else {
+                    console.error(`SelectFilter: EventManager not available!`);
+                }
+                
                 this.updateSelectState();
                 this.updateFilterManager();
             });
@@ -73,6 +88,31 @@ class SelectFilter extends FilterControl {
     destroy() {
         if (this.selectElement) {
             this.selectElement.removeEventListener('change', this.updateSelectState);
+        }
+        
+        // Call base class destroy to clean up EventManager subscriptions
+        super.destroy();
+    }
+    
+    /**
+     * Handle EventManager updates for SelectFilter-specific events
+     */
+    handleEventManagerUpdate(event) {
+        // Call base class handler first
+        super.handleEventManagerUpdate(event);
+        
+        // Handle SelectFilter-specific events
+        switch (event.type) {
+            case 'filterSelectChange':
+                // Another filter's selection changed - could trigger coordinated behavior
+                if (event.data.sourceId !== this.controlId) {
+                    console.log(`${this.filterType} filter responding to other filter selection change`);
+                    // Could implement coordinated behavior here
+                }
+                break;
+            default:
+                // Base class handles other event types
+                break;
         }
     }
 }

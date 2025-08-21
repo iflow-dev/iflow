@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SelectFilter Test Template</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        .test-container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .test-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .test-title {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+        
+        .test-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        
+        .test-button:hover {
+            background: #5a6fd8;
+        }
+        
+        .test-button.running {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .test-button.passed {
+            background: #28a745;
+        }
+        
+        .test-button.failed {
+            background: #dc3545;
+        }
+        
+        .debug-info {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        
+        .debug-info h4 {
+            margin-top: 0;
+            color: #495057;
+        }
+        
+        .debug-info p {
+            margin: 5px 0;
+            color: #6c757d;
+        }
+        
+        .filter-wrapper {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: white;
+        }
+        
+        .filter-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .filter-select {
+            height: 2.5rem;
+            padding: 0.5rem 2.5rem 0.5rem 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: border-color 0.2s ease;
+            max-width: 200px;
+            min-width: 180px;
+            box-sizing: border-box;
+        }
+        
+        .filter-footer {
+            font-size: 0.7rem;
+            margin-top: 0.25rem;
+            text-align: center;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: color 0.2s ease;
+            cursor: pointer;
+            user-select: none;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        
+        .filter-footer:hover {
+            color: #ff8c00;
+            background-color: rgba(255, 140, 0, 0.1);
+        }
+        
+        .test-summary {
+            background: #e9ecef;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        
+        .test-summary h3 {
+            margin-top: 0;
+            color: #495057;
+        }
+        
+        .test-summary .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+            padding: 5px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .test-summary .summary-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>SelectFilter Test Template</h1>
+        <p>This template tests the SelectFilter dropdown functionality with EventManager integration.</p>
+        
+        <!-- Test Controls -->
+        <div class="test-section">
+            <h2 class="test-title">Test Controls</h2>
+            <button class="test-button" onclick="runAllTests()">Run All Tests</button>
+            <button class="test-button" onclick="runTest1()">Test 1: Initial State</button>
+            <button class="test-button" onclick="runTest2()">Test 2: Value Selection</button>
+            <button class="test-button" onclick="runTest3()">Test 3: State Cycling</button>
+            <button class="test-button" onclick="runTest4()">Test 4: Clear Functionality</button>
+            <button class="test-button" onclick="runTest5()">Test 5: EventManager Integration</button>
+        </div>
+        
+        <!-- Test Results -->
+        <div class="test-section">
+            <h2 class="test-title">Test Results</h2>
+            <div id="test1-result"></div>
+            <div id="test2-result"></div>
+            <div id="test3-result"></div>
+            <div id="test4-result"></div>
+            <div id="test5-result"></div>
+        </div>
+        
+        <!-- SelectFilter Test -->
+        <div class="test-section">
+            <h2 class="test-title">SelectFilter Test</h2>
+            <div class="filter-wrapper" data-filter-type="status">
+                <div class="filter-container">
+                    <select class="filter-select" id="statusFilter">
+                        <option value="">Select Status</option>
+                        <option value="active">Active</option>
+                        <option value="pending">Pending</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                    <div class="filter-footer">status</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Debug Information -->
+        <div class="test-section">
+            <h2 class="test-title">Debug Information</h2>
+            <div class="debug-info">
+                <h4>Filter Status</h4>
+                <p>Filter State: <span id="filter-state">Initializing...</span></p>
+                <p>Selected Value: <span id="filter-value">None</span></p>
+                <p>Filter Type: <span id="filter-type">None</span></p>
+                <p>Select Element: <span id="select-element">None</span></p>
+                <p>Footer Element: <span id="footer-element">None</span></p>
+            </div>
+            
+            <div class="debug-info">
+                <h4>EventManager Status</h4>
+                <div id="event-manager-status">
+                    <p>Status: <span id="em-status">Initializing...</span></p>
+                    <p>Controls: <span id="em-controls">0</span></p>
+                    <p>Queue: <span id="em-queue">0</span></p>
+                    <p>Subscribers: <span id="em-subscribers">0</span></p>
+                    <p>Total Events: <span id="em-total-events">0</span></p>
+                    <p>Events/Second: <span id="em-events-per-second">0</span></p>
+                    <p>Last Event: <span id="em-last-event">Never</span></p>
+                    <p>Last Event Type: <span id="em-last-event-type">None</span></p>
+                    <p>Last Event Source: <span id="em-last-event-source">None</span></p>
+                    <p>Event Types: <span id="em-event-types">None</span></p>
+                    <p>Recent Events:</p>
+                    <div id="em-recent-events" style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; background: #f9f9f9; font-family: monospace; font-size: 12px;"></div>
+                    <button onclick="updateEventManagerStatus()" style="margin-top: 10px; padding: 5px 10px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer;">
+                        Refresh Status
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Test Summary -->
+        <div class="test-section">
+            <h2 class="test-title">Test Summary</h2>
+            <div class="test-summary">
+                <h3>Overall Results</h3>
+                <div id="test-summary-content">
+                    <div class="summary-item">
+                        <span>Tests Run:</span>
+                        <span id="tests-run">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Tests Passed:</span>
+                        <span id="tests-passed">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Tests Failed:</span>
+                        <span id="tests-failed">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Success Rate:</span>
+                        <span id="success-rate">0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load the EventManager first -->
+    <script src="/static/filter/event-manager.js"></script>
+    <!-- Load the filter classes -->
+    <script src="/static/filter/control.js"></script>
+    <script src="/static/filter/select.js"></script>
+    
+    <script>
+        let statusFilter = null;
+        let testResults = {
+            test1: { run: false, passed: false },
+            test2: { run: false, passed: false },
+            test3: { run: false, passed: false },
+            test4: { run: false, passed: false },
+            test5: { run: false, passed: false }
+        };
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Page loaded, initializing SelectFilter...');
+            initializeSelectFilter();
+            setupEventManager();
+        });
+
+        function initializeSelectFilter() {
+            const filterWrapper = document.querySelector('[data-filter-type="status"]');
+            if (filterWrapper) {
+                console.log('Filter wrapper found, creating SelectFilter...');
+                statusFilter = new SelectFilter(filterWrapper, 'status');
+                console.log('SelectFilter created successfully:', statusFilter);
+                updateDebugInfo();
+            } else {
+                console.error('Filter wrapper not found');
+            }
+        }
+
+        function setupEventManager() {
+            if (window.eventManager) {
+                console.log('EventManager found, setting up subscriptions...');
+                
+                // Subscribe to EventManager events for debugging
+                window.eventManager.subscribe('filterFooterClick', (event) => {
+                    console.log('EventManager: filterFooterClick event received:', event);
+                }, 'debug-subscriber');
+                
+                window.eventManager.subscribe('filterInputChange', (event) => {
+                    console.log('EventManager: filterInputChange event received:', event);
+                }, 'debug-subscriber');
+                
+                window.eventManager.subscribe('filterKeyUp', (event) => {
+                    console.log('EventManager: filterKeyUp event received:', event);
+                }, 'debug-subscriber');
+                
+                window.eventManager.subscribe('filterSelectChange', (event) => {
+                    console.log('EventManager: filterSelectChange event received:', event);
+                }, 'debug-subscriber');
+                
+                console.log('EventManager subscriptions set up successfully');
+                
+                // Initial status update
+                updateEventManagerStatus();
+            } else {
+                console.error('EventManager not available');
+            }
+        }
+
+        function updateDebugInfo() {
+            if (statusFilter) {
+                document.getElementById('filter-state').textContent = statusFilter.state;
+                document.getElementById('filter-value').textContent = statusFilter.getValue() || 'None';
+                document.getElementById('filter-type').textContent = statusFilter.filterType;
+                document.getElementById('select-element').textContent = statusFilter.selectElement ? 'Found' : 'Not found';
+                document.getElementById('footer-element').textContent = statusFilter.footer ? 'Found' : 'Not found';
+            }
+        }
+
+        function updateEventManagerStatus() {
+            if (window.eventManager) {
+                const status = window.eventManager.getStatus();
+                console.log('EventManager status:', status);
+                
+                const statusElement = document.getElementById('em-status');
+                const controlsElement = document.getElementById('em-controls');
+                const queueElement = document.getElementById('em-queue');
+                const subscribersElement = document.getElementById('em-subscribers');
+                const totalEventsElement = document.getElementById('em-total-events');
+                const eventsPerSecondElement = document.getElementById('em-events-per-second');
+                const lastEventElement = document.getElementById('em-last-event');
+                const lastEventTypeElement = document.getElementById('em-last-event-type');
+                const lastEventSourceElement = document.getElementById('em-last-event-source');
+                const eventTypesElement = document.getElementById('em-event-types');
+                const recentEventsElement = document.getElementById('em-recent-events');
+                
+                if (statusElement && controlsElement && queueElement && subscribersElement && 
+                    totalEventsElement && eventsPerSecondElement && lastEventElement && 
+                    lastEventTypeElement && lastEventSourceElement && eventTypesElement && recentEventsElement) {
+                    
+                    statusElement.textContent = status.isProcessing ? 'Processing' : 'Idle';
+                    controlsElement.textContent = status.controlCount;
+                    queueElement.textContent = status.queueLength;
+                    subscribersElement.textContent = status.subscriberCount;
+                    totalEventsElement.textContent = status.totalEventsProcessed;
+                    eventsPerSecondElement.textContent = status.eventsPerSecond;
+                    
+                    if (status.lastEventTime > 0) {
+                        const lastEventDate = new Date(status.lastEventTime);
+                        lastEventElement.textContent = lastEventDate.toLocaleTimeString();
+                    } else {
+                        lastEventElement.textContent = 'Never';
+                    }
+                    
+                    lastEventTypeElement.textContent = status.lastEventType || 'None';
+                    lastEventSourceElement.textContent = status.lastEventSource || 'None';
+                    
+                    if (Object.keys(status.eventTypeCounts).length > 0) {
+                        const eventTypeList = Object.entries(status.eventTypeCounts)
+                            .map(([type, count]) => `${type}: ${count}`)
+                            .join(', ');
+                        eventTypesElement.textContent = eventTypeList;
+                    } else {
+                        eventTypesElement.textContent = 'None';
+                    }
+                    
+                    // Display recent events
+                    if (status.recentEvents && status.recentEvents.length > 0) {
+                        const eventsHtml = status.recentEvents.map(event => {
+                            const time = new Date(event.timestamp).toLocaleTimeString();
+                            const dataStr = JSON.stringify(event.data, null, 2).substring(0, 100);
+                            return `<div style="margin-bottom: 5px; padding: 3px; border-bottom: 1px solid #ddd;">
+                                <strong>${time}</strong> - <span style="color: #007bff;">${event.type}</span> from <span style="color: #28a745;">${event.source}</span><br>
+                                <small style="color: #666;">${dataStr}${dataStr.length >= 100 ? '...' : ''}</small>
+                            </div>`;
+                        }).join('');
+                        recentEventsElement.innerHTML = eventsHtml;
+                    } else {
+                        recentEventsElement.innerHTML = '<div style="color: #666; font-style: italic;">No events yet</div>';
+                    }
+                    
+                    console.log('EventManager status updated successfully');
+                } else {
+                    console.error('Some EventManager status elements not found');
+                }
+            } else {
+                console.error('EventManager not available in updateEventManagerStatus');
+            }
+        }
+
+        // Test Functions
+        function runAllTests() {
+            console.log('=== Running All SelectFilter Tests ===');
+            runTest1();
+            setTimeout(() => runTest2(), 500);
+            setTimeout(() => runTest3(), 1000);
+            setTimeout(() => runTest4(), 1500);
+            setTimeout(() => runTest5(), 2000);
+        }
+
+        function runTest1() {
+            console.log('=== Running Test 1: Initial State ===');
+            setButtonState(1, 'running');
+            
+            if (statusFilter) {
+                const initialState = statusFilter.state;
+                const initialValue = statusFilter.getValue();
+                const expectedState = 'inactive';
+                const expectedValue = '';
+                
+                const stateCorrect = initialState === expectedState;
+                const valueCorrect = initialValue === expectedValue;
+                const testPassed = stateCorrect && valueCorrect;
+                
+                testResults.test1 = { run: true, passed: testPassed };
+                
+                document.getElementById('test1-result').innerHTML = `
+                    <div style="padding: 10px; margin: 10px 0; border-radius: 4px; background-color: ${testPassed ? '#28a745' : '#dc3545'}; color: white; font-weight: bold;">
+                        Test 1: Initial State - ${testPassed ? 'PASSED' : 'FAILED'}
+                    </div>
+                    <div style="margin-left: 20px; font-size: 14px;">
+                        <p>Expected State: ${expectedState}, Actual: ${initialState} ${stateCorrect ? '✓' : '✗'}</p>
+                        <p>Expected Value: "${expectedValue}", Actual: "${initialValue}" ${valueCorrect ? '✓' : '✗'}</p>
+                    </div>
+                `;
+                
+                setButtonState(1, testPassed ? 'passed' : 'failed');
+                updateTestSummary();
+            } else {
+                setButtonState(1, 'failed');
+            }
+        }
+
+        function runTest2() {
+            console.log('=== Running Test 2: Value Selection ===');
+            setButtonState(2, 'running');
+            
+            if (statusFilter) {
+                // Set a value
+                statusFilter.setValue('active');
+                setTimeout(() => {
+                    const newState = statusFilter.state;
+                    const newValue = statusFilter.getValue();
+                    const expectedState = 'active';
+                    const expectedValue = 'active';
+                    
+                    const stateCorrect = newState === expectedState;
+                    const valueCorrect = newValue === expectedValue;
+                    const testPassed = stateCorrect && valueCorrect;
+                    
+                    testResults.test2 = { run: true, passed: testPassed };
+                    
+                    document.getElementById('test2-result').innerHTML = `
+                        <div style="padding: 10px; margin: 10px 0; border-radius: 4px; background-color: ${testPassed ? '#28a745' : '#dc3545'}; color: white; font-weight: bold;">
+                            Test 2: Value Selection - ${testPassed ? 'PASSED' : 'FAILED'}
+                        </div>
+                        <div style="margin-left: 20px; font-size: 14px;">
+                            <p>Expected State: ${expectedState}, Actual: ${newState} ${stateCorrect ? '✓' : '✗'}</p>
+                            <p>Expected Value: "${expectedValue}", Actual: "${newValue}" ${valueCorrect ? '✓' : '✗'}</p>
+                        </div>
+                    `;
+                    
+                    setButtonState(2, testPassed ? 'passed' : 'failed');
+                    updateTestSummary();
+                    updateDebugInfo();
+                }, 100);
+            } else {
+                setButtonState(2, 'failed');
+            }
+        }
+
+        function runTest3() {
+            console.log('=== Running Test 3: State Cycling ===');
+            setButtonState(3, 'running');
+            
+            if (statusFilter) {
+                // Ensure filter is active first
+                statusFilter.setValue('pending');
+                setTimeout(() => {
+                    const initialState = statusFilter.state;
+                    console.log('Initial state before cycling:', initialState);
+                    
+                    // Click footer to cycle state
+                    const footer = statusFilter.footer;
+                    if (footer) {
+                        footer.click();
+                        setTimeout(() => {
+                            const afterClickState = statusFilter.state;
+                            console.log('State after click:', afterClickState);
+                            
+                            const stateChanged = afterClickState !== initialState;
+                            const isDisabled = afterClickState === 'disabled';
+                            const testPassed = stateChanged && isDisabled;
+                            
+                            testResults.test3 = { run: true, passed: testPassed };
+                            
+                            document.getElementById('test3-result').innerHTML = `
+                                <div style="padding: 10px; margin: 10px 0; border-radius: 4px; background-color: ${testPassed ? '#28a745' : '#dc3545'}; color: white; font-weight: bold;">
+                                    Test 3: State Cycling - ${testPassed ? 'PASSED' : 'FAILED'}
+                                </div>
+                                <div style="margin-left: 20px; font-size: 14px;">
+                                    <p>Initial State: ${initialState}</p>
+                                    <p>State After Click: ${afterClickState}</p>
+                                    <p>State Changed: ${stateChanged ? '✓' : '✗'}</p>
+                                    <p>Is Disabled: ${isDisabled ? '✓' : '✗'}</p>
+                                </div>
+                            `;
+                            
+                            setButtonState(3, testPassed ? 'passed' : 'failed');
+                            updateTestSummary();
+                            updateDebugInfo();
+                        }, 100);
+                    } else {
+                        setButtonState(3, 'failed');
+                    }
+                }, 100);
+            } else {
+                setButtonState(3, 'failed');
+            }
+        }
+
+        function runTest4() {
+            console.log('=== Running Test 4: Clear Functionality ===');
+            setButtonState(4, 'running');
+            
+            if (statusFilter) {
+                // Set a value first
+                statusFilter.setValue('completed');
+                setTimeout(() => {
+                    // Clear the filter
+                    statusFilter.clearFilter();
+                    setTimeout(() => {
+                        const clearedState = statusFilter.state;
+                        const clearedValue = statusFilter.getValue();
+                        const expectedState = 'inactive';
+                        const expectedValue = '';
+                        
+                        const stateCorrect = clearedState === expectedState;
+                        const valueCorrect = clearedValue === expectedValue;
+                        const testPassed = stateCorrect && valueCorrect;
+                        
+                        testResults.test4 = { run: true, passed: testPassed };
+                        
+                        document.getElementById('test4-result').innerHTML = `
+                            <div style="padding: 10px; margin: 10px 0; border-radius: 4px; background-color: ${testPassed ? '#28a745' : '#dc3545'}; color: white; font-weight: bold;">
+                                Test 4: Clear Functionality - ${testPassed ? 'PASSED' : 'FAILED'}
+                            </div>
+                            <div style="margin-left: 20px; font-size: 14px;">
+                                <p>Expected State: ${expectedState}, Actual: ${clearedState} ${stateCorrect ? '✓' : '✗'}</p>
+                                <p>Expected Value: "${expectedValue}", Actual: "${clearedValue}" ${valueCorrect ? '✓' : '✗'}</p>
+                            </div>
+                        `;
+                        
+                        setButtonState(4, testPassed ? 'passed' : 'failed');
+                        updateTestSummary();
+                        updateDebugInfo();
+                    }, 100);
+                }, 100);
+            } else {
+                setButtonState(4, 'failed');
+            }
+        }
+
+        function runTest5() {
+            console.log('=== Running Test 5: EventManager Integration ===');
+            setButtonState(5, 'running');
+            
+            if (statusFilter && window.eventManager) {
+                const initialEventCount = window.eventManager.getStatus().totalEventsProcessed;
+                
+                // Trigger some events
+                statusFilter.setValue('cancelled');
+                setTimeout(() => {
+                    const footer = statusFilter.footer;
+                    if (footer) {
+                        footer.click();
+                        setTimeout(() => {
+                            const finalEventCount = window.eventManager.getStatus().totalEventsProcessed;
+                            const eventsProcessed = finalEventCount > initialEventCount;
+                            
+                            const testPassed = eventsProcessed;
+                            testResults.test5 = { run: true, passed: testPassed };
+                            
+                            document.getElementById('test5-result').innerHTML = `
+                                <div style="padding: 10px; margin: 10px 0; border-radius: 4px; background-color: ${testPassed ? '#28a745' : '#dc3545'}; color: white; font-weight: bold;">
+                                    Test 5: EventManager Integration - ${testPassed ? 'PASSED' : 'FAILED'}
+                                </div>
+                                <div style="margin-left: 20px; font-size: 14px;">
+                                    <p>Initial Event Count: ${initialEventCount}</p>
+                                    <p>Final Event Count: ${finalEventCount}</p>
+                                    <p>Events Processed: ${eventsProcessed ? '✓' : '✗'}</p>
+                                </div>
+                            `;
+                            
+                            setButtonState(5, testPassed ? 'passed' : 'failed');
+                            updateTestSummary();
+                            updateEventManagerStatus();
+                        }, 100);
+                    } else {
+                        setButtonState(5, 'failed');
+                    }
+                }, 100);
+            } else {
+                setButtonState(5, 'failed');
+            }
+        }
+
+        function setButtonState(testNumber, state) {
+            const button = document.querySelector(`button[onclick="runTest${testNumber}()"]`);
+            if (button) {
+                button.className = `test-button ${state}`;
+                button.textContent = `Test ${testNumber}: ${state.charAt(0).toUpperCase() + state.slice(1)}`;
+            }
+        }
+
+        function updateTestSummary() {
+            const totalTests = Object.keys(testResults).length;
+            const runTests = Object.values(testResults).filter(r => r.run).length;
+            const passedTests = Object.values(testResults).filter(r => r.passed).length;
+            const failedTests = runTests - passedTests;
+            const successRate = runTests > 0 ? Math.round((passedTests / runTests) * 100) : 0;
+            
+            document.getElementById('tests-run').textContent = runTests;
+            document.getElementById('tests-passed').textContent = passedTests;
+            document.getElementById('tests-failed').textContent = failedTests;
+            document.getElementById('success-rate').textContent = `${successRate}%`;
+        }
+
+        // Set up periodic updates
+        setInterval(updateEventManagerStatus, 500);
+        setInterval(updateDebugInfo, 1000);
+    </script>
+</body>
+</html>
