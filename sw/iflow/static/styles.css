@@ -875,6 +875,33 @@ input[type="text"]:focus {
     outline: none !important;
 }
 
+/* Disabled state styling for text input fields */
+.filter-wrapper.filter-disabled .search-box,
+.filter-wrapper.filter-disabled input[type="text"] {
+    border: 2px solid #dee2e6 !important;
+    background-color: #f8f9fa !important;
+    opacity: 0.6 !important;
+    box-shadow: none !important;
+    color: #6c757d !important;
+}
+
+/* Disabled state hover - no orange border */
+.filter-wrapper.filter-disabled .search-box:hover,
+.filter-wrapper.filter-disabled input[type="text"]:hover {
+    border: 2px solid #dee2e6 !important;
+    background-color: #f8f9fa !important;
+    box-shadow: none !important;
+}
+
+/* Disabled state focus - no orange border */
+.filter-wrapper.filter-disabled .search-box:focus,
+.filter-wrapper.filter-disabled input[type="text"]:focus {
+    border: 2px solid #dee2e6 !important;
+    background-color: #f8f9fa !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
 .filter-wrapper.filter-active .icon-svg {
     filter: brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%);
 }
@@ -899,7 +926,12 @@ input[type="text"]:focus {
 .filter-wrapper.filter-active .filter-footer {
     color: #ff8c00;
     font-weight: 600;
-   
+}
+
+.filter-wrapper.filter-disabled .filter-footer {
+    color: #6c757d;
+    font-weight: 500;
+    opacity: 0.6;
 }
 
 
