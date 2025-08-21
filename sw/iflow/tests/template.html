@@ -134,6 +134,20 @@
                 </button>
                 <div id="test4-result" style="margin-top: 10px;"></div>
             </div>
+            
+            <div class="test-case" style="margin-bottom: 20px; padding: 15px; border: 1px solid #ced4da; border-radius: 6px; background: white;">
+                <h4 style="margin: 0 0 10px 0; color: #20c997;">Test Case 5: Cross Visibility After Text Input</h4>
+                <p style="margin: 0 0 10px 0; color: #6c757d;">
+                    <strong>Purpose:</strong> Verify that the cross (clear button) becomes visible after the user inputs text
+                </p>
+                <p style="margin: 0 0 10px 0; color: #6c757d;">
+                    <strong>Expected Result:</strong> Clear button should become visible (display: block) when user types text
+                </p>
+                <button onclick="runTest5()" style="padding: 8px 16px; background: #20c997; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                    Run Test
+                </button>
+                <div id="test5-result" style="margin-top: 10px;"></div>
+            </div>
         </div>
         
         <!-- Test Results Summary -->
@@ -369,10 +383,71 @@
             }
         }
         
+        // Test Case 5: Cross Visibility After Text Input
+        function runTest5() {
+            console.log('=== Running Test Case 5: Cross Visibility After Text Input ===');
+            
+            if (window.textFilter) {
+                // Ensure input starts empty
+                window.textFilter.setValue('');
+                
+                // Get initial clear button visibility
+                const initialClearButtonVisible = window.textFilter.clearButton.style.display === 'block';
+                console.log('Initial clear button visibility: ' + initialClearButtonVisible);
+                console.log('Initial input value: "' + window.textFilter.getValue() + '"');
+                
+                // Simulate user typing text
+                const testText = 'user input text';
+                window.textFilter.setValue(testText);
+                
+                // Wait a moment for state updates
+                setTimeout(() => {
+                    // Check if clear button is now visible
+                    const finalClearButtonVisible = window.textFilter.clearButton.style.display === 'block';
+                    const finalInputValue = window.textFilter.getValue();
+                    const finalState = window.textFilter.state;
+                    
+                    console.log('After text input:');
+                    console.log('  - Input value: "' + finalInputValue + '"');
+                    console.log('  - Clear button visible: ' + finalClearButtonVisible);
+                    console.log('  - Filter state: ' + finalState);
+                    
+                    // Update debug info
+                    updateDebugInfo();
+                    
+                    // Check if test passed
+                    const textEntered = finalInputValue === testText;
+                    const clearButtonVisible = finalClearButtonVisible;
+                    const stateActive = finalState === 'active';
+                    
+                    const allPassed = textEntered && clearButtonVisible && stateActive;
+                    const result = allPassed ? 'PASSED' : 'FAILED';
+                    const color = allPassed ? '#28a745' : '#dc3545';
+                    
+                    document.getElementById('test5-result').innerHTML = `
+                        <div style="padding: 10px; margin: 10px 0; border-radius: 4px; background-color: ${color}; color: white; font-weight: bold;">
+                            Test Result: ${result}<br>
+                            Text entered: ${textEntered ? '✓' : '✗'}<br>
+                            Clear button visible: ${clearButtonVisible ? '✓' : '✗'}<br>
+                            State active: ${stateActive ? '✓' : '✗'}
+                        </div>
+                    `;
+                    
+                    if (allPassed) {
+                        console.log('✓ Test Case 5 PASSED: Cross becomes visible after text input');
+                    } else {
+                        console.log('✗ Test Case 5 FAILED: Cross visibility issue after text input');
+                    }
+                    
+                    updateTestSummary();
+                }, 100);
+            }
+        }
+        
         // Update test summary
         function updateTestSummary() {
             const testResults = [];
-            for (let i = 1; i <= 4; i++) {
+            for (let i = 1; i <= 5; i++) {
                 const resultDiv = document.getElementById(`test${i}-result`);
                 if (resultDiv && resultDiv.innerHTML) {
                     const isPassed = resultDiv.innerHTML.includes('PASSED');
@@ -409,13 +484,85 @@
             const filterWrapper = document.querySelector('.filter-wrapper');
             if (filterWrapper) {
                 console.log('Creating TextInputFilter...');
-                window.textFilter = new TextInputFilter(filterWrapper, 'search');
-                console.log('Filter created:', window.textFilter);
-                updateDebugInfo();
+                try {
+                    window.textFilter = new TextInputFilter(filterWrapper, 'search');
+                    console.log('Filter created successfully:', window.textFilter);
+                    console.log('Filter state:', window.textFilter.state);
+                    console.log('Filter type:', window.textFilter.filterType);
+                    console.log('Input element:', window.textFilter.inputElement);
+                    console.log('Clear button:', window.textFilter.clearButton);
+                    console.log('Footer element:', window.textFilter.footer);
+                    
+                    updateDebugInfo();
+                    
+                    // Run a quick verification test
+                    setTimeout(() => {
+                        console.log('Running verification test...');
+                        verifyFilterInitialization();
+                    }, 100);
+                    
+                } catch (error) {
+                    console.error('Error creating TextInputFilter:', error);
+                    document.getElementById('debug-content').innerHTML += `
+                        <p style="color: red;">Error: ${error.message}</p>
+                    `;
+                }
             } else {
                 console.error('Filter wrapper not found');
             }
         });
+        
+        // Verification function to ensure filter is working correctly
+        function verifyFilterInitialization() {
+            if (window.textFilter) {
+                console.log('=== Filter Initialization Verification ===');
+                
+                // Check if all required elements are present
+                const hasInput = !!window.textFilter.inputElement;
+                const hasClearButton = !!window.textFilter.clearButton;
+                const hasFooter = !!window.textFilter.footer;
+                const hasState = !!window.textFilter.state;
+                
+                console.log('Verification results:');
+                console.log('  - Input element: ' + (hasInput ? '✓' : '✗'));
+                console.log('  - Clear button: ' + (hasClearButton ? '✓' : '✗'));
+                console.log('  - Footer: ' + (hasFooter ? '✓' : '✗'));
+                console.log('  - State: ' + (hasState ? '✓' : '✗'));
+                
+                // Check initial state
+                const initialState = window.textFilter.state;
+                const expectedState = 'inactive';
+                const stateCorrect = initialState === expectedState;
+                
+                console.log('Initial state check:');
+                console.log('  - Expected: ' + expectedState);
+                console.log('  - Actual: ' + initialState);
+                console.log('  - Correct: ' + (stateCorrect ? '✓' : '✗'));
+                
+                // Update debug info with verification results
+                const verificationDiv = document.createElement('div');
+                verificationDiv.style.marginTop = '10px';
+                verificationDiv.style.padding = '10px';
+                verificationDiv.style.backgroundColor = stateCorrect ? '#d4edda' : '#f8d7da';
+                verificationDiv.style.border = '1px solid ' + (stateCorrect ? '#c3e6cb' : '#f5c6cb');
+                verificationDiv.style.borderRadius = '4px';
+                verificationDiv.style.color = stateCorrect ? '#155724' : '#721c24';
+                verificationDiv.innerHTML = `
+                    <strong>Initialization Verification:</strong><br>
+                    Input: ${hasInput ? '✓' : '✗'}, Clear Button: ${hasClearButton ? '✓' : '✗'}, 
+                    Footer: ${hasFooter ? '✓' : '✗'}, State: ${hasState ? '✓' : '✗'}<br>
+                    Initial State: ${initialState} (Expected: ${expectedState}) - ${stateCorrect ? '✓ PASSED' : '✗ FAILED'}
+                `;
+                
+                document.getElementById('debug-content').appendChild(verificationDiv);
+                
+                if (stateCorrect && hasInput && hasClearButton && hasFooter && hasState) {
+                    console.log('✓ Filter initialization verification PASSED');
+                } else {
+                    console.log('✗ Filter initialization verification FAILED');
+                }
+            }
+        }
     </script>
 </body>
 </html>

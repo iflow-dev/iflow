@@ -1,0 +1,6 @@
+AI Todo List
+============
+
+- follow those instructions
+- create a new test case: the cross is visible after the user inputs text
+- say hellow
