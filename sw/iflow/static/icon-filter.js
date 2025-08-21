@@ -14,7 +14,7 @@ class IconFilter extends FilterControl {
         };
         
         // Ensure container has proper class and id attributes
-        this.container.classList.add('filter-control');
+        this.container.classList.add('filter-wrapper');
         
         // Get the footer text to use as ID
         const footer = this.container.querySelector('.filter-footer');
