@@ -4,6 +4,7 @@ This module provides the foundation for all page object pattern classes.
 """
 
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import TimeoutException
 
 # Default timeout for element operations (in seconds)
 DEFAULT_TIMEOUT = 5
@@ -27,7 +28,6 @@ class ControlBase:
 
         from selenium.webdriver.support.ui import WebDriverWait
         from selenium.webdriver.support import expected_conditions as EC
-        from selenium.common.exceptions import TimeoutException
 
         wait = WebDriverWait(driver, timeout)
         try:
