@@ -111,6 +111,36 @@ def i_save_new_artifact(step):
     # Use the Editor control to create the artifact
     world.editor.create()
     log.trace("Artifact creation completed")
+    
+    # Add debugging to see what happened
+    log.trace("Checking if modal is closed...")
+    if world.editor.is_closed():
+        log.trace("Modal is closed successfully")
+    else:
+        log.trace("Modal is still open - artifact creation may have failed")
+    
+    # Wait a bit for the page to update
+    import time
+    time.sleep(2)
+    
+    # Check if there are any error messages on the page
+    try:
+        from selenium.webdriver.common.by import By
+        error_elements = world.driver.find_elements(By.CLASS_NAME, "error")
+        if error_elements:
+            for error in error_elements:
+                log.trace(f"Found error message: {error.text}")
+        else:
+            log.trace("No error messages found")
+    except Exception as e:
+        log.trace(f"Error checking for error messages: {e}")
+    
+    # Check the current page content to see what's displayed
+    try:
+        artifacts_container = world.driver.find_element(By.ID, "artifacts-container")
+        log.trace(f"Artifacts container content: {artifacts_container.text[:200]}...")
+    except Exception as e:
+        log.trace(f"Error checking artifacts container: {e}")
 
 @step("I see the new artifact in the list")
 def i_see_new_artifact_in_list(step):
@@ -124,6 +154,34 @@ def i_see_new_artifact_in_list(step):
     # For now, we'll look for the summary text to verify the artifact was created
     # TODO: Implement proper artifact ID tracking
     summary_text = "Test requirement for BDD testing"
+    
+    # Add debugging to see what's actually in the list
+    try:
+        from selenium.webdriver.common.by import By
+        artifact_cards = world.driver.find_elements(By.CLASS_NAME, "artifact-card")
+        log.trace(f"Found {len(artifact_cards)} artifact cards in the list")
+        
+        for i, card in enumerate(artifact_cards):
+            try:
+                card_text = card.text[:100]  # First 100 characters
+                log.trace(f"Artifact card {i+1}: {card_text}...")
+            except Exception as e:
+                log.trace(f"Error reading card {i+1}: {e}")
+        
+        # Also check for any loading messages or empty state messages
+        loading_elements = world.driver.find_elements(By.CLASS_NAME, "loading")
+        if loading_elements:
+            for loading in loading_elements:
+                log.trace(f"Found loading message: {loading.text}")
+        
+        # Check for any "no artifacts" messages
+        no_artifacts_elements = world.driver.find_elements(By.XPATH, "//*[contains(text(), 'No artifacts') or contains(text(), 'no artifacts')]")
+        if no_artifacts_elements:
+            for msg in no_artifacts_elements:
+                log.trace(f"Found 'no artifacts' message: {msg.text}")
+                
+    except Exception as e:
+        log.trace(f"Error examining artifact list: {e}")
     
     # Use the Tile control to find the artifact by its content
     # This is a temporary solution until we implement proper ID tracking

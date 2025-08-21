@@ -26,7 +26,32 @@ class Navigation(ControlBase):
 class Tile(ControlBase):
     """Control for locating artifact tiles."""
     def __init__(self, tile_id):
-        super().__init__(f"//div[@class='artifact-card' and contains(., '{tile_id}')]")
+        # Store the tile_id for use in locate method
+        self.tile_id = tile_id
+        # The artifacts are displayed directly in the container, not as .artifact-card elements
+        # Look for the content anywhere in the artifacts container
+        super().__init__(f"//div[@id='artifacts-container'][contains(., '{tile_id}')]")
+    
+    def locate(self, driver, timeout=5):
+        """Override locate to handle the case where artifacts are displayed as text, not as cards."""
+        try:
+            # First try to find the content in the artifacts container
+            from selenium.webdriver.common.by import By
+            from selenium.webdriver.support.ui import WebDriverWait
+            from selenium.webdriver.support import expected_conditions as EC
+            
+            wait = WebDriverWait(driver, timeout)
+            container = wait.until(EC.presence_of_element_located((By.ID, "artifacts-container")))
+            
+            # Check if the container contains our search text
+            if self.tile_id in container.text:
+                return container
+            else:
+                raise Exception(f"Content '{self.tile_id}' not found in artifacts container")
+                
+        except Exception as e:
+            # Fall back to the original method
+            return super().locate(driver, timeout)
 
 
 class StatusLine(ControlBase):
