@@ -854,6 +854,13 @@ select.filter-select:hover,
     fill: red;
 }
 
+/* Active text filter input field styling */
+.filter-wrapper.filter-active .search-box,
+.filter-wrapper.filter-active input[type="text"] {
+    border: 2px solid #ff8c00 !important;
+    box-shadow: 0 0 5px rgba(255, 140, 0, 0.3) !important;
+}
+
 .filter-wrapper.filter-active .icon-svg {
     filter: brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%);
 }
