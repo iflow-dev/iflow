@@ -237,6 +237,7 @@ class FilterControl {
                 this.disable();
                 break;
             case 'inactive':
+                // If filter is inactive, activate it (this is the initial state)
                 this.activate();
                 break;
             case 'disabled':

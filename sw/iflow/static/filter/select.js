@@ -21,13 +21,12 @@ class SelectFilter extends FilterControl {
         // Don't auto-update state if filter is disabled
         if (this.state === 'disabled') return;
         
-        // Don't auto-update state if filter is manually set to inactive
-        if (this.state === 'inactive') return;
-        
         const hasValue = this.selectElement.value && this.selectElement.value !== '';
-        if (hasValue) {
+        
+        // Only update state if it would actually change
+        if (hasValue && this.state !== 'active') {
             this.setState('active');
-        } else {
+        } else if (!hasValue && this.state !== 'inactive') {
             this.setState('inactive');
         }
     }
