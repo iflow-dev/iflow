@@ -1,4 +1,18 @@
 - follow those steps, STEP BY STEP, log each step
+-
+
+- environments are on /opt/iflow
+- checkout environment structure, especially the virtual environments
+- read ENVIRONMENT_SETUP.md
+- check if prod server is running on port 9000, if not, start it using `/opt/iflow/prod/server start`
+- query backend api on server for later use, check how to find artifacts
+- always use PROD server for artifact queries
+
+- read artifact 00102
+- read all procedures to have an understanding
+- github cli is available 
+
+ read https://radish.readthedocs.io/en/stable/tutorial.html
 - check run_radish.py to learn how to run a radish test
 - check start_server.py to learn how to start a local server
 - ensure, EDITOR is unset in your env to avoid your commands
@@ -11,17 +25,6 @@
 - repeat rules now when you understood it 
 - use short and comprehensive commit messages without fancy stuff
 - use commit messages in format: "#<ticket>: <fix/implent>: <summary>"
-
-- environments are on /opt/iflow
-- checkout environment structure, especially the virtual environments
-- read ENVIRONMENT_SETUP.md
-- check if prod server is running on port 9000, if not, start it using `/opt/iflow/prod/server start`
-- query backend api on server for later use, check how to find artifacts
-- always use PROD server for artifact queries
-
-- read artifact 00102
-- read all procedures to have an understanding
-- github cli is available 
 
 - how to smoke test local changes:
   - for local testing, start a server on local repository with --init-db

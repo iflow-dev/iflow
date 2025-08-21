@@ -17,10 +17,10 @@ Feature: Artifact Flags
         And I go to home
         And I flag artifact #00001
         And I flag artifact #00002
-        When I click the flag filter button in the toolbar
+        When I toggle the flag filter
         Then I should see only flagged artifacts
         And the flag filter button should be red
-        When I click the flag filter button again
+        When I toggle the flag filter
         Then I should see all artifacts again
         And the flag filter button should be grey
 

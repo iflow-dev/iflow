@@ -62,3 +62,23 @@ class ControlBase:
         element = self.locate(driver, timeout)
         element.click()
         return element
+    
+    def clear(self, driver, timeout=None):
+        """Clear/clean up UI state (e.g., close modals, clear forms)."""
+        # Set default timeout if None is provided
+        if timeout is None:
+            timeout = DEFAULT_TIMEOUT
+        
+        try:
+            from selenium.webdriver.support.ui import WebDriverWait
+            from selenium.webdriver.support import expected_conditions as EC
+            
+            # Wait for any modal to close if it was open
+            wait = WebDriverWait(driver, timeout)
+            wait.until_not(
+                EC.presence_of_element_located((By.CSS_SELECTOR, ".modal-content"))
+            )
+            return True
+        except TimeoutException:
+            # Modal might not be present, which is fine
+            return False

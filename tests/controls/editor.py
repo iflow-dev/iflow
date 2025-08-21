@@ -35,6 +35,10 @@ class Editor(ControlBase):
         self.status_field = InputField("status")
         self.type_field = InputField("type")
         
+        # Flag control
+        from controls.flag import Flag
+        self.flag = Flag(driver)
+        
         # Button controls
         self.submit_button = Button("submit", "Create", None)
         self.cancel_button = Button("text", "Cancel", None)
@@ -311,3 +315,11 @@ class Editor(ControlBase):
         # Use the existing locate method which already handles waiting
         self.locate(self.driver, timeout)
         return True
+    
+    def clear(self, timeout=2):
+        """Clear/clean up UI state (e.g., close modals, clear forms)."""
+        from controls.base import ControlBase
+        
+        # Create a temporary ControlBase instance to use its clear method
+        temp_control = ControlBase("")
+        return temp_control.clear(self.driver, timeout)
