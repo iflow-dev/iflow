@@ -41,13 +41,15 @@ class TextInputFilter extends FilterControl {
         
         const hasContent = this.inputElement.value.trim() !== '';
         
-        if (hasContent) {
-            // Text entered - set to active
+        // Only update state if it would be a meaningful change
+        if (hasContent && this.state === 'inactive') {
+            // Text entered and currently inactive - set to active
             this.setState('active');
-        } else {
-            // No text - set to inactive
+        } else if (!hasContent && this.state === 'active') {
+            // No text and currently active - set to inactive
             this.setState('inactive');
         }
+        // If state is already correct, don't change it
     }
     
     /**
