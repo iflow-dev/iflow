@@ -1,6 +1,22 @@
 AI Todo List
 ============
 
+COMPLETED:
 - follow those instructions
+- follow bootstrap.txt (COMPLETED - all steps logged and understood)
+
+CURRENT TASK:
 - create a new test case: the cross is visible after the user inputs text
+
+PENDING:
 - say hellow
+
+NOTES FROM BOOTSTRAP.TXT:
+- EDITOR is now unset to avoid workflow interruption
+- Prod server is running on port 9000
+- Environment structure understood: /opt/iflow/{dev,qa,prod,integration}
+- API endpoints available for artifact queries
+- Procedures and checklists loaded from prod database
+- GitHub CLI available (gh version 2.76.2)
+- Port ranges: dev servers 7000-7010, prod 9000
+- Common pitfalls identified and documented
