@@ -726,8 +726,6 @@ async function clearAllFilters() {
         if (flagFilterBtn) {
             const icon = flagFilterBtn.querySelector('#flagIcon');
             icon.src = '/static/icons/flag-outline.svg';
-            flagFilterBtn.style.background = '#6c757d';
-            flagFilterBtn.style.color = 'white';
             flagFilterBtn.classList.remove('active');
         }
     } else {

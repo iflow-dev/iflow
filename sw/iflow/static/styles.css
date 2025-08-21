@@ -318,7 +318,6 @@ select.filter-select:hover,
 /* Flag filter active state */
 .btn-icon.active {
     background: transparent;
-    color: #dc3545;
 }
 
 /* Ensure flag button always has transparent background */
@@ -370,7 +369,7 @@ select.filter-select:hover,
 /* Filter footer styling */
 .filter-footer {
     font-size: 0.7rem;
-    color: #6c757d;
+    color: red;
     margin-top: 0.25rem;
     text-align: center;
     font-weight: 500;
@@ -394,7 +393,6 @@ select.filter-select:hover,
 /* Filter footer clickable styling */
 .filter-footer {
     font-size: 0.7rem;
-    color: #6c757d;
     margin-top: 0.25rem;
     text-align: center;
     font-weight: 500;

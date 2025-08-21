@@ -128,9 +128,6 @@ class FilterControl {
         
         // Update control styling
         this.updateControlStyling();
-        
-        // Update footer styling
-        this.updateFooterStyling();
 
         // Apply border and area colors
         this.applyBorderColors();
@@ -155,16 +152,7 @@ class FilterControl {
         }
     }
     
-    /**
-     * Update footer element styling
-     */
-    updateFooterStyling() {
-        if (!this.footer) return;
-        
-        // Use the specific text color for the current state
-        const textColor = this.options.textColors[this.state] || this.options.textColors.inactive;
-        this.footer.style.color = textColor;
-    }
+
     
     /**
      * Get colors for current state
