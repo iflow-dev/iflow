@@ -14,6 +14,9 @@ class FilterControl {
         this.control = this.container.querySelector('.filter-control') || this.container;
         this.footer = this.container.querySelector('.filter-footer');
         
+        // Debug update callback for real-time UI updates
+        this.debugUpdateCallback = null;
+        
         // Auto-register this filter
         FilterControl.registry.set(this.filterType, this);
         
@@ -154,6 +157,11 @@ class FilterControl {
         this.state = newState;
         this.updateVisualState();
         this.updateFilterManager();
+        
+        // Call debug update callback if set
+        if (this.debugUpdateCallback && typeof this.debugUpdateCallback === 'function') {
+            this.debugUpdateCallback();
+        }
     }
     
     /**
@@ -234,6 +242,15 @@ class FilterControl {
         return this.state === 'disabled';
     }
 
+    /**
+     * Set debug update callback for real-time UI updates
+     */
+    setDebugUpdateCallback(callback) {
+        if (typeof callback === 'function') {
+            this.debugUpdateCallback = callback;
+        }
+    }
+    
     /**
      * Get filter value for current state
      * Returns null if filter is disabled, otherwise returns the actual value

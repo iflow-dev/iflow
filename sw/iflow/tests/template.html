@@ -161,6 +161,21 @@
                     </button>
                     <div id="test5-result" style="margin-top: 8px;"></div>
                 </div>
+                
+                <div class="test-case" style="margin-bottom: 15px; padding: 12px; border: 1px solid #ced4da; border-radius: 6px; background: white;">
+                    <h4 style="margin: 0 0 8px 0; color: #e83e8c; font-size: 14px;">Test Case 6: Filter Name Click to Disabled State</h4>
+                    <p style="margin: 0 0 8px 0; color: #6c757d; font-size: 12px;">
+                        <strong>Purpose:</strong> Verify clicking filter name cycles filter to disabled state
+                    </p>
+                    <p style="margin: 0 0 8px 0; color: #6c757d; font-size: 12px;">
+                        <strong>Expected:</strong> Filter state changes from active to disabled when footer clicked
+                    </p>
+                    <button id="test6-button" onclick="runTest6()" class="test-button" data-test-id="6" style="padding: 6px 12px; background: #e83e8c; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 6px;">
+                        <span class="button-text">Run Test</span>
+                        <span class="button-icon" style="display: none;">🔄</span>
+                    </button>
+                    <div id="test6-result" style="margin-top: 8px;"></div>
+                </div>
             </div>
             
             <!-- Filter Section (Right Side) -->
@@ -511,10 +526,80 @@
             }
         }
         
+        // Test Case 6: Filter Name Click to Disabled State
+        function runTest6() {
+            console.log('=== Running Test Case 6: Filter Name Click to Disabled State ===');
+            
+            // Set button to running state
+            setButtonState(6, 'running');
+            
+            if (window.textFilter) {
+                // First, ensure the filter is in active state by typing some text
+                window.textFilter.setValue('test text');
+                
+                // Wait a moment for state to settle
+                setTimeout(() => {
+                    // Get initial state before clicking
+                    const initialState = window.textFilter.state;
+                    console.log('Initial state before click: ' + initialState);
+                    
+                    // Simulate clicking on the filter footer (filter name)
+                    const filterFooter = document.querySelector('.filter-footer');
+                    if (filterFooter) {
+                        filterFooter.click();
+                        
+                        // Wait for state update
+                        setTimeout(() => {
+                            const finalState = window.textFilter.state;
+                            console.log('Final state after click: ' + finalState);
+                            
+                            // Update debug info
+                            updateDebugInfo();
+                            
+                            // Check if test passed
+                            const wasInitiallyActive = initialState === 'active';
+                            const becameDisabled = finalState === 'disabled';
+                            const stateChanged = initialState !== finalState;
+                            
+                            const allPassed = wasInitiallyActive && becameDisabled && stateChanged;
+                            const result = allPassed ? 'PASSED' : 'FAILED';
+                            const color = allPassed ? '#28a745' : '#dc3545';
+                            
+                            document.getElementById('test6-result').innerHTML = `
+                                <div style="padding: 10px; margin: 10px 0; border-radius: 4px; background-color: ${color}; color: white; font-weight: bold;">
+                                    Test Result: ${result}<br>
+                                    Initially active: ${wasInitiallyActive ? '✓' : '✗'}<br>
+                                    Became disabled: ${becameDisabled ? '✓' : '✗'}<br>
+                                    State changed: ${stateChanged ? '✓' : '✗'}<br>
+                                    Initial state: ${initialState}<br>
+                                    Final state: ${finalState}
+                                </div>
+                            `;
+                            
+                            if (allPassed) {
+                                console.log('✓ Test Case 6 PASSED: Filter name click cycles to disabled state');
+                                setButtonState(6, 'passed');
+                            } else {
+                                console.log('✗ Test Case 6 FAILED: Filter name click state cycling issue');
+                                setButtonState(6, 'failed');
+                            }
+                            
+                            updateTestSummary();
+                        }, 100);
+                    } else {
+                        console.log('✗ Filter footer not found');
+                        setButtonState(6, 'failed');
+                    }
+                }, 100);
+            } else {
+                setButtonState(6, 'failed');
+            }
+        }
+        
         // Update test summary
         function updateTestSummary() {
             const testResults = [];
-            for (let i = 1; i <= 4; i++) {
+            for (let i = 1; i <= 6; i++) {
                 if (i === 2) continue; // Skip test case 2 (deleted)
                 const resultDiv = document.getElementById(`test${i}-result`);
                 if (resultDiv && resultDiv.innerHTML) {
@@ -560,6 +645,10 @@
                     console.log('Input element:', window.textFilter.inputElement);
                     console.log('Clear button:', window.textFilter.clearButton);
                     console.log('Footer element:', window.textFilter.footer);
+                    
+                    // Set up debug update callback for real-time UI updates
+                    window.textFilter.setDebugUpdateCallback(updateDebugInfo);
+                    console.log('Debug update callback set up successfully');
                     
                     updateDebugInfo();
                     
