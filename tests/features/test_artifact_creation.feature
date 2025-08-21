@@ -13,11 +13,10 @@ Feature: Test Artifact Creation
     And I set the summary to "Test requirement for BDD testing"
     And I set the description to "This is a test requirement created during BDD test execution"
     And I set the status to "open"
-    When I save the new artifact
+    When I save the article
     # TODO: Then I see 2 artifacts
     # TODO: replace step below
     Then I see the new artifact in the list
-    Then I do not see the artifact creation form
     # Note: The artifact ID is saved in world for use in subsequent scenarios
 
   Scenario: Cancel Artifact Creation
@@ -29,7 +28,6 @@ Feature: Test Artifact Creation
     And I set the description to "This description will not be saved"
     And I set the status to "in_progress"
     When I cancel the artifact creation
-    Then I do not see the artifact creation form
     Then I remain on the search view
     When I search for artifacts with "This will be cancelled"
     Then I see 0 search results

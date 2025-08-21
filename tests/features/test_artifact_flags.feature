@@ -32,7 +32,7 @@ Feature: Artifact Flags
         And I set the summary to "Test artifact with flag"
         And I set the description to "Test artifact for flag functionality"
         And I set the status to "open"
-        And I save the new artifact
+        And I save the article
         Then I should see the new artifact created
         # TODO: Flag functionality not working - checkbox clicked but not saved
         # And the new artifact should be flagged

@@ -30,6 +30,6 @@ Feature: Status Field Default Values in Editor
     And I set the status to "in_progress"
     And I set the summary to "Test artifact with custom status"
     And I set the description to "Testing status persistence"
-    And I save the new artifact
+    And I save the article
     Then I should see a success message
     And the new artifact should have status "in_progress"

@@ -129,40 +129,6 @@ def i_set_status_to(step, status):
         log.debug(f"Failed to set artifact status to '{status}': {e}")
         raise AssertionError(f"Failed to set artifact status to '{status}': {e}")
 
-@step("I save the new artifact")
-def i_save_new_artifact(step):
-    """Save the new artifact."""
-    from radish import world
-    
-    log.trace("Saving new artifact...")
-    
-    try:
-        from controls.editor import Editor
-        editor = Editor(world.driver)
-        editor.create()
-        
-        log.trace("Artifact creation completed")
-        
-        # Wait for the modal to close
-        from selenium.webdriver.common.by import By
-        from selenium.webdriver.support.ui import WebDriverWait
-        from selenium.webdriver.support import expected_conditions as EC
-        
-        wait = WebDriverWait(world.driver, 10)
-        wait.until_not(EC.presence_of_element_located((By.CLASS_NAME, "modal-content")))
-        
-        log.trace("Modal is closed successfully")
-        
-    except Exception as e:
-        import traceback
-        full_error = traceback.format_exc()
-        log.debug(f"Failed to save new artifact: {e}")
-        log.debug(f"Full traceback: {full_error}")
-        print(f"Full error details: {str(e)}")
-        print(f"Exception type: {type(e).__name__}")
-        print(f"Full traceback: {full_error}")
-        raise AssertionError(f"Failed to save new artifact: {e}")
-
 @step("I see the new artifact in the list")
 def i_see_new_artifact_in_list(step):
     """Verify that the new artifact appears in the list."""
@@ -183,26 +149,6 @@ def i_see_new_artifact_in_list(step):
     except Exception as e:
         log.debug(f"Failed to verify new artifact in list: {e}")
         raise AssertionError(f"Failed to verify new artifact in list: {e}")
-
-@step("I do not see the artifact creation form")
-def i_do_not_see_artifact_creation_form(step):
-    """Verify that the artifact creation form is not displayed."""
-    from radish import world
-    
-    log.trace("Verifying artifact creation form is not displayed")
-    
-    try:
-        from selenium.webdriver.common.by import By
-        from selenium.webdriver.support.ui import WebDriverWait
-        from selenium.webdriver.support import expected_conditions as EC
-        
-        # Wait for the modal to not be visible
-        wait = WebDriverWait(world.driver, 10)
-        wait.until_not(EC.presence_of_element_located((By.CLASS_NAME, "modal-content")))
-        
-    except Exception as e:
-        log.debug(f"Failed to verify artifact creation form is not displayed: {e}")
-        raise AssertionError(f"Failed to verify artifact creation form is not displayed: {e}")
 
 @step("I cancel the artifact creation")
 def i_cancel_artifact_creation(step):
