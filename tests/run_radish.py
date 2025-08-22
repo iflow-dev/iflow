@@ -2,18 +2,18 @@
 """
 Radish test runner with environment support.
 
-Now only using main_simple().
-Always uses port 7000.
-Always sets PYTHON_LOG_LEVEL=TRACE.
+-   This script will start a local test server on port 7000 (no other port allowed on PURPOSE!)
+-   Starting the server and invoking the tests can take up to 15 seconds
+-   Running the full test suite can take up to 5 minutes
+-   USAGE:
+    1.   load virtual env under venv-local
+    2.   change to tests/ directory. run_radish.py must be started from tests/ directory at all costs.
+    3.   run smoke tests using a command like:
 
+            ./run_radish.py local features/* --tags=smoke --trace
 
-USAGE:
-
--   load virtual env under venv-local
--   cd tests/
--   run smoke tests:
-    - ./run_radish.py local features/* --tags=smoke --trace
--   tests take long time.
+    4.   REMEMBER: TESTS TAKE A LOT TIME
+    5.   BE PATIENT, TESTS TAKE A LONG TIME TO FINISH !!!!!!!!!!!!
 """
 
 import os
