@@ -22,63 +22,13 @@ from selenium.webdriver.chrome.options import Options
 from bdd.logging_config import logger as log
 
 
-def _preinit():
-    # Set base URL for the application
-    base_url = os.getenv('IFLOW_BASE_URL')
-    if not base_url:
-        log.trace("IFLOW_BASE_URL environment variable not set")
-        raise ValueError("IFLOW_BASE_URL environment variable must be set")
-    log.trace(f"Testing against: {base_url}")
-    
-    # Store base URL directly in world object for easy access
-    world.base_url = base_url
-    world.driver = None
-    log.trace(f"Base URL set in world: {world.base_url}")
-    
-
-def _init_driver():
-    if hasattr(world, 'driver') and world.driver is not None:
-        return
-    
-    _preinit()
-
-    # Always use log.trace; custom TRACE level assumed to exist
-    log.trace("Initializing Chrome driver for entire test session...")
-    chrome_options = Options()
-    
-    # Check if headless mode should be disabled
-    headless_mode = os.environ.get("HEADLESS_MODE", "true").lower() == "true"
-    if headless_mode:
-        chrome_options.add_argument("--headless")
-        log.trace("Chrome running in headless mode")
-    else:
-        log.trace("Chrome running in visible mode (headless disabled)")
-    
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_argument("--disable-gpu")
-    chrome_options.add_argument("--window-size=1024,800")
-    
-    # Add additional stability options
-    chrome_options.add_argument("--disable-extensions")
-    chrome_options.add_argument("--disable-plugins")
-    chrome_options.add_argument("--disable-web-security")
-    chrome_options.add_argument("--allow-running-insecure-content")
-    
-    log.trace("Creating Chrome driver with options...")
-    try:
-        world.driver = webdriver.Chrome(options=chrome_options)
-        world.driver.implicitly_wait(10)
-        log.trace("Chrome driver initialized successfully for entire test session")
-    except Exception as e:
-        log.error(f"Failed to initialize Chrome driver: {e}")
-        raise RuntimeError(f"ChromeDriver initialization failed: {e}") from e
 
 @given("I go to home")
 def i_go_to_home(step):
     """Navigate to the home page (base URL)."""
-    _init_driver()
-    
+
+    assert world.config.dry_run is False, "DRY_RUN.. test aborted"
+
     base_url = world.base_url
     world.driver.get(base_url)
     
@@ -86,15 +36,11 @@ def i_go_to_home(step):
     page = Page()
     page.clear_modal()
     
+    time.sleep(1)
+
     # check the driver url after navigation (allow for redirects)
     assert base_url in world.driver.current_url
     
-    # Wait for the page to load
-    wait = WebDriverWait(world.driver, 10)
-    wait.until(EC.presence_of_element_located((By.CLASS_NAME, "artifacts-container")))
-    
-    # Additional wait to ensure page is fully loaded and interactive
-    time.sleep(3)
 
 @step("I am on the main page")
 def i_am_on_main_page(step):
