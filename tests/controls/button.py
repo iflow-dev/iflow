@@ -24,10 +24,16 @@ class Button(ControlBase):
             icon: Icon name for icon-based buttons (e.g., "create-outline")
         """
         if type == "submit":
-            xpath = f"//button[@type='submit' and contains(text(), '{text}')]"
+            if text:
+                xpath = f"//button[@type='submit' and contains(text(), '{text}')]"
+            else:
+                xpath = "//button[@type='submit']"  # Any submit button regardless of text
         elif type == "icon":
             xpath = f"//button[.//img[contains(@src, '{icon}')]]"
         else:
-            xpath = f"//button[contains(text(), '{text}')]"
+            if text:
+                xpath = f"//button[contains(text(), '{text}')]"
+            else:
+                xpath = "//button"  # Any button regardless of text
         
         super().__init__(xpath)

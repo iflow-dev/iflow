@@ -40,7 +40,7 @@ class Editor(ControlBase):
         self.flag = Flag(driver)
         
         # Button controls
-        self.submit_button = Button("submit", "Create", None)
+        self.submit_button = Button("submit", None, None)  # Will find any submit button regardless of text
         self.cancel_button = Button("text", "Cancel", None)
     
     def open(self):
