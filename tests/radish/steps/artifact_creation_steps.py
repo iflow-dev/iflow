@@ -189,7 +189,7 @@ def i_see_search_results(step, count):
     try:
         # Use Artifacts to count results
         from controls.artifact_control import Artifacts
-        artifacts = Artifacts(world.driver).find()
+        artifacts = Artifacts().find()
         actual_count = len(artifacts)
         
         assert actual_count == count, f"Expected {count} search results, but got {actual_count}"

@@ -111,7 +111,7 @@ def i_should_see_all_artifacts_again(step):
     time.sleep(1)
     
     # Get all visible artifacts
-    artifacts = Artifacts(world.driver).find()
+    artifacts = Artifacts().find()
     
     # We should see artifacts (both flagged and unflagged)
     assert len(artifacts) > 0, "No artifacts visible after removing flag filter"
@@ -162,7 +162,7 @@ def i_should_see_new_artifact_created(step):
     time.sleep(2)
     
     # Check that we have artifacts using Artifacts
-    artifacts = Artifacts(world.driver).find(summary="Test artifact with flag")
+    artifacts = Artifacts().find(summary="Test artifact with flag")
     assert len(artifacts) > 0, "New artifact with test summary not found"
 
 

@@ -52,7 +52,7 @@ def i_open_artifact_by_id(step, artifact_id):
     ControlBase.enable_debug_for_test()
     
     # Use Artifacts.find_one to locate the artifact
-    artifacts = Artifacts(world.driver)
+    artifacts = Artifacts()
     artifact_tile = artifacts.find_one(id=artifact_id)
     
     # Find the edit button within the artifact tile
@@ -85,7 +85,7 @@ def i_open_artifact_by_summary(step, summary):
     ControlBase.enable_debug_for_test()
     
     # Use Artifacts.find_one to locate the artifact
-    artifacts = Artifacts(world.driver)
+    artifacts = Artifacts()
     artifact_tile = artifacts.find_one(summary=summary)
     
     # Find the edit button within the artifact tile
@@ -121,7 +121,7 @@ def i_see_artifact_has_status_by_id(step, artifact_id, status):
     from selenium.webdriver.common.by import By
     
     # Use Artifacts.find_one to locate the artifact
-    artifacts = Artifacts(world.driver)
+    artifacts = Artifacts()
     artifact_tile = artifacts.find_one(id=artifact_id)
     
     # Find the status element within the artifact tile
@@ -138,7 +138,7 @@ def i_see_artifact_has_status_by_summary(step, summary, status):
     from selenium.webdriver.common.by import By
     
     # Use Artifacts.find_one to locate the artifact
-    artifacts = Artifacts(world.driver)
+    artifacts = Artifacts()
     artifact_tile = artifacts.find_one(summary=summary)
     
     # Find the status element within the artifact tile
