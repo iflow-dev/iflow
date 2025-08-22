@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 def i_see_editor_is_open(step):
     """Verify that the artifact editor modal is open and visible."""
     editor = Editor(world.driver)
-    editor.locate(world.driver)
+    editor.locate()
     log.debug("Artifact editor modal is open and visible")
 
 @step("I see the status is {expected_status:QuotedString}")
@@ -56,7 +56,7 @@ def i_open_artifact_by_id(step, artifact_id):
     artifact_tile = artifacts.find_one(id=artifact_id)
     
     # Find the edit button within the artifact tile
-    edit_button = artifact_tile.locate(world.driver).find_element(By.CSS_SELECTOR, "button[onclick*='openEditModal']")
+    edit_button = artifact_tile.locate().find_element(By.CSS_SELECTOR, "button[onclick*='openEditModal']")
     
     # Scroll the button into view and ensure it's clickable
     world.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", edit_button)
@@ -89,7 +89,7 @@ def i_open_artifact_by_summary(step, summary):
     artifact_tile = artifacts.find_one(summary=summary)
     
     # Find the edit button within the artifact tile
-    edit_button = artifact_tile.locate(world.driver).find_element(By.CSS_SELECTOR, "button[onclick*='openEditModal']")
+    edit_button = artifact_tile.locate().find_element(By.CSS_SELECTOR, "button[onclick*='openEditModal']")
     
     # Use enhanced click handling with debug mode
     try:
@@ -125,7 +125,7 @@ def i_see_artifact_has_status_by_id(step, artifact_id, status):
     artifact_tile = artifacts.find_one(id=artifact_id)
     
     # Find the status element within the artifact tile
-    status_element = artifact_tile.locate(world.driver).find_element(By.CSS_SELECTOR, ".artifact-status span, .artifact-status")
+    status_element = artifact_tile.locate().find_element(By.CSS_SELECTOR, ".artifact-status span, .artifact-status")
     actual_status = status_element.text.lower()
     
     assert actual_status == status.lower(), f"Expected artifact with ID '{artifact_id}' to have status '{status}', but got '{actual_status}'"
@@ -142,7 +142,7 @@ def i_see_artifact_has_status_by_summary(step, summary, status):
     artifact_tile = artifacts.find_one(summary=summary)
     
     # Find the status element within the artifact tile
-    status_element = artifact_tile.locate(world.driver).find_element(By.CSS_SELECTOR, ".artifact-status span, .artifact-status")
+    status_element = artifact_tile.locate().find_element(By.CSS_SELECTOR, ".artifact-status span, .artifact-status")
     actual_status = status_element.text.lower()
     
     assert actual_status == status.lower(), f"Expected artifact with title '{summary}' to have status '{status}', but got '{actual_status}'"

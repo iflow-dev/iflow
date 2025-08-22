@@ -31,7 +31,7 @@ def i_am_on_artifacts_page(step):
     
     # Verify we're on the iflow page (don't navigate, just verify)
     title = Title("iflow")
-    title.locate(world.driver)
+    title.locate()
     
     # Verify we have the artifacts container (search functionality)
     wait = WebDriverWait(world.driver, 10)

@@ -17,7 +17,7 @@ def i_see_the_artifact(step, key):
     
     from radish import world
     tile = Tile(key)
-    tile.locate(world.driver)
+    tile.locate()
 
 
 @then(r"I do not see the artifact #{key:S}")
@@ -33,7 +33,7 @@ def i_do_not_see_the_artifact(step, key):
     tile = Tile(key)
     
     # Use exists() method which returns False if element not found
-    if tile.exists(world.driver):
+    if tile.exists():
         raise AssertionError(f"Artifact #{key} was found but should not exist")
     
     logger.debug(f"Artifact #{key} correctly not found")

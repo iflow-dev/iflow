@@ -53,7 +53,7 @@ class Editor(ControlBase):
         log.trace("Waiting for toolbar to be fully loaded...")
         
         # Wait for the toolbar to be fully loaded (not just the loading message)
-        page = Page(self.driver)
+        page = Page()
         page.wait()
 
         # Use Toolbar pattern to access create button

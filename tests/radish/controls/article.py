@@ -6,14 +6,19 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
+from radish import world
 
 
 class Article:
     """Article control class for artifact operations."""
     
-    def __init__(self, driver, element=None):
-        self.driver = driver
+    def __init__(self, element=None):
         self.element = element
+    
+    @property
+    def flag(self):
+        """Return a flag object that provides flag-related properties and methods."""
+        return Flag(self)
     
     def toggle(self, active=None):
         """Toggle the flag state of this artifact.
@@ -28,7 +33,7 @@ class Article:
             raise Exception("No artifact element available")
         
         # Get current flag state
-        current_state = self.get_flag_state(self.element)
+        current_state = self.flag.active
         
         # Determine if we need to click the button
         should_click = False
@@ -52,20 +57,35 @@ class Article:
             # Wait for any modal to close if it was open
             try:
                 from controls.editor import Editor
-                editor = Editor(self.driver)
+                editor = Editor()
                 editor.clear()
             except:
                 pass
         
         return current_state
+
+
+class Flag:
+    """Flag object that provides flag-related properties and methods."""
     
-    def get_flag_state(self, artifact_element=None):
-        """Get the current flag state of an artifact."""
-        element = artifact_element or self.element
-        if not element:
+    def __init__(self, article):
+        self.article = article
+    
+    @property
+    def active(self):
+        """Get the current flag state as a boolean."""
+        if not self.article.element:
+            raise Exception("No artifact element available")
+        
+        # Get the current flag state of an artifact
+        artifact_element = self.article.element
+        if not artifact_element:
             raise Exception("No artifact element provided")
             
-        flag_button = element.find_element(By.CSS_SELECTOR, ".artifact-actions button:first-child")
+        flag_button = artifact_element.find_element(By.CSS_SELECTOR, ".artifact-actions button:first-child")
         icon = flag_button.find_element(By.CSS_SELECTOR, "ion-icon")
         icon_name = icon.get_attribute("name")
         return "outline" not in icon_name
+
+
+

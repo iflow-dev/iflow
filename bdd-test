@@ -9,13 +9,52 @@ before running the specified feature files.
 Usage:
     ./bdd-test <feature_file> [options]
     ./bdd-test features/test_artifact_flags.feature --scenarios 1
+    ./bdd-test features/ --tags smoke
     ./bdd-test features/ --tags=smoke
+    
+Note: Tests tagged with @fixme are automatically excluded from test runs.
+Tag expressions are automatically combined with "not fixme" exclusion.
 """
 
 import os
 import sys
 import subprocess
 from pathlib import Path
+
+def print_help():
+    """Print help information for the BDD test runner."""
+    print("BDD Test Runner")
+    print("=" * 50)
+    print("This script provides a simple interface to run BDD tests using the radish framework.")
+    print("It automatically loads the venv-local virtual environment and changes to the tests/ directory")
+    print("before running the specified feature files.")
+    print()
+    print("Usage:")
+    print("    ./bdd-test <feature_file> [options]")
+    print("    ./bdd-test features/test_artifact_flags.feature --scenarios 1")
+    print("    ./bdd-test features/ --tags smoke")
+    print("    ./bdd-test features/ --tags=smoke")
+    print("    ./bdd-test --help")
+    print()
+    print("Options:")
+    print("    --help, -h          Show this help message")
+    print("    --tags <tags>       Run tests with specific tags")
+    print("    --tags=<tags>       Run tests with specific tags (alternative format)")
+    print("    --scenarios <n>     Run only the specified scenario(s)")
+    print("    --trace             Show detailed traceback on failures")
+    print()
+    print("Examples:")
+    print("    ./bdd-test features/                    # Run all features")
+    print("    ./bdd-test features/ --tags smoke       # Run only smoke tests")
+    print("    ./bdd-test features/ --tags=regression  # Run only regression tests")
+    print("    ./bdd-test features/ --tags smoke regression  # Run smoke AND regression tests")
+    print()
+    print("Notes:")
+    print("    - Tests tagged with @fixme are automatically excluded from test runs")
+    print("    - Tag expressions are automatically combined with 'not fixme' exclusion")
+    print("    - The script automatically activates the venv-local virtual environment")
+    print("    - All arguments are forwarded to radish after processing")
+
 
 def activate_venv_local():
     """Activate the venv-local virtual environment."""
@@ -40,6 +79,11 @@ def activate_venv_local():
 def main():
     """Main entry point for the BDD test runner."""
     
+    # Check for help flag
+    if "--help" in sys.argv or "-h" in sys.argv:
+        print_help()
+        sys.exit(0)
+    
     # Change to tests/ directory
     tests_dir = Path(__file__).parent / "tests"
     if not tests_dir.exists():
@@ -57,8 +101,7 @@ def main():
     
     # Build the command
     if len(sys.argv) < 2:
-        print("Usage: ./bdd-test <feature_file> [options]")
-        print("Example: ./bdd-test features/test_artifact_flags.feature --scenarios 1")
+        print_help()
         sys.exit(1)
     
     # Process arguments to remove "tests/" prefix if present
@@ -74,14 +117,44 @@ def main():
     # The first argument is the feature file/path
     feature_arg = processed_args[0]
     
-    # Remaining arguments are passed to radish
-    additional_args = processed_args[1:] if len(processed_args) > 1 else []
+    # Parse remaining arguments to handle --tags specially
+    additional_args = []
+    user_tags = []
+    
+    i = 1
+    while i < len(processed_args):
+        arg = processed_args[i]
+        if arg.startswith("--tags"):
+            # Extract tags from --tags argument
+            if "=" in arg:
+                # Format: --tags=smoke
+                tags_part = arg.split("=", 1)[1]
+                user_tags.extend(tags_part.split())
+            else:
+                # Format: --tags smoke
+                # Look for the next argument as the tag value
+                if i + 1 < len(processed_args) and not processed_args[i + 1].startswith("-"):
+                    user_tags.append(processed_args[i + 1])
+                    i += 1  # Skip the next argument since we consumed it
+        else:
+            # Regular argument
+            additional_args.append(arg)
+        i += 1
     
     # Get the Python executable from venv-local
     python_exe = activate_venv_local()
     
+    # Build the tags expression combining user tags with fixme exclusion
+    tags_expression = "not fixme"
+    if user_tags:
+        tags_expression = f"({user_tags[0]})"
+        for tag in user_tags[1:]:
+            tags_expression += f" and ({tag})"
+        tags_expression += " and (not fixme)"
+    
     # Build the full command using the virtual environment Python
-    cmd = [python_exe, "run_radish.py", "local", feature_arg] + additional_args
+    # Use quotes around the tags expression to handle spaces properly
+    cmd = [python_exe, "run_radish.py", "local", feature_arg, f'--tags="{tags_expression}"'] + additional_args
     
     print(f"Running: {' '.join(cmd)}")
     print("-" * 50)

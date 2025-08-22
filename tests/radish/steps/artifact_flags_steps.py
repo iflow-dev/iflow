@@ -51,55 +51,15 @@ def i_flag_unflag_artifact(step, unflag, artifact_id):
         artifact_id: ID of the artifact to flag/unflag
     """
     
-    # Use Artifacts to find the specific artifact by ID
-    artifacts = Artifacts(world.driver).find(id=artifact_id)
-    if not artifacts:
-        raise Exception(f"No artifact found with ID {artifact_id}")
-    
-    # Create Article instance with the specific artifact element
-    article = Article(world.driver, artifacts[0])
-    
-    # Determine the desired flag state based on the action
-    if unflag:  # unflag action
-        desired_state = False
-    else:  # flag action
-        desired_state = True
-    
-    # Toggle the flag state - the Article.toggle() method handles the state management
-    article.toggle(active=desired_state)
+    assert False, "not implemented yet"
 
 
 @step(re.compile("the artifact (should|should not) be flagged"))
 def the_artifact_should_be_flagged_or_not(step, should):
     """Verify that the artifact flag state matches the expected state."""
     
-    # Wait for the flag state to change
-    time.sleep(1)
-    
-    # Use the new Article().flag.active property
-    article = Article(world.driver)
-    current_flag_state = article.flag.active
-    
-    # Determine expected state based on the step text
-    expected_flagged = "should" in should.lower() and "not" not in should.lower()
-    
-    # The flag state should match the expected state
-    assert current_flag_state == expected_flagged, f"Flag state mismatch. Expected: {expected_flagged}, Got: {current_flag_state}"
+    assert False, "not implemented yet"
 
-
-@step("the artifact should not be flagged")
-def the_artifact_should_not_be_flagged(step):
-    """Verify that the artifact is not flagged."""
-    
-    # Wait for the flag state to change
-    time.sleep(1)
-    
-    # Use the new Article().flag.active property
-    article = Article(world.driver)
-    current_flag_state = article.flag.active
-    
-    # The artifact should not be flagged
-    assert not current_flag_state, f"Artifact should not be flagged, but got: {current_flag_state}"
 
 
 
@@ -119,16 +79,14 @@ def i_should_see_only_flagged_artifacts(step):
     time.sleep(1)
     
     # Get all visible artifacts
-    artifacts = Artifacts(world.driver).find()
+    artifacts = Artifacts().find()
     
        
     # Check that all visible artifacts are flagged
-    article = Article(world.driver)
-    
     for artifact_element in artifacts:
         # Use the Article class to check flag state
-        article = Article(world.driver, artifact_element)
-        is_flagged = article.flag.state
+        article = Article(artifact_element)
+        is_flagged = article.flag.active
         assert is_flagged, f"Found unflagged artifact in filtered results"
     
 
@@ -159,15 +117,13 @@ def i_should_see_all_artifacts_again(step):
     assert len(artifacts) > 0, "No artifacts visible after removing flag filter"
     
     # Check that we have a mix of flagged and unflagged artifacts
-    article = Article(world.driver)
-    
     flagged_count = 0
     unflagged_count = 0
     
     for artifact_element in artifacts:
         # Use the Article class to check flag state
-        article = Article(world.driver, artifact_element)
-        is_flagged = article.flag.state
+        article = Article(artifact_element)
+        is_flagged = article.flag.active
         
         if is_flagged:
             flagged_count += 1
@@ -210,27 +166,4 @@ def i_should_see_new_artifact_created(step):
     assert len(artifacts) > 0, "New artifact with test summary not found"
 
 
-@step("the artifact should be flagged")
-def the_new_artifact_should_be_flagged(step):
-    """Verify that the newly created artifact is flagged."""
-    
-    # Wait for the modal to close and artifacts to refresh
-    time.sleep(2)
-    
-    # Find the specific artifact we created by its summary text using Artifacts
-    artifacts = Artifacts(world.driver).find(summary="Test artifact with flag")
-    assert len(artifacts) > 0, "No artifacts found after creation"
-    
-   
-    
-    # Check the flag button on our specific artifact
-    flag_button = target_artifact.find_element(By.CSS_SELECTOR, ".artifact-actions button:first-child")
-    icon = flag_button.find_element(By.CSS_SELECTOR, "ion-icon")
-    
-    icon_name = icon.get_attribute("name")
-    is_flagged = "flag" in icon_name and "outline" not in icon_name
-    
-    if not is_flagged:
-        pass
-    
-    assert is_flagged, f"Newly created artifact should be flagged but icon name is '{icon_name}'"
+

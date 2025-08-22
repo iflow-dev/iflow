@@ -7,9 +7,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from radish import world
-import logging
-
-log = logging.getLogger(__name__)
 
 
 class Artifact(ControlBase):
@@ -51,6 +48,37 @@ class Artifact(ControlBase):
             return 1
         except Exception:
             return 0
+    
+    @property
+    def id(self):
+        """Get the artifact ID from the DOM element."""
+        if not self.element:
+            return self.artifact_id
+        
+        try:
+            id_div = self.element.find_element(By.CSS_SELECTOR, ".artifact-id")
+            return id_div.text.strip()
+        except:
+            return self.artifact_id
+    
+    @property
+    def summary(self):
+        """Get the artifact summary from the DOM element."""
+        if not self.element:
+            return self.summary
+        
+        try:
+            summary_div = self.element.find_element(By.CSS_SELECTOR, ".artifact-summary")
+            return summary_div.text.strip()
+        except:
+            return self.summary
+    
+    @property
+    def text(self):
+        """Get all text content from the artifact element."""
+        if not self.element:
+            return ""
+        return self.element.text.strip()
 
 
 class Artifacts:
@@ -63,60 +91,38 @@ class Artifacts:
     def wait(self, timeout=10):
         """Wait for the artifacts container to be visible."""
         wait = WebDriverWait(world.driver, timeout)
-        return wait.until(EC.presence_of_element_located((By.ID, "artifacts-container")))
+        wait.until(EC.presence_of_element_located((By.ID, "artifacts-container")))
+        return self
     
     def find(self, id=None, summary=None, key=None):
         """Find artifacts on the page based on id, summary, or key."""
         artifacts = []
         try:
-            container = self.wait()
+            # Wait for container and get it
+            self.wait()
+            container = world.driver.find_element(By.ID, "artifacts-container")
             # Look for individual artifact elements
             artifact_elements = container.find_elements(By.CSS_SELECTOR, ".artifact-tile")
             
-            log.info(f"Found {len(artifact_elements)} artifact tiles")
-            
             for element in artifact_elements:
+                # Create Artifact instance first
+                artifact = Artifact.from_element(element)
+                
                 # Apply filters if specified
-                if id:
-                    # Look for artifact ID in the .artifact-id div
-                    try:
-                        id_div = element.find_element(By.CSS_SELECTOR, ".artifact-id")
-                        displayed_id = id_div.text.strip()
-                        log.debug(f"Checking artifact tile: displayed ID = '{displayed_id}', looking for '{id}'")
-                        # Match the exact displayed value
-                        if displayed_id == str(id):
-                            artifacts.append(element)
-                            continue
-                    except:
-                        # No .artifact-id div found, skip this element
-                        log.debug(f"No .artifact-id div found in tile")
-                        continue
-                
-                if summary:
-                    # Look for summary in the .artifact-summary div
-                    try:
-                        summary_div = element.find_element(By.CSS_SELECTOR, ".artifact-summary")
-                        if summary in summary_div.text.strip():
-                            artifacts.append(element)
-                            continue
-                    except:
-                        # No .artifact-summary div found, skip this element
-                        continue
-                
-                if key:
-                    # Look for key in any text content
-                    if key in element.text.strip():
-                        artifacts.append(element)
-                        continue
-                
-                # If no filters specified, include all artifacts
-                if not id and not summary and not key:
-                    artifacts.append(element)
+                if id and artifact.id != str(id):
+                    continue
                     
-            log.info(f"Returning {len(artifacts)} artifacts after filtering")
+                if summary and summary not in artifact.summary:
+                    continue
+                    
+                if key and key not in artifact.text:
+                    continue
+                
+                # Add the artifact to results
+                artifacts.append(artifact)
         
-        except Exception as e:
-            log.debug(f"Error finding artifacts: {e}")
+        except Exception:
+            pass
         
         return artifacts
     
@@ -126,7 +132,7 @@ class Artifacts:
         if not artifacts:
             raise ValueError(f"No artifact found with id={id}, summary={summary}, key={key}")
         if len(artifacts) > 1:
-            log.warning(f"Multiple artifacts found, using first one: {artifacts}")
+            pass  # Use first one
         
-        # Return the first matching artifact as an Artifact control object
-        return Artifact.from_element(artifacts[0])
+        # Return the first matching artifact
+        return artifacts[0]

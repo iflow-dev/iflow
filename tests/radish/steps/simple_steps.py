@@ -10,6 +10,7 @@ Rule: driver handling
 from radish import given, when, then, step, world
 from selenium.webdriver.common.by import By
 from controls import Title, Button
+from controls.page import Page
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
@@ -77,8 +78,13 @@ def _init_driver():
 def i_go_to_home(step):
     """Navigate to the home page (base URL)."""
     _init_driver()
+    
     base_url = world.base_url
     world.driver.get(base_url)
+    
+    # Clear any open modals after navigation to ensure clean state
+    page = Page()
+    page.clear_modal()
     
     # check the driver url after navigation (allow for redirects)
     assert base_url in world.driver.current_url
