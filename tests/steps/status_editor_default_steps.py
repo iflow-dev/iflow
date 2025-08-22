@@ -43,7 +43,13 @@ def i_see_status_is(step, expected_status):
 def i_open_artifact_by_id(step, artifact_id):
     """Open an artifact with the specified ID (no quotes = ID search)."""
     from controls.artifact_control import Artifacts
+    from controls.base import ControlBase
     from selenium.webdriver.common.by import By
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    
+    # Enable debug mode for this test run to handle click interception issues
+    ControlBase.enable_debug_for_test()
     
     # Use Artifacts.find_one to locate the artifact
     artifacts = Artifacts(world.driver)
@@ -51,14 +57,32 @@ def i_open_artifact_by_id(step, artifact_id):
     
     # Find the edit button within the artifact tile
     edit_button = artifact_tile.locate(world.driver).find_element(By.CSS_SELECTOR, "button[onclick*='openEditModal']")
-    edit_button.click()
-    log.debug(f"Opened artifact with ID '{artifact_id}' for editing")
+    
+    # Scroll the button into view and ensure it's clickable
+    world.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", edit_button)
+    
+    # Wait for the button to be clickable
+    wait = WebDriverWait(world.driver, 10)
+    wait.until(EC.element_to_be_clickable(edit_button))
+    
+    # Try regular click first, fallback to JavaScript click if needed
+    try:
+        edit_button.click()
+        log.debug(f"Opened artifact with ID '{artifact_id}' for editing (regular click)")
+    except Exception as e:
+        log.debug(f"Regular click failed, trying JavaScript click: {e}")
+        world.driver.execute_script("arguments[0].click();", edit_button)
+        log.debug(f"Opened artifact with ID '{artifact_id}' for editing (JavaScript click)")
 
 @step("I open the artifact {summary:QuotedString}")
 def i_open_artifact_by_summary(step, summary):
     """Open an artifact with the specified title/summary (quotes = title search)."""
     from controls.artifact_control import Artifacts
+    from controls.base import ControlBase
     from selenium.webdriver.common.by import By
+    
+    # Enable debug mode for this test run to handle click interception issues
+    ControlBase.enable_debug_for_test()
     
     # Use Artifacts.find_one to locate the artifact
     artifacts = Artifacts(world.driver)
@@ -66,8 +90,16 @@ def i_open_artifact_by_summary(step, summary):
     
     # Find the edit button within the artifact tile
     edit_button = artifact_tile.locate(world.driver).find_element(By.CSS_SELECTOR, "button[onclick*='openEditModal']")
-    edit_button.click()
-    log.debug(f"Opened artifact with title '{summary}' for editing")
+    
+    # Use enhanced click handling with debug mode
+    try:
+        edit_button.click()
+        log.debug(f"Opened artifact with title '{summary}' for editing (regular click)")
+    except Exception as e:
+        log.debug(f"Regular click failed, trying JavaScript click: {e}")
+        # Use JavaScript click as fallback
+        world.driver.execute_script("arguments[0].click();", edit_button)
+        log.debug(f"Opened artifact with title '{summary}' for editing (JavaScript click)")
 
 # Note: Step "I set the status to {status:QuotedString}" is already defined in artifact_creation_steps.py
 
