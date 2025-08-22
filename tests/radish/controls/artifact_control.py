@@ -14,7 +14,7 @@ class Artifact(ControlBase):
     
     def __init__(self, id=None, summary=None, element=None):
         self.artifact_id = id
-        self.summary = summary
+        self._summary = summary
         self.element = element
         
         if element:
@@ -65,13 +65,13 @@ class Artifact(ControlBase):
     def summary(self):
         """Get the artifact summary from the DOM element."""
         if not self.element:
-            return self.summary
+            return self._summary
         
         try:
             summary_div = self.element.find_element(By.CSS_SELECTOR, ".artifact-summary")
             return summary_div.text.strip()
         except:
-            return self.summary
+            return self._summary
     
     @property
     def text(self):
