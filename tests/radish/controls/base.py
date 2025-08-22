@@ -4,7 +4,10 @@ This module provides the foundation for all page object pattern classes.
 """
 
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
+from radish import world
 
 # Default timeout for element operations (in seconds)
 DEFAULT_TIMEOUT = 5
@@ -34,7 +37,7 @@ class ControlBase:
         if self.__class__.DEBUG_MODE:
             print(f"🐛 [ControlBase] {message}")
 
-    def locate(self, driver, timeout=None):
+    def locate(self, timeout=None):
         """Locate the element within timeout, assert if not found."""
         import logging
         logging.basicConfig(level=logging.INFO)
@@ -46,10 +49,7 @@ class ControlBase:
         
         logger.debug(f"Looking for element with XPath: {self.xpath}")
 
-        from selenium.webdriver.support.ui import WebDriverWait
-        from selenium.webdriver.support import expected_conditions as EC
-
-        wait = WebDriverWait(driver, timeout)
+        wait = WebDriverWait(world.driver, timeout)
         try:
             element = wait.until(EC.presence_of_element_located((By.XPATH, self.xpath)))
             logger.debug(f"Found element: {element.text}...")
@@ -57,57 +57,62 @@ class ControlBase:
         except TimeoutException:
             raise TimeoutException(f"Element ({self.xpath}) not found within {timeout} seconds")
 
-    def get_text(self, driver, timeout=None):
+    def get_text(self, timeout=None):
         # Set default timeout if None is provided
         if timeout is None:
             timeout = DEFAULT_TIMEOUT
-        return self.locate(driver, timeout).text
+        return self.locate(timeout).text
 
-    def exists(self, driver, timeout=None):
+    def exists(self, timeout=None):
         """Wait for element to appear and return true/false."""
         # Set default timeout if None is provided
         if timeout is None:
             timeout = DEFAULT_TIMEOUT
         try:
-            self.locate(driver, timeout)
+            self.locate(timeout)
             return True
         except TimeoutException:
             return False
 
-    def click(self, driver, timeout=None):
+    def click(self, timeout=None):
         """Click the element after locating it with enhanced debug handling."""
         # Set default timeout if None is provided
         if timeout is None:
             timeout = DEFAULT_TIMEOUT
         
-        element = self.locate(driver, timeout)
+        element = self.locate(timeout)
         
         if self.__class__.DEBUG_MODE:
             # Enhanced debug mode with better click handling
-            return self._click_with_debug(driver, element)
+            return self._click_with_debug(element)
         else:
-            # Normal click mode
-            element.click()
-            return element
+            # Normal click mode with fallback to JavaScript
+            try:
+                element.click()
+                return element
+            except Exception as e:
+                # If regular click fails (e.g., element intercepted), try JavaScript click
+                try:
+                    world.driver.execute_script("arguments[0].click();", element)
+                    return element
+                except Exception as js_error:
+                    # If both methods fail, raise the original error
+                    raise e from js_error
     
-    def _click_with_debug(self, driver, element):
+    def _click_with_debug(self, element):
         """Enhanced click method with debugging and fallback strategies."""
         try:
             # First, try to scroll the element into view
             self._debug_log(f"Scrolling element into view: {element.tag_name}")
-            driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", element)
+            world.driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", element)
             
             # Wait a moment for scroll to complete
             import time
             time.sleep(0.5)
             
             # Check if element is clickable
-            from selenium.webdriver.support.ui import WebDriverWait
-            from selenium.webdriver.support import expected_conditions as EC
-            from selenium.common.exceptions import TimeoutException
-            
             try:
-                wait = WebDriverWait(driver, 2)
+                wait = WebDriverWait(world.driver, 2)
                 wait.until(EC.element_to_be_clickable((By.XPATH, self.xpath)))
                 self._debug_log("Element is clickable, attempting regular click")
                 element.click()
@@ -117,7 +122,7 @@ class ControlBase:
                 self._debug_log("⚠️ Element not clickable, trying JavaScript click")
                 
                 # Try JavaScript click as fallback
-                driver.execute_script("arguments[0].click();", element)
+                world.driver.execute_script("arguments[0].click();", element)
                 self._debug_log("✅ JavaScript click successful")
                 return element
                 
@@ -127,18 +132,15 @@ class ControlBase:
             element.click()
             return element
     
-    def clear(self, driver, timeout=None):
+    def clear(self, timeout=None):
         """Clear/clean up UI state (e.g., close modals, clear forms)."""
         # Set default timeout if None is provided
         if timeout is None:
             timeout = DEFAULT_TIMEOUT
         
         try:
-            from selenium.webdriver.support.ui import WebDriverWait
-            from selenium.webdriver.support import expected_conditions as EC
-            
             # Wait for any modal to close if it was open
-            wait = WebDriverWait(driver, timeout)
+            wait = WebDriverWait(world.driver, timeout)
             wait.until_not(
                 EC.presence_of_element_located((By.CSS_SELECTOR, ".modal-content"))
             )

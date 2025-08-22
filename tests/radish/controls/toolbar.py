@@ -242,12 +242,6 @@ class CreateButton(ControlBase):
         super().__init__("//button[.//img[contains(@src, 'create-outline')]]")
         self.driver = driver
     
-    def click(self):
-        """Click the create button to open the artifact editor."""
-        element = self.find_element(self.driver)
-        element.click()
-        return self
-
 
 class RefreshButton(ControlBase):
     """Control class for the refresh button in the toolbar."""
@@ -260,9 +254,3 @@ class RefreshButton(ControlBase):
         """
         super().__init__("//button[.//img[contains(@src, 'refresh-outline')]]")
         self.driver = driver
-    
-    def click(self):
-        """Click the refresh button to reload artifacts."""
-        element = self.find_element(self.driver)
-        element.click()
-        return self

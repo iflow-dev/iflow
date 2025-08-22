@@ -38,7 +38,7 @@ class InputField(ControlBase):
     
     def set_value(self, driver, value, timeout=5):
         """Set the value of the input field."""
-        element = self.locate(driver, timeout)
+        element = self.locate(timeout)
         
         # Handle different element types
         tag_name = element.tag_name.lower()
@@ -184,5 +184,5 @@ class InputField(ControlBase):
     
     def get_value(self, driver, timeout=5):
         """Get the current value of the input field."""
-        element = self.locate(driver, timeout)
+        element = self.locate(timeout)
         return element.get_attribute("value")

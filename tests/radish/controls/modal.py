@@ -30,17 +30,17 @@ class Modal(ControlBase):
             xpath = "//div[contains(@class, 'modal')]"
         super().__init__(xpath)
     
-    def is_visible(self, driver, timeout=5):
+    def is_visible(self, timeout=5):
         """Check if the modal is currently visible."""
         try:
-            element = self.locate(driver, timeout)
+            element = self.locate(timeout)
             return element.is_displayed()
         except:
             return False
     
-    def wait_for_visible(self, driver, timeout=5):
+    def wait_for_visible(self, timeout=5):
         """Wait for modal to become visible."""
-        element = self.locate(driver, timeout)
+        element = self.locate(timeout)
         if not element.is_displayed():
             raise AssertionError(f"Modal found but not visible after {timeout} seconds")
         return element

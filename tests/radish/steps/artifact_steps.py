@@ -17,7 +17,7 @@ class ArtifactTestWorld:
     
     def __init__(self):
         self.driver = None
-        self.current_artifact_id = None
+def step_given_on_artifacts_page(context):
         self.filter_state = {}
         self.wait = None
 

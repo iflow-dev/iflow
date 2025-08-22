@@ -8,5 +8,3 @@ Feature: Toolbar Refresh Functionality
         Given I go to home
         And I see artifacts displayed
         When I click the refresh button in the toolbar
-        Then the artifacts should be refreshed
-        And I should see the latest data

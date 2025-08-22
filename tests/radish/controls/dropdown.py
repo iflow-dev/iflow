@@ -32,16 +32,16 @@ class Dropdown(ControlBase):
         
         self.dropdown_type = dropdown_type
     
-    def get_selected_value(self, driver, timeout=None):
+    def get_selected_value(self, timeout=None):
         """Get the currently selected value from the dropdown."""
-        dropdown = self.locate(driver, timeout)
+        dropdown = self.locate(timeout)
         selected_element = dropdown.find_element("xpath", ".//div[contains(@class, 'custom-dropdown-selected')]")
         return selected_element.text
     
-    def select_option(self, driver, option_text, timeout=None):
+    def select_option(self, option_text, timeout=None):
         """Select an option from the dropdown by text."""
         # Click to open dropdown
-        dropdown = self.locate(driver, timeout)
+        dropdown = self.locate(timeout)
         
         # Try different approaches to find the button
         try:
@@ -74,10 +74,10 @@ class Dropdown(ControlBase):
         
         raise ValueError(f"Option '{option_text}' not found in {self.dropdown_type} dropdown")
     
-    def is_open(self, driver, timeout=None):
+    def is_open(self, timeout=None):
         """Check if the dropdown is currently open."""
         try:
-            dropdown = self.locate(driver, timeout)
+            dropdown = self.locate(timeout)
             options_container = dropdown.find_element("xpath", ".//div[contains(@class, 'custom-dropdown-options')]")
             return options_container.is_displayed()
         except:

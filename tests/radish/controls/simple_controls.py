@@ -19,7 +19,7 @@ class Title(ControlBase):
 
 class Navigation(ControlBase):
     """Control for locating navigation elements."""
-    def __init__(self, driver):
+    def __init__(self):
         super().__init__("//nav")
 
 
@@ -32,7 +32,7 @@ class Tile(ControlBase):
         # Look for the content anywhere in the artifacts container
         super().__init__(f"//div[@id='artifacts-container'][contains(., '{tile_id}')]")
     
-    def locate(self, driver, timeout=5):
+    def locate(self, timeout=5):
         """Override locate to handle the case where artifacts are displayed as text, not as cards."""
         try:
             # First try to find the content in the artifacts container
@@ -40,7 +40,8 @@ class Tile(ControlBase):
             from selenium.webdriver.support.ui import WebDriverWait
             from selenium.webdriver.support import expected_conditions as EC
             
-            wait = WebDriverWait(driver, timeout)
+            from radish import world
+            wait = WebDriverWait(world.driver, timeout)
             container = wait.until(EC.presence_of_element_located((By.ID, "artifacts-container")))
             
             # Check if the container contains our search text
@@ -51,7 +52,7 @@ class Tile(ControlBase):
                 
         except Exception as e:
             # Fall back to the original method
-            return super().locate(driver, timeout)
+            return super().locate(timeout)
 
 
 class StatusLine(ControlBase):
@@ -59,9 +60,9 @@ class StatusLine(ControlBase):
     def __init__(self):
         super().__init__("//div[@class='status-line']")
     
-    def get_total_artifacts(self, driver, timeout=5):
+    def get_total_artifacts(self, timeout=5):
         """Extract the total number of artifacts from the status line."""
-        text = self.get_text(driver, timeout)
+        text = self.get_text(timeout)
         import re
         # Look for a number at the beginning of the status line
         match = re.search(r'^(\d+)', text)

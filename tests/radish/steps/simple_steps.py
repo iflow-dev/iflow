@@ -17,9 +17,9 @@ import logging
 import os
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-import logging_config  # Use the custom TRACE level
 
-log = logging_config.logger
+from logging_config import logger as log
+
 
 def _preinit():
     # Set base URL for the application
@@ -94,19 +94,19 @@ def i_go_to_home(step):
 def i_am_on_main_page(step):
     """Check that we are on the main page (expects previous step to have navigated)."""
     title = Title("iflow")
-    title.locate(world.driver)
+    title.locate()
 
 @when("I click the {button_text:QuotedString} button")
 def i_click_button(step, button_text):
     """Click a button with the specified text."""
-    button = Button(button_text)
-    button.click(world.driver)
+    button = Button("button", button_text, None)
+    button.click()
 
 @then("the page title should be displayed")
 def page_title_should_be_displayed(step):
     """Verify the page title is displayed."""
     title = Title("iflow")
-    title.locate(world.driver)
+    title.locate()
 
 @then("the artifact creation modal should be open")
 def artifact_creation_modal_should_be_open(step):

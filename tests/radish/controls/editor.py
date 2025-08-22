@@ -64,7 +64,7 @@ class Editor(ControlBase):
         toolbar.buttons.create.click()
         
         # Wait for modal to be visible using locate()
-        self.locate(self.driver)
+        self.locate()
         
         # Wait for JavaScript to populate dropdown options
         time.sleep(3)
@@ -79,10 +79,10 @@ class Editor(ControlBase):
         # Try to find the close button (×) in the modal
         close_button = Button("text", "×", None)
         try:
-            close_button.click(self.driver)
+            close_button.click()
         except:
             # If close button not found, try cancel button
-            self.cancel_button.click(self.driver)
+            self.cancel_button.click()
     
     def set_summary(self, summary):
         """Set the artifact summary."""
@@ -184,7 +184,7 @@ class Editor(ControlBase):
     
     def create(self):
         """Create the artifact and close the modal."""
-        self.submit_button.click(self.driver)
+        self.submit_button.click()
         
         # Wait for modal to close (modal should disappear)
         try:
@@ -223,7 +223,7 @@ class Editor(ControlBase):
         except Exception as e:
             print(f"Error with submit button: {e}")
             # Fallback to original method
-        self.submit_button.click(self.driver)
+        self.submit_button.click()
         
         # Wait for modal to close (modal should disappear)
         self.clear()
@@ -232,7 +232,7 @@ class Editor(ControlBase):
         """Cancel artifact creation and close the modal."""
         try:
             # Click the cancel button
-            self.cancel_button.click(self.driver)
+            self.cancel_button.click()
             print("Cancel button clicked successfully")
         except Exception as e:
             print(f"Error clicking cancel button: {e}")
@@ -292,7 +292,7 @@ class Editor(ControlBase):
     def wait_for_visible(self, timeout=5):
         """Wait for the editor modal to become visible."""
         # Use the existing locate method which already handles waiting
-        self.locate(self.driver, timeout)
+        self.locate(timeout)
         return True
     
     def clear(self, timeout=2):

@@ -6,6 +6,7 @@ from controls.base import ControlBase
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from radish import world
 import logging
 
 log = logging.getLogger(__name__)
@@ -36,7 +37,7 @@ class Artifact(ControlBase):
             return self.element
         else:
             # Use the parent class's locate method
-            return super().locate(driver, timeout)
+            return super().locate(timeout)
     
     @classmethod
     def from_element(cls, element):
@@ -46,8 +47,7 @@ class Artifact(ControlBase):
     def exists(self, timeout=1):
         """Check if artifact exists within the specified timeout."""
         try:
-            from radish import world
-            self.locate(world.driver, timeout)
+            self.locate(timeout)
             return 1
         except Exception:
             return 0
@@ -56,25 +56,17 @@ class Artifact(ControlBase):
 class Artifacts:
     """Class for finding artifacts on the page."""
     
-    def __init__(self, driver=None):
-        """Initialize with optional driver."""
-        self.driver = driver
+    def __init__(self):
+        """Initialize Artifacts finder."""
+        pass
     
     def wait(self, timeout=10):
         """Wait for the artifacts container to be visible."""
-        if self.driver is None:
-            from radish import world
-            self.driver = world.driver
-        
-        wait = WebDriverWait(self.driver, timeout)
+        wait = WebDriverWait(world.driver, timeout)
         return wait.until(EC.presence_of_element_located((By.ID, "artifacts-container")))
     
     def find(self, id=None, summary=None, key=None):
         """Find artifacts on the page based on id, summary, or key."""
-        if self.driver is None:
-            from radish import world
-            self.driver = world.driver
-        
         artifacts = []
         try:
             container = self.wait()
