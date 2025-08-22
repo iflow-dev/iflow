@@ -147,6 +147,11 @@ def main_simple():
     # We ignore environment, just read the param to check if 'local' is used
     environment = sys.argv[1]
     radish_args = sys.argv[2:]
+    
+    # Check for --foreground before filtering other known args
+    foreground_mode = "--foreground" in radish_args
+    
+    # Filter out known args including --foreground (since we handle it separately)
     known_args = ["--foreground", "--debug", "--trace", "--local"]
     radish_args = [arg for arg in radish_args if arg not in known_args]
     
@@ -155,8 +160,14 @@ def main_simple():
     
     # Always set trace logging
     os.environ["PYTHON_LOG_LEVEL"] = "TRACE"
-    # Always run in visible mode
-    os.environ["HEADLESS_MODE"] = "false"
+    
+    # Set headless mode based on --foreground flag
+    if foreground_mode:
+        os.environ["HEADLESS_MODE"] = "false"
+        print("HEADLESS_MODE=false (foreground mode enabled)")
+    else:
+        os.environ["HEADLESS_MODE"] = "true"
+        print("HEADLESS_MODE=true (headless mode enabled)")
     
     local_server_process = None
     
@@ -180,7 +191,6 @@ def main_simple():
             print(f"Using environment: {environment} => {env_url}")
         
         print("PYTHON_LOG_LEVEL=TRACE (hard-coded)")
-        print("HEADLESS_MODE=false (always visible)")
         
         setup_python_path()
         status_code = run_radish(radish_args)
