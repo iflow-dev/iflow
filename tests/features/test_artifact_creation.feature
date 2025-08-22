@@ -5,8 +5,7 @@ Feature: Test Artifact Creation
   So that I can add new items to the project
 
   Scenario: Create New Artifact from Search View
-    Given I am on the main page
-    # TODO: Then I see 1 artifact
+    Given I go to home
     When I create a new requirement
     When I set the type to "requirement"
     And I set the summary to "Test requirement for BDD testing"
@@ -19,7 +18,7 @@ Feature: Test Artifact Creation
     # Note: The artifact ID is saved in world for use in subsequent scenarios
 
   Scenario: Cancel Artifact Creation
-    Given I am on the main page
+    Given I go to home
     When I create a new requirement
     When I set the type to "requirement"
     And I set the summary to "This will be cancelled"
