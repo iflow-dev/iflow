@@ -33,6 +33,7 @@ def set_activity_to(step, text):
     activity_field.clear()
     activity_field.send_keys(text)
 
+# TODO: replace usage by "I open the artifact <summary>"
 @step("I open the artifact with title \"{title}\"")
 def open_artifact_with_title(step, title):
     """Open an artifact with the specified title for editing."""

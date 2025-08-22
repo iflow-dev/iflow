@@ -1,10 +1,13 @@
+# TODO:
+# - use 4 space indents
+#
 Feature: Status Field Default Values in Editor
   As a user
   I want the status field in the artifact editor to have proper default values
   So that I don't have to manually select the status every time
 
   Background:
-    Given I am on the main page
+    Given I go to home
 
   @smoke @tid:0111
   Scenario: Status field shows first status as default when creating new artifact

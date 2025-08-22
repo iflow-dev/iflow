@@ -3,8 +3,6 @@ Feature: Test Artifact Tile
   As a user
   I want to verify that specific artifacts are visible
   So that I can confirm the page is working correctly
-
-      #  disabled - artifact #00001 not found
       @tid:0106
     Scenario: Verify Artifact Tile Exists
         Given I go to home

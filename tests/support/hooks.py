@@ -19,9 +19,19 @@ def setup_test_environment(features, marker):
     log.trace("Starting BDD test environment setup...")
     
 
+# TODO:
+#
+# When activated, it looks like this hook is running
+# BETWEEN the scenarios instead of after them.
+# This causes the driver to deinitialize after the first
+# scenario.
+# 
 # @after.all
 def cleanup_test_environment(features, marker):
-    """Clean up after all tests complete."""
+    """Clean up after all tests complete:
+
+        - deinitialize ChromeDriver and close
+    """
     log.trace("Starting BDD test environment cleanup...")
     
     # Clean up the web driver from world

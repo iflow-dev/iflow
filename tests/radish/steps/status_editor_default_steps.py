@@ -11,17 +11,13 @@ from controls.editor import Editor
 log = logging.getLogger(__name__)
 
 
-
-
-
-
-
 @step("I see the editor is open")
 def i_see_editor_is_open(step):
     """Verify that the artifact editor modal is open and visible."""
     editor = Editor(world.driver)
     editor.locate()
     log.debug("Artifact editor modal is open and visible")
+
 
 @step("I see the status is {expected_status:QuotedString}")
 def i_see_status_is(step, expected_status):
@@ -34,10 +30,6 @@ def i_see_status_is(step, expected_status):
     else:
         raise AssertionError(f"Expected status field to show '{expected_status}', but got '{actual_value}'")
             
-
-
-
-
 
 @step("I open the artifact {artifact_id:w}")
 def i_open_artifact_by_id(step, artifact_id):
