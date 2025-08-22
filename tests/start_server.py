@@ -68,7 +68,7 @@ def setup_environment():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     
     # Add the sw directory to Python path
-    sw_path = os.path.join(script_dir, 'sw')
+    sw_path = os.path.join(script_dir, '..', 'sw')
     if not os.path.exists(sw_path):
         logger.error(f"sw directory not found at: {sw_path}")
         logger.error(f"Current working directory: {os.getcwd()}")
@@ -298,7 +298,7 @@ def main():
         logger.info(f"Using database: {database_path}")
         
         # Override static folder to use local files
-        static_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'sw', 'iflow', 'static')
+        static_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'sw', 'iflow', 'static')
         app.static_folder = static_folder
         logger.info(f"Using local static folder: {static_folder}")
         
