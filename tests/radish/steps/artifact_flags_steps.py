@@ -3,6 +3,7 @@ Step definitions for artifact flags functionality tests.
 """
 
 from radish import step, world
+import re
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
@@ -41,7 +42,7 @@ def i_see_artifacts_displayed(step):
 
 
 
-@step("I (?:(un)?)flag the artifact #{artifact_id:d}")
+@step(re.compile(r"I (?:(un)?)flag artifact #(\d+)"))
 def i_flag_unflag_artifact(step, unflag, artifact_id):
     """Flag or unflag the specified artifact.
     
@@ -68,7 +69,7 @@ def i_flag_unflag_artifact(step, unflag, artifact_id):
     article.toggle(active=desired_state)
 
 
-@step("the artifact {should|should not} be flagged")
+@step(re.compile("the artifact (should|should not) be flagged"))
 def the_artifact_should_be_flagged_or_not(step, should):
     """Verify that the artifact flag state matches the expected state."""
     
@@ -209,7 +210,7 @@ def i_should_see_new_artifact_created(step):
     assert len(artifacts) > 0, "New artifact with test summary not found"
 
 
-@step("the new artifact should be flagged")
+@step("the artifact should be flagged")
 def the_new_artifact_should_be_flagged(step):
     """Verify that the newly created artifact is flagged."""
     

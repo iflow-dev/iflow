@@ -13,57 +13,11 @@ import os
 import time
 from logging_config import logger as log
 
-# ============================================================================
-# SESSION-LEVEL HOOKS (ChromeDriver Management)
-# ============================================================================
-
 @before.all
 def setup_test_environment(features, marker):
     """Set up the test environment before all tests."""
     log.trace("Starting BDD test environment setup...")
     
-    # Set base URL for the application
-    base_url = os.getenv('IFLOW_BASE_URL')
-    if not base_url:
-        log.trace("IFLOW_BASE_URL environment variable not set")
-        raise ValueError("IFLOW_BASE_URL environment variable must be set")
-    log.trace(f"Testing against: {base_url}")
-    
-    # Store base URL directly in world object for easy access
-    world.base_url = base_url
-    log.trace(f"Base URL set in world: {world.base_url}")
-    
-    # Initialize the web driver once for the entire test session
-    log.trace("Initializing Chrome driver for entire test session...")
-    chrome_options = Options()
-    
-    # Check if headless mode should be disabled
-    headless_mode = os.environ.get("HEADLESS_MODE", "true").lower() == "true"
-    if headless_mode:
-        chrome_options.add_argument("--headless")  # Run headless by default
-        log.trace("Chrome running in headless mode")
-    else:
-        log.trace("Chrome running in visible mode (headless disabled)")
-    
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_argument("--disable-gpu")
-    chrome_options.add_argument("--window-size=1024,800")
-    
-    # Add additional stability options
-    chrome_options.add_argument("--disable-extensions")
-    chrome_options.add_argument("--disable-plugins")
-    chrome_options.add_argument("--disable-web-security")
-    chrome_options.add_argument("--allow-running-insecure-content")
-    
-    try:
-        log.trace("Creating Chrome driver with options...")
-        world.driver = webdriver.Chrome(options=chrome_options)
-        world.driver.implicitly_wait(10)
-        log.trace("Chrome driver initialized successfully for entire test session")
-    except Exception as e:
-        log.error(f"Failed to initialize Chrome driver: {e}")
-        raise RuntimeError(f"ChromeDriver initialization failed: {e}") from e
 
 # @after.all
 def cleanup_test_environment(features, marker):

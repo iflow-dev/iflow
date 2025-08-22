@@ -110,6 +110,7 @@ def run_radish(args: List[str]) -> int:
     Run the radish command with the given arguments and return the status code.
     """
     # Build the radish command
+    args.append("-t")
     radish_cmd = ["radish"] + args
     
     print(f"Running command: {' '.join(radish_cmd)}")
@@ -135,6 +136,8 @@ def main_simple():
     # We ignore environment, just read the param to check if 'local' is used
     environment = sys.argv[1]
     radish_args = sys.argv[2:]
+    known_args = ["--foreground", "--debug", "--trace", "--local"]
+    radish_args = [arg for arg in radish_args if arg not in known_args]
     
     # Hard-coded defaults
     local_mode = (environment == "local")

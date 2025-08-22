@@ -10,7 +10,7 @@ Feature: Artifact Flags
         When I flag artifact #00001
         Then the artifact should be flagged
         When I flag artifact #00001
-        Then the artifact should be unflagged
+        Then the artifact should not be flagged
 
     Scenario: Filter by flagged artifacts
         Given I reset the database to master
@@ -35,4 +35,4 @@ Feature: Artifact Flags
         And I save the article
         Then I should see the new artifact created
         # TODO: Flag functionality not working - checkbox clicked but not saved
-        # And the new artifact should be flagged
+        And the artifact should be flagged
