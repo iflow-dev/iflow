@@ -49,6 +49,12 @@
                 <span class="close" onclick="closeModal()">&times;</span>
             </div>
             <form id="artifactForm">
+                <!-- Form actions moved to top for better accessibility -->
+                <div class="form-actions form-actions-top">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn" id="submitButton">Create</button>
+                </div>
+                
                 <div class="form-group">
                     <label class="form-label" for="artifactType">Type</label>
                     <select class="form-select" id="artifactType" required>
@@ -90,10 +96,6 @@
                         <input type="checkbox" id="artifactFlagged" style="margin-right: 0.5rem;">
                         Flag this artifact
                     </label>
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-                    <button type="submit" class="btn" id="submitButton">Create</button>
                 </div>
             </form>
         </div>

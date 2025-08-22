@@ -525,6 +525,17 @@ select.filter-select:hover,
     /* Border color will be set dynamically via JavaScript */
 }
 
+.artifact-id {
+    font-size: 0.9rem;
+    color: #6c757d;
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    background: #f8f9fa;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+}
+
 .artifact-status {
     background: white;
     color: #333;

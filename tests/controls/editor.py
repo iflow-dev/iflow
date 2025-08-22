@@ -255,14 +255,36 @@ class Editor(ControlBase):
     
     def save(self):
         """Save the artifact and close the modal."""
-        self.submit_button.click(self.driver)
+        from selenium.webdriver.common.by import By
+        from selenium.webdriver.support.ui import WebDriverWait
+        from selenium.webdriver.support import expected_conditions as EC
+        
+        # Debug: Check if button is visible and clickable
+        try:
+            # Find the submit button directly
+            submit_button = self.driver.find_element(By.XPATH, "//button[@type='submit']")
+            print(f"Submit button found: {submit_button.text}")
+            print(f"Button visible: {submit_button.is_displayed()}")
+            print(f"Button enabled: {submit_button.is_enabled()}")
+            
+            # Try to scroll the button into view
+            self.driver.execute_script("arguments[0].scrollIntoView(true);", submit_button)
+            
+            # Wait a moment for scroll to complete
+            import time
+            time.sleep(1)
+            
+            # Try clicking with JavaScript first (more reliable)
+            self.driver.execute_script("arguments[0].click();", submit_button)
+            print("Button clicked successfully with JavaScript")
+            
+        except Exception as e:
+            print(f"Error with submit button: {e}")
+            # Fallback to original method
+            self.submit_button.click(self.driver)
         
         # Wait for modal to close (modal should disappear)
         try:
-            from selenium.webdriver.support.ui import WebDriverWait
-            from selenium.webdriver.support import expected_conditions as EC
-            from selenium.webdriver.common.by import By
-            
             wait = WebDriverWait(self.driver, 10)
             wait.until(EC.invisibility_of_element_located((By.ID, "artifactModal")))
         except Exception as e:

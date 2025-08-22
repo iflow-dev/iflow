@@ -14,24 +14,34 @@ log = logging.getLogger(__name__)
 class Artifact(ControlBase):
     """Control for locating and interacting with individual artifacts."""
     
-    def __init__(self, id=None, summary=None, element_id=None):
+    def __init__(self, id=None, summary=None, element=None):
         self.artifact_id = id
         self.summary = summary
-        self.element_id = element_id
+        self.element = element
         
-        if element_id:
-            super().__init__(f"//div[@id='{element_id}']")
+        if element:
+            # Store the element directly instead of creating an XPath
+            super().__init__("//div")  # Dummy XPath, we'll use the stored element
         elif id:
             super().__init__(f"//div[@id='artifacts-container'][contains(., '{id}')]")
         elif summary:
             super().__init__(f"//div[@id='artifacts-container'][contains(., '{summary}')]")
         else:
-            raise ValueError("Must provide either id, summary, or element_id")
+            raise ValueError("Must provide either id, summary, or element")
+    
+    def locate(self, driver, timeout=5):
+        """Locate the artifact element."""
+        if self.element:
+            # Return the stored element directly
+            return self.element
+        else:
+            # Use the parent class's locate method
+            return super().locate(driver, timeout)
     
     @classmethod
-    def from_element_id(cls, element_id):
-        """Create an Artifact instance from an element ID."""
-        return cls(element_id=element_id)
+    def from_element(cls, element):
+        """Create an Artifact instance from a DOM element."""
+        return cls(element=element)
     
     def exists(self, timeout=1):
         """Check if artifact exists within the specified timeout."""
@@ -68,40 +78,47 @@ class Artifacts:
         artifacts = []
         try:
             container = self.wait()
-            # Look for individual artifact elements - try different selectors
+            # Look for individual artifact elements
             artifact_elements = container.find_elements(By.CSS_SELECTOR, ".artifact-tile")
             
-            # If no .artifact-tile elements found, try alternative selectors
-            if not artifact_elements:
-                artifact_elements = container.find_elements(By.CSS_SELECTOR, "[id^='artifact-']")
-            
-            if not artifact_elements:
-                artifact_elements = container.find_elements(By.CSS_SELECTOR, ".artifact")
-            
-            if not artifact_elements:
-                # Last resort: look for any div that might be an artifact
-                artifact_elements = container.find_elements(By.CSS_SELECTOR, "div")
-                # Filter to only divs that look like artifacts (have some content)
-                artifact_elements = [elem for elem in artifact_elements if elem.text.strip()]
-            
-            log.info(f"Found {len(artifact_elements)} potential artifact elements")
+            log.info(f"Found {len(artifact_elements)} artifact tiles")
             
             for element in artifact_elements:
-                element_text = element.text.strip()
-                if not element_text:  # Skip empty elements
-                    continue
-                    
-                log.info(f"Element text: '{element_text[:100]}...'")
-                
                 # Apply filters if specified
-                if id and str(id) in element_text:
-                    artifacts.append(element)
-                elif summary and summary in element_text:
-                    artifacts.append(element)
-                elif key and key in element_text:
-                    artifacts.append(element)
-                elif not id and not summary and not key:
-                    # No filters, include all
+                if id:
+                    # Look for artifact ID in the .artifact-id div
+                    try:
+                        id_div = element.find_element(By.CSS_SELECTOR, ".artifact-id")
+                        displayed_id = id_div.text.strip()
+                        log.debug(f"Checking artifact tile: displayed ID = '{displayed_id}', looking for '{id}'")
+                        # Match the exact displayed value
+                        if displayed_id == str(id):
+                            artifacts.append(element)
+                            continue
+                    except:
+                        # No .artifact-id div found, skip this element
+                        log.debug(f"No .artifact-id div found in tile")
+                        continue
+                
+                if summary:
+                    # Look for summary in the .artifact-summary div
+                    try:
+                        summary_div = element.find_element(By.CSS_SELECTOR, ".artifact-summary")
+                        if summary in summary_div.text.strip():
+                            artifacts.append(element)
+                            continue
+                    except:
+                        # No .artifact-summary div found, skip this element
+                        continue
+                
+                if key:
+                    # Look for key in any text content
+                    if key in element.text.strip():
+                        artifacts.append(element)
+                        continue
+                
+                # If no filters specified, include all artifacts
+                if not id and not summary and not key:
                     artifacts.append(element)
                     
             log.info(f"Returning {len(artifacts)} artifacts after filtering")
@@ -110,3 +127,14 @@ class Artifacts:
             log.debug(f"Error finding artifacts: {e}")
         
         return artifacts
+    
+    def find_one(self, id=None, summary=None, key=None):
+        """Find a single artifact and return an Artifact control object."""
+        artifacts = self.find(id=id, summary=summary, key=key)
+        if not artifacts:
+            raise ValueError(f"No artifact found with id={id}, summary={summary}, key={key}")
+        if len(artifacts) > 1:
+            log.warning(f"Multiple artifacts found, using first one: {artifacts}")
+        
+        # Return the first matching artifact as an Artifact control object
+        return Artifact.from_element(artifacts[0])

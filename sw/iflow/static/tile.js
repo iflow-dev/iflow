@@ -117,6 +117,7 @@ class TileManager {
                     <ion-icon name="${typeInfo.icon || 'document-outline'}"></ion-icon>
                     <span>${typeInfo.name || artifact.type || 'Unknown'}</span>
                 </div>
+                <div class="artifact-id">${artifact.artifact_id}</div>
                 <div class="artifact-status">
                     <ion-icon name="${statusInfo.icon || 'help-circle-outline'}"></ion-icon>
                     <span>${statusInfo.name || artifact.status || 'Unknown'}</span>
@@ -128,9 +129,9 @@ class TileManager {
                 <div class="artifact-iteration">${artifact.iteration || 'No iteration'}</div>
             </div>
                 <div class="artifact-actions">
-                <button class="btn btn-icon" onclick="editArtifact('${artifact.artifact_id}')" title="Edit">
-                        <ion-icon name="create-outline"></ion-icon>
-                    </button>
+                                <button class="btn btn-icon" onclick="openEditModal('${artifact.artifact_id}')" title="Edit">
+                    <ion-icon name="create-outline"></ion-icon>
+                </button>
                 <button class="btn btn-icon" onclick="toggleArtifactFlag('${artifact.artifact_id}')" title="Toggle Flag">
                     <ion-icon name="${artifact.flagged ? 'flag' : 'flag-outline'}"></ion-icon>
                 </button>
