@@ -38,6 +38,7 @@ def print_help():
     print()
     print("Options:")
     print("    --help, -h          Show this help message")
+    print("    --smoke             Run smoke tests (equivalent to --tags='smoke and not fixme')")
     print("    --tags <tags>       Run tests with specific tags")
     print("    --tags=<tags>       Run tests with specific tags (alternative format)")
     print("    --tid <id>          Run test with specific test ID (e.g., --tid 0113)")
@@ -46,10 +47,17 @@ def print_help():
     print()
     print("Examples:")
     print("    ./bdd-test features/                    # Run all features")
+    print("    ./bdd-test --smoke                      # Run only smoke tests")
+    print("    ./bdd-test features/ --smoke            # Run only smoke tests")
+    print("    ./bdd-test --tags smoke                 # Run only smoke tests")
     print("    ./bdd-test features/ --tags smoke       # Run only smoke tests")
+    print("    ./bdd-test --tags=regression            # Run only regression tests")
     print("    ./bdd-test features/ --tags=regression  # Run only regression tests")
+    print("    ./bdd-test --tags smoke regression      # Run smoke AND regression tests")
     print("    ./bdd-test features/ --tags smoke regression  # Run smoke AND regression tests")
+    print("    ./bdd-test --tid 0113                   # Run test with ID 0113")
     print("    ./bdd-test features/ --tid 0113         # Run test with ID 0113")
+    print("    ./bdd-test --tid 0113 --tags smoke     # Run test 0113 with smoke tag")
     print("    ./bdd-test features/ --tid 0113 --tags smoke  # Run test 0113 with smoke tag")
     print()
     print("Notes:")
@@ -117,18 +125,30 @@ def main():
         print("Example: ./bdd-test features/test_artifact_flags.feature --scenarios 1")
         sys.exit(1)
     
-    # The first argument is the feature file/path
-    feature_arg = processed_args[0]
+    # Check if first argument is a feature path or an option
+    if processed_args[0].startswith("--") or processed_args[0].startswith("-"):
+        # First argument is an option, use default feature path
+        feature_arg = "features/"
+        # Don't remove the first argument since it's an option
+    else:
+        # First argument is a feature path
+        feature_arg = processed_args[0]
+        # Remove the first argument since we've processed it
+        processed_args = processed_args[1:]
     
-    # Parse remaining arguments to handle --tags and --tid specially
+    # Parse remaining arguments to handle --smoke, --tags and --tid specially
     additional_args = []
     user_tags_expression = None
     tid_expression = None
+    smoke_mode = False
     
     i = 1
     while i < len(processed_args):
         arg = processed_args[i]
-        if arg.startswith("--tid"):
+        if arg == "--smoke":
+            # Enable smoke mode
+            smoke_mode = True
+        elif arg.startswith("--tid"):
             # Extract test ID from --tid argument
             if "=" in arg:
                 # Format: --tid=0113
@@ -182,8 +202,12 @@ def main():
     # Get the Python executable from venv-local
     python_exe = activate_venv_local()
     
-    # Build the tags expression combining user tags, tid, and fixme exclusion
+    # Build the tags expression combining smoke mode, user tags, tid, and fixme exclusion
     tags_parts = []
+    
+    # Add smoke mode if enabled (note: no @ symbol for radish)
+    if smoke_mode:
+        tags_parts.append("(smoke)")
     
     # Add user tags if provided
     if user_tags_expression:
@@ -193,7 +217,7 @@ def main():
     if tid_expression:
         tags_parts.append(f"({tid_expression})")
     
-    # Always exclude fixme tags
+    # Always exclude fixme tags (note: no @ symbol for radish)
     tags_parts.append("(not fixme)")
     
     # Combine all parts with AND
