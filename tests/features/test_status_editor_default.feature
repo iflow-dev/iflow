@@ -17,11 +17,24 @@ Feature: Status Field Default Values in Editor
 
   @smoke
   Scenario: Status field shows actual status when editing existing artifact
-    When I open the artifact with "00001"
+
+    When I open the artifact 00001
     Then I see the editor is open
-            And I see the status is "open"
-    And I set the status to "done"
-    And I see the status is "done"
+    When I set the status to "open"
+    Then I see the status is "open"
+
+    When I save the artifact
+    Then I see artifact 00001 has status "open"
+
+    When I open the artifact 00001
+    Then I see the status is "open"
+
+    When I set the status to "done"
+    When I save the artifact
+    Then I see artifact 00001 has status "done"
+
+    When I open the artifact 00001
+    Then I see the status is "done"
 
   @smoke
   Scenario: Status field maintains selected value when saving artifact
