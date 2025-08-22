@@ -1,5 +1,10 @@
 """
-Simple step definitions for basic functionality testing.
+Basic step definitions.
+
+Rule: driver handling
+    - All users of the selenium web driver shall use it
+      through direct import and access of world.driver
+    - Driver instances may not be passed around through arguments
 """
 
 from radish import given, when, then, step, world

@@ -5,6 +5,15 @@ Radish test runner with environment support.
 Now only using main_simple().
 Always uses port 7000.
 Always sets PYTHON_LOG_LEVEL=TRACE.
+
+
+USAGE:
+
+-   load virtual env under venv-local
+-   cd tests/
+-   run smoke tests:
+    - ./run_radish.py local features/* --tags=smoke --trace
+-   tests take long time.
 """
 
 import os
