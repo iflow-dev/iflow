@@ -21,10 +21,10 @@ Feature: Artifact Verification Field
     Scenario: Save artifact with custom verification method
         Given I go to home
         When I click the create button
-        And I fill in the summary with "Test artifact with custom verification"
-        And I fill in the description with "This artifact has a custom verification method"
+        And I set the summary to "Test artifact with custom verification"
+        And I set the description to "This artifact has a custom verification method"
         And I set the verification field to "Manual Testing"
-        And I click the Create button
+        And I save the article
         Then I should see a success message
         And the artifact should be saved with verification method "Manual Testing"
 

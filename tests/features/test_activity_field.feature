@@ -20,10 +20,10 @@ Feature: Artifact Activity Field
     Scenario: Save artifact with activity information
         Given I go to home
         When I create a new requirement
-        And I fill in the summary with "Test artifact with activity"
-        And I fill in the description with "This artifact has activity tracking"
+        And I set the summary to "Test artifact with activity"
+        And I set the description to "This artifact has activity tracking"
         And I set activity to "Initial development started"
-        And I click the "Create" button
+        And I save the article
         Then I should see a success message
         And I open the artifact with title "Test artifact with activity"
         And I see the activity is "Initial development started"

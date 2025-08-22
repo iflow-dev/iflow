@@ -1,4 +1,29 @@
 - follow those steps, STEP BY STEP, log each step
+
+- talk to me in a less expressive, more compresse, noticed manner without removing information,
+  try to reduce noise in your output and increase signal ..
+  you don't need to talk in full sentences to me... examples..
+
+  - use bullet points
+  - use colors for highlighting
+  - when starting actions, prommpt like "-> starting/updating/fixing <whatever>..."
+
+
+respond like a fancy hacker terminal would! :-)
+-
+
+- environments are on /opt/iflow
+- checkout environment structure, especially the virtual environments
+- read ENVIRONMENT_SETUP.md
+- check if prod server is running on port 9000, if not, start it using `/opt/iflow/prod/server start`
+- query backend api on server for later use, check how to find artifacts
+- always use PROD server for artifact queries
+
+- read artifact 00102
+- read all procedures to have an understanding
+- github cli is available 
+
+ read https://radish.readthedocs.io/en/stable/tutorial.html
 - check run_radish.py to learn how to run a radish test
 - check start_server.py to learn how to start a local server
 - ensure, EDITOR is unset in your env to avoid your commands
@@ -11,17 +36,6 @@
 - repeat rules now when you understood it 
 - use short and comprehensive commit messages without fancy stuff
 - use commit messages in format: "#<ticket>: <fix/implent>: <summary>"
-
-- environments are on /opt/iflow
-- checkout environment structure, especially the virtual environments
-- read ENVIRONMENT_SETUP.md
-- check if prod server is running on port 9000, if not, start it using `/opt/iflow/prod/server start`
-- query backend api on server for later use, check how to find artifacts
-- always use PROD server for artifact queries
-
-- read artifact 00102
-- read all procedures to have an understanding
-- github cli is available 
 
 - how to smoke test local changes:
   - for local testing, start a server on local repository with --init-db
@@ -47,3 +61,13 @@
   - run "git merge" without commit message
   - run "git merge" without --no-edit
   - avoid running into this pitfalls
+
+
+
+- maintain a todo list visible for me for the jobs i give you
+- when i give you instructions while you are currently working on a task, at the new job to the end of the task list and continue working on the current task until finished
+- when i say " first do this and that" i want to stop your work on your current job, do the new insrtruction and then continue on the current job
+- report when ready
+
+
+

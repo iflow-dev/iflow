@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Input Filter Test</title>
+    <!-- Use the actual project styles.css -->
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        /* Only minimal test-specific styles */
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .main-content {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+        }
+        
+        .filter-section {
+            flex: 1;
+            min-width: 400px;
+        }
+        
+        .test-section {
+            flex: 1;
+            min-width: 600px;
+        }
+        
+        /* Test Button States */
+        .test-button {
+            transition: all 0.3s ease;
+        }
+        
+        .test-button.running {
+            background-color: #ffc107 !important;
+            color: #000 !important;
+        }
+        
+        .test-button.passed {
+            background-color: #28a745 !important;
+            color: white !important;
+        }
+        
+        .test-button.failed {
+            background-color: #dc3545 !important;
+            color: white !important;
+        }
+        
+        .test-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .test-title {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        /* Make the filter control clearly distinguishable */
+        .filter-wrapper {
+            border: 2px dotted #007bff !important;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .debug-info {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .debug-info h4 {
+            margin-top: 0;
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1 class="test-title">Text Input Filter Test</h1>
+        
+        <div class="main-content">
+            <!-- Test Cases Section (Left Side) -->
+            <div class="test-section">
+                <h3 style="margin-top: 0; color: #495057; border-bottom: 2px solid #007bff; padding-bottom: 10px;">
+                    Test Cases
+                </h3>
+                
+                <div class="test-case" style="margin-bottom: 15px; padding: 12px; border: 1px solid #ced4da; border-radius: 6px; background: white;">
+                    <h4 style="margin: 0 0 8px 0; color: #007bff; font-size: 14px;">Test Case 1: Clear Button Visibility When Empty</h4>
+                    <p style="margin: 0 0 8px 0; color: #6c757d; font-size: 12px;">
+                        <strong>Purpose:</strong> Verify clearing cross is not visible when search field is empty
+                    </p>
+                    <p style="margin: 0 0 8px 0; color: #6c757d; font-size: 12px;">
+                        <strong>Expected:</strong> Clear button hidden (display: none) when input empty
+                    </p>
+                    <button id="test1-button" onclick="runTest1()" class="test-button" data-test-id="1" style="padding: 6px 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 6px;">
+                        <span class="button-text">Run Test</span>
+                        <span class="button-icon" style="display: none;">🔄</span>
+                    </button>
+                    <div id="test1-result" style="margin-top: 8px;"></div>
+                </div>
+                
+
+                
+                <div class="test-case" style="margin-bottom: 15px; padding: 12px; border: 1px solid #ced4da; border-radius: 6px; background: white;">
+                    <h4 style="margin: 0 0 8px 0; color: #6f42c1; font-size: 14px;">Test Case 3: Filter State Cycling</h4>
+                    <p style="margin: 0 0 8px 0; color: #6c757d; font-size: 12px;">
+                        <strong>Purpose:</strong> Verify filter footer clicking cycles through states
+                    </p>
+                    <p style="margin: 0 0 8px 0; color: #6c757d; font-size: 12px;">
+                        <strong>Expected:</strong> States cycle: active → inactive → disabled → active
+                    </p>
+                    <button id="test3-button" onclick="runTest3()" class="test-button" data-test-id="3" style="padding: 6px 12px; background: #6f42c1; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 6px;">
+                        <span class="button-text">Run Test</span>
+                        <span class="button-icon" style="display: none;">🔄</span>
+                    </button>
+                    <div id="test3-result" style="margin-top: 8px;"></div>
+                </div>
+                
+                <div class="test-case" style="margin-bottom: 15px; padding: 12px; border: 1px solid #ced4da; border-radius: 6px; background: white;">
+                    <h4 style="margin: 0 0 8px 0; color: #fd7e14; font-size: 12px;">Test Case 4: Clear Button Functionality</h4>
+                    <p style="margin: 0 0 8px 0; color: #6c757d; font-size: 12px;">
+                        <strong>Purpose:</strong> Verify clear button removes text and updates filter state
+                    </p>
+                    <p style="margin: 0 0 8px 0; color: #6c757d; font-size: 12px;">
+                        <strong>Expected:</strong> Input cleared, state inactive, button hidden
+                    </p>
+                    <button id="test4-button" onclick="runTest4()" class="test-button" data-test-id="4" style="padding: 6px 12px; background: #fd7e14; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 6px;">
+                        <span class="button-text">Run Test</span>
+                        <span class="button-icon" style="display: none;">🔄</span>
+                    </button>
+                    <div id="test4-result" style="margin-top: 8px;"></div>
+                </div>
+                
+                <div class="test-case" style="margin-bottom: 15px; padding: 12px; border: 1px solid #ced4da; border-radius: 6px; background: white;">
+                    <h4 style="margin: 0 0 8px 0; color: #20c997; font-size: 14px;">Test Case 5: Cross Visibility After Text Input</h4>
+                    <p style="margin: 0 0 8px 0; color: #6c757d; font-size: 12px;">
+                        <strong>Purpose:</strong> Verify cross becomes visible after user inputs text
+                    </p>
+                    <p style="margin: 0 0 8px 0; color: #6c757d; font-size: 12px;">
+                        <strong>Expected:</strong> Clear button visible (display: block) when user types text
+                    </p>
+                    <button id="test5-button" onclick="runTest5()" class="test-button" data-test-id="5" style="padding: 6px 12px; background: #20c997; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 6px;">
+                        <span class="button-text">Run Test</span>
+                        <span class="button-icon" style="display: none;">🔄</span>
+                    </button>
+                    <div id="test5-result" style="margin-top: 8px;"></div>
+                </div>
+                
+                <div class="test-case" style="margin-bottom: 15px; padding: 12px; border: 1px solid #ced4da; border-radius: 6px; background: white;">
+                    <h4 style="margin: 0 0 8px 0; color: #e83e8c; font-size: 14px;">Test Case 6: Filter Name Click to Disabled State</h4>
+                    <p style="margin: 0 0 8px 0; color: #6c757d; font-size: 12px;">
+                        <strong>Purpose:</strong> Verify clicking filter name cycles filter to disabled state
+                    </p>
+                    <p style="margin: 0 0 8px 0; color: #6c757d; font-size: 12px;">
+                        <strong>Expected:</strong> Filter state changes from active to disabled when footer clicked
+                    </p>
+                    <button id="test6-button" onclick="runTest6()" class="test-button" data-test-id="6" style="padding: 6px 12px; background: #e83e8c; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 6px;">
+                        <span class="button-text">Run Test</span>
+                        <span class="button-icon" style="display: none;">🔄</span>
+                    </button>
+                    <div id="test6-result" style="margin-top: 8px;"></div>
+                </div>
+                
+                <div class="test-case" style="margin-bottom: 15px; padding: 12px; border: 1px solid #ced4da; border-radius: 6px; background: white;">
+                    <h4 style="margin: 0 0 8px 0; color: #6f42c1; font-size: 14px;">Test Case 7: Disabled Filter Click to Active State</h4>
+                    <p style="margin: 0 0 8px 0; color: #6c757d; font-size: 12px;">
+                        <strong>Purpose:</strong> Verify clicking filter name cycles filter from disabled to active state
+                    </p>
+                    <p style="margin: 0 0 8px 0; color: #6c757d; font-size: 12px;">
+                        <strong>Expected:</strong> Filter state changes from disabled to active when footer clicked
+                    </p>
+                    <button id="test7-button" onclick="runTest7()" class="test-button" data-test-id="7" style="padding: 6px 12px; background: #6f42c1; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 6px;">
+                        <span class="button-text">Run Test</span>
+                        <span class="button-icon" style="display: none;">🔄</span>
+                    </button>
+                    <div id="test7-result" style="margin-top: 8px;"></div>
+                </div>
+            </div>
+            
+            <!-- Filter Section (Right Side) -->
+            <div class="filter-section">
+                <!-- Single Text Input Filter -->
+                <div class="search-filter filter-wrapper" data-filter-type="search">
+                    <input type="text" id="search-input" class="search-box" placeholder="type to filter...">
+                    <button class="clear-button" id="clearSearch" title="Clear search">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTE5IDYuNDFMMTcuNTkgNUwxMiAxMC41OUw2LjQxIDVMNSA2LjQxTDEwLjU5IDEyTDUgMTcuNTlMNi40MSAxOUwxMiAxMy40MUwxNy41OSAxOUwxOSAxNy41OUwxMy40MSAxMkwxOSA2LjQxWiIgZmlsbD0iY3VycmVudENvbG9yIi8+Cjwvc3ZnPgo=" alt="Clear" class="icon-svg">
+                    </button>
+                    <div class="filter-footer">search</div>
+                </div>
+                
+                <!-- Debug Information -->
+                <div class="debug-info">
+                    <h4>Debug Information</h4>
+                    <div id="debug-content">
+                        <p>Filter State: <span id="filter-state">inactive</span></p>
+                        <p>Input Value: <span id="input-value"></span></p>
+                        <p>Clear Button Visible: <span id="clear-visible">false</span></p>
+                        <p>Footer Text: <span id="footer-text">search</span></p>
+                        <p>CSS Classes: <span id="css-classes">search-filter filter-wrapper</span></p>
+                    </div>
+                </div>
+                
+                <!-- EventManager Status -->
+                <div class="debug-info" style="margin-top: 15px;">
+                    <h4>EventManager Status</h4>
+                    <div id="event-manager-status">
+                        <p>Status: <span id="em-status">Initializing...</span></p>
+                        <p>Controls: <span id="em-controls">0</span></p>
+                        <p>Queue: <span id="em-queue">0</span></p>
+                        <p>Subscribers: <span id="em-subscribers">0</span></p>
+                        <p>Total Events: <span id="em-total-events">0</span></p>
+                        <p>Events/Second: <span id="em-events-per-second">0</span></p>
+                        <p>Last Event: <span id="em-last-event">Never</span></p>
+                        <p>Last Event Type: <span id="em-last-event-type">None</span></p>
+                        <p>Last Event Source: <span id="em-last-event-source">None</span></p>
+                        <p>Event Types: <span id="em-event-types">None</span></p>
+                        <p>Recent Events:</p>
+                        <div id="em-recent-events" style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; background: #f9f9f9; font-family: monospace; font-size: 12px;"></div>
+                        <button onclick="updateEventManagerStatus()" style="margin-top: 10px; padding: 5px 10px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer;">
+                            Refresh Status
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Test Results Summary -->
+                <div id="test-summary" style="margin-top: 20px; padding: 15px; background-color: #e9ecef; border: 1px solid #ced4da; border-radius: 6px; display: none;">
+                    <h4 style="margin-top: 0; color: #495057;">Test Summary</h4>
+                    <div id="test-summary-content"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load the EventManager first -->
+    <script src="/static/filter/event-manager.js"></script>
+    <!-- Load the filter classes -->
+    <script src="/static/filter/control.js"></script>
+    <script src="/static/filter/text-input.js"></script>
+    
+    <script>
+        // Check if EventManager loaded correctly
+        console.log('Scripts loaded, EventManager available:', typeof window.eventManager);
+        if (window.eventManager) {
+            console.log('EventManager instance:', window.eventManager);
+            console.log('Initial EventManager status:', window.eventManager.getStatus());
+        }
+        // Button State Management Functions
+        function setButtonState(testId, state) {
+            const button = document.getElementById(`test${testId}-button`);
+            if (!button) return;
+            
+            // Remove all state classes
+            button.classList.remove('running', 'passed', 'failed');
+            
+            // Add new state class
+            button.classList.add(state);
+            
+            // Update button content based on state
+            const buttonText = button.querySelector('.button-text');
+            const buttonIcon = button.querySelector('.button-icon');
+            
+            switch (state) {
+                case 'running':
+                    buttonText.textContent = 'Running';
+                    buttonIcon.textContent = '⏳';
+                    buttonIcon.style.display = 'inline';
+                    button.disabled = true;
+                    break;
+                case 'passed':
+                    buttonText.textContent = 'PASSED';
+                    buttonIcon.textContent = '🔄';
+                    buttonIcon.style.display = 'inline';
+                    button.disabled = false;
+                    break;
+                case 'failed':
+                    buttonText.textContent = 'FAILED';
+                    buttonIcon.textContent = '🔄';
+                    buttonIcon.style.display = 'inline';
+                    button.disabled = false;
+                    break;
+                default:
+                    buttonText.textContent = 'Run Test';
+                    buttonIcon.style.display = 'none';
+                    button.disabled = false;
+            }
+        }
+        
+        // Simple test functions
+        function testCycleState() {
+            console.log('Testing cycle state...');
+            if (window.textFilter) {
+                window.textFilter.cycleState();
+                updateDebugInfo();
+            }
+        }
+        
+        function testSetValue(value) {
+            console.log('Setting value:', value);
+            if (window.textFilter) {
+                window.textFilter.setValue(value);
+                updateDebugInfo();
+            }
+        }
+        
+        function testClearValue() {
+            console.log('Clearing value...');
+            if (window.textFilter) {
+                window.textFilter.clearInput();
+                updateDebugInfo();
+            }
+        }
+        
+        function updateDebugInfo() {
+            if (window.textFilter) {
+                document.getElementById('filter-state').textContent = window.textFilter.state;
+                document.getElementById('input-value').textContent = window.textFilter.getValue();
+                document.getElementById('clear-visible').textContent = window.textFilter.clearButton.style.display === 'block' ? 'true' : 'false';
+                document.getElementById('footer-text').textContent = window.textFilter.footer ? window.textFilter.footer.textContent : 'N/A';
+                document.getElementById('css-classes').textContent = window.textFilter.container.className;
+            }
+        }
+        
+        function updateEventManagerStatus() {
+            console.log('updateEventManagerStatus called');
+            if (window.eventManager) {
+                const status = window.eventManager.getStatus();
+                console.log('EventManager status:', status);
+                
+                const statusElement = document.getElementById('em-status');
+                const controlsElement = document.getElementById('em-controls');
+                const queueElement = document.getElementById('em-queue');
+                const subscribersElement = document.getElementById('em-subscribers');
+                const totalEventsElement = document.getElementById('em-total-events');
+                const eventsPerSecondElement = document.getElementById('em-events-per-second');
+                                    const lastEventElement = document.getElementById('em-last-event');
+                    const eventTypesElement = document.getElementById('em-event-types');
+                    const recentEventsElement = document.getElementById('em-recent-events');
+                
+                if (statusElement && controlsElement && queueElement && subscribersElement && 
+                    totalEventsElement && eventsPerSecondElement && lastEventElement && eventTypesElement && recentEventsElement) {
+                    
+                    statusElement.textContent = status.isProcessing ? 'Processing' : 'Idle';
+                    controlsElement.textContent = status.controlCount;
+                    queueElement.textContent = status.queueLength;
+                    subscribersElement.textContent = status.subscriberCount;
+                    totalEventsElement.textContent = status.totalEventsProcessed;
+                    eventsPerSecondElement.textContent = status.eventsPerSecond;
+                    
+                    if (status.lastEventTime > 0) {
+                        const lastEventDate = new Date(status.lastEventTime);
+                        lastEventElement.textContent = lastEventDate.toLocaleTimeString();
+                    } else {
+                        lastEventElement.textContent = 'Never';
+                    }
+                    
+                    if (Object.keys(status.eventTypeCounts).length > 0) {
+                        const eventTypeList = Object.entries(status.eventTypeCounts)
+                            .map(([type, count]) => `${type}: ${count}`)
+                            .join(', ');
+                        eventTypesElement.textContent = eventTypeList;
+                    } else {
+                        eventTypesElement.textContent = 'None';
+                    }
+                    
+                    // Display recent events
+                    if (status.recentEvents && status.recentEvents.length > 0) {
+                        const eventsHtml = status.recentEvents.map(event => {
+                            const time = new Date(event.timestamp).toLocaleTimeString();
+                            const dataStr = JSON.stringify(event.data, null, 2).substring(0, 100);
+                            return `<div style="margin-bottom: 5px; padding: 3px; border-bottom: 1px solid #ddd;">
+                                <strong>${time}</strong> - <span style="color: #007bff;">${event.type}</span> from <span style="color: #28a745;">${event.source}</span><br>
+                                <small style="color: #666;">${dataStr}${dataStr.length >= 100 ? '...' : ''}</small>
+                            </div>`;
+                        }).join('');
+                        recentEventsElement.innerHTML = eventsHtml;
+                    } else {
+                        recentEventsElement.innerHTML = '<div style="color: #666; font-style: italic;">No events yet</div>';
+                    }
+                    
+                    console.log('EventManager status updated successfully');
+                } else {
+                    console.error('Some EventManager status elements not found:', {
+                        status: !!statusElement,
+                        controls: !!controlsElement,
+                        queue: !!queueElement,
+                        subscribers: !!subscribersElement,
+                        totalEvents: !!totalEventsElement,
+                        eventsPerSecond: !!eventsPerSecondElement,
+                        lastEvent: !!lastEventElement,
+                        eventTypes: !!eventTypesElement,
+                        recentEvents: !!recentEventsElement
+                    });
+                }
+            } else {
+                console.error('EventManager not available in updateEventManagerStatus');
+            }
+        }
+        
+        // Test Case 1: Clear Button Visibility When Empty
+        function runTest1() {
+            console.log('=== Running Test Case 1: Clear Button Visibility When Empty ===');
+            
+            // Set button to running state
+            setButtonState(1, 'running');
+            
+            if (window.textFilter) {
+                // Ensure input is empty
+                window.textFilter.setValue('');
+                
+                // Check if clear button is hidden
+                const clearButton = window.textFilter.clearButton;
+                const isVisible = clearButton.style.display === 'block';
+                const isHidden = clearButton.style.display === 'none';
+                
+                console.log('Clear button visibility check:');
+                console.log('  - Input value: "' + window.textFilter.getValue() + '"');
+                console.log('  - Clear button display: ' + clearButton.style.display);
+                console.log('  - Is visible: ' + isVisible);
+                console.log('  - Is hidden: ' + isHidden);
+                
+                // Update debug info
+                updateDebugInfo();
+                
+                // Show test result
+                const result = isHidden ? 'PASSED' : 'FAILED';
+                const color = isHidden ? '#28a745' : '#dc3545';
+                
+                document.getElementById('test1-result').innerHTML = `
+                    <div style="padding: 10px; margin: 10px 0; border-radius: 4px; background-color: ${color}; color: white; font-weight: bold;">
+                        Test Result: ${result}
+                    </div>
+                `;
+                
+                if (isHidden) {
+                    console.log('✓ Test Case 1 PASSED: Clear button is hidden when input is empty');
+                    setButtonState(1, 'passed');
+                } else {
+                    console.log('✗ Test Case 1 FAILED: Clear button should be hidden when input is empty');
+                    setButtonState(1, 'failed');
+                }
+                
+                updateTestSummary();
+            } else {
+                setButtonState(1, 'failed');
+            }
+        }
+        
+
+        
+        // Test Case 3: Filter State Cycling
+        function runTest3() {
+            console.log('=== Running Test Case 3: Filter State Cycling ===');
+            
+            // Set button to running state
+            setButtonState(3, 'running');
+            
+            if (window.textFilter) {
+                // Set input to have content first
+                window.textFilter.setValue('test');
+                
+                // Get initial state
+                const initialState = window.textFilter.state;
+                console.log('Initial state: ' + initialState);
+                
+                // Cycle through states
+                const states = [];
+                for (let i = 0; i < 3; i++) {
+                    window.textFilter.cycleState();
+                    states.push(window.textFilter.state);
+                    console.log('State after cycle ' + (i + 1) + ': ' + window.textFilter.state);
+                }
+                
+                // Update debug info
+                updateDebugInfo();
+                
+                // Check if states changed
+                const stateChanged = states.length > 0 && states.some(state => state !== initialState);
+                const result = stateChanged ? 'PASSED' : 'FAILED';
+                const color = stateChanged ? '#28a745' : '#dc3545';
+                
+                document.getElementById('test3-result').innerHTML = `
+                    <div style="padding: 10px; margin: 10px 0; border-radius: 4px; background-color: ${color}; color: white; font-weight: bold;">
+                        Test Result: ${result}<br>
+                        States cycled: ${states.join(' → ')}
+                    </div>
+                `;
+                
+                if (stateChanged) {
+                    console.log('✓ Test Case 3 PASSED: Filter states cycled properly');
+                    setButtonState(3, 'passed');
+                } else {
+                    console.log('✗ Test Case 3 FAILED: Filter states did not cycle');
+                    setButtonState(3, 'failed');
+                }
+                
+                updateTestSummary();
+            } else {
+                setButtonState(3, 'failed');
+            }
+        }
+        
+        // Test Case 4: Clear Button Functionality
+        function runTest4() {
+            console.log('=== Running Test Case 4: Clear Button Functionality ===');
+            
+            // Set button to running state
+            setButtonState(4, 'running');
+            
+            if (window.textFilter) {
+                // Set input to have content first
+                window.textFilter.setValue('test content');
+                
+                // Get initial state and value
+                const initialState = window.textFilter.state;
+                const initialValue = window.textFilter.getValue();
+                console.log('Initial state: ' + initialState + ', value: "' + initialValue + '"');
+                
+                // Click clear button
+                window.textFilter.clearInput();
+                
+                // Check results
+                const finalState = window.textFilter.state;
+                const finalValue = window.textFilter.getValue();
+                const clearButtonVisible = window.textFilter.clearButton.style.display === 'block';
+                
+                console.log('After clear:');
+                console.log('  - State: ' + finalState);
+                console.log('  - Value: "' + finalValue + '"');
+                console.log('  - Clear button visible: ' + clearButtonVisible);
+                
+                // Update debug info
+                updateDebugInfo();
+                
+                // Check if clear worked properly
+                const valueCleared = finalValue === '';
+                const stateChanged = finalState === 'inactive';
+                const buttonHidden = !clearButtonVisible;
+                
+                const allPassed = valueCleared && stateChanged && buttonHidden;
+                const result = allPassed ? 'PASSED' : 'FAILED';
+                const color = allPassed ? '#28a745' : '#dc3545';
+                
+                document.getElementById('test4-result').innerHTML = `
+                    <div style="padding: 10px; margin: 10px 0; border-radius: 4px; background-color: ${color}; color: white; font-weight: bold;">
+                        Test Result: ${result}<br>
+                        Value cleared: ${valueCleared ? '✓' : '✗'}<br>
+                        State inactive: ${stateChanged ? '✓' : '✗'}<br>
+                        Button hidden: ${buttonHidden ? '✓' : '✗'}<br>
+                    </div>
+                `;
+                
+                if (allPassed) {
+                    console.log('✓ Test Case 4 PASSED: Clear button functionality works correctly');
+                    setButtonState(4, 'passed');
+                } else {
+                    console.log('✗ Test Case 4 FAILED: Clear button functionality has issues');
+                    setButtonState(4, 'failed');
+                }
+                
+                updateTestSummary();
+            } else {
+                setButtonState(4, 'failed');
+            }
+        }
+        
+        // Test Case 5: Cross Visibility After Text Input
+        function runTest5() {
+            console.log('=== Running Test Case 5: Cross Visibility After Text Input ===');
+            
+            // Set button to running state
+            setButtonState(5, 'running');
+            
+            if (window.textFilter) {
+                // Ensure input starts empty
+                window.textFilter.setValue('');
+                
+                // Get initial clear button visibility
+                const initialClearButtonVisible = window.textFilter.clearButton.style.display === 'block';
+                console.log('Initial clear button visibility: ' + initialClearButtonVisible);
+                console.log('Initial input value: "' + window.textFilter.getValue() + '"');
+                
+                // Simulate user typing text
+                const testText = 'user input text';
+                window.textFilter.setValue(testText);
+                
+                // Wait a moment for state updates
+                setTimeout(() => {
+                    // Check if clear button is now visible
+                    const finalClearButtonVisible = window.textFilter.clearButton.style.display === 'block';
+                    const finalInputValue = window.textFilter.getValue();
+                    const finalState = window.textFilter.state;
+                    
+                    console.log('After text input:');
+                    console.log('  - Input value: "' + finalInputValue + '"');
+                    console.log('  - Clear button visible: ' + finalClearButtonVisible);
+                    console.log('  - Filter state: ' + finalState);
+                    
+                    // Update debug info
+                    updateDebugInfo();
+                    
+                    // Check if test passed
+                    const textEntered = finalInputValue === testText;
+                    const clearButtonVisible = finalClearButtonVisible;
+                    const stateActive = finalState === 'active';
+                    
+                    const allPassed = textEntered && clearButtonVisible && stateActive;
+                    const result = allPassed ? 'PASSED' : 'FAILED';
+                    const color = allPassed ? '#28a745' : '#dc3545';
+                    
+                    document.getElementById('test5-result').innerHTML = `
+                        <div style="padding: 10px; margin: 10px 0; border-radius: 4px; background-color: ${color}; color: white; font-weight: bold;">
+                            Test Result: ${result}<br>
+                            Text entered: ${textEntered ? '✓' : '✗'}<br>
+                            Clear button visible: ${clearButtonVisible ? '✓' : '✗'}<br>
+                            State active: ${stateActive ? '✓' : '✗'}
+                        </div>
+                    `;
+                    
+                    if (allPassed) {
+                        console.log('✓ Test Case 5 PASSED: Cross becomes visible after text input');
+                        setButtonState(5, 'passed');
+                    } else {
+                        console.log('✗ Test Case 5 FAILED: Cross visibility issue after text input');
+                        setButtonState(5, 'failed');
+                    }
+                    
+                    updateTestSummary();
+                }, 100);
+            } else {
+                setButtonState(5, 'failed');
+            }
+        }
+        
+        // Test Case 6: Filter Name Click to Disabled State
+        function runTest6() {
+            console.log('=== Running Test Case 6: Filter Name Click to Disabled State ===');
+            
+            // Set button to running state
+            setButtonState(6, 'running');
+            
+            if (window.textFilter) {
+                // First, ensure the filter is in active state by typing some text
+                window.textFilter.setValue('test text');
+                
+                // Wait a moment for state to settle
+                setTimeout(() => {
+                    // Get initial state before clicking
+                    const initialState = window.textFilter.state;
+                    console.log('Initial state before click: ' + initialState);
+                    
+                    // Simulate clicking on the filter footer (filter name)
+                    const filterFooter = document.querySelector('.filter-footer');
+                    if (filterFooter) {
+                        filterFooter.click();
+                        
+                        // Wait for state update
+                        setTimeout(() => {
+                            const finalState = window.textFilter.state;
+                            console.log('Final state after click: ' + finalState);
+                            
+                            // Update debug info
+                            updateDebugInfo();
+                            
+                            // Check if test passed
+                            const wasInitiallyActive = initialState === 'active';
+                            const becameDisabled = finalState === 'disabled';
+                            const stateChanged = initialState !== finalState;
+                            
+                            const allPassed = wasInitiallyActive && becameDisabled && stateChanged;
+                            const result = allPassed ? 'PASSED' : 'FAILED';
+                            const color = allPassed ? '#28a745' : '#dc3545';
+                            
+                            document.getElementById('test6-result').innerHTML = `
+                                <div style="padding: 10px; margin: 10px 0; border-radius: 4px; background-color: ${color}; color: white; font-weight: bold;">
+                                    Test Result: ${result}<br>
+                                    Initially active: ${wasInitiallyActive ? '✓' : '✗'}<br>
+                                    Became disabled: ${becameDisabled ? '✓' : '✗'}<br>
+                                    State changed: ${stateChanged ? '✓' : '✗'}<br>
+                                    Initial state: ${initialState}<br>
+                                    Final state: ${finalState}
+                                </div>
+                            `;
+                            
+                            if (allPassed) {
+                                console.log('✓ Test Case 6 PASSED: Filter name click cycles to disabled state');
+                                setButtonState(6, 'passed');
+                            } else {
+                                console.log('✗ Test Case 6 FAILED: Filter name click state cycling issue');
+                                setButtonState(6, 'failed');
+                            }
+                            
+                            updateTestSummary();
+                        }, 100);
+                    } else {
+                        console.log('✗ Filter footer not found');
+                        setButtonState(6, 'failed');
+                    }
+                }, 100);
+            } else {
+                setButtonState(6, 'failed');
+            }
+        }
+        
+        // Test Case 7: Disabled Filter Click to Active State
+        function runTest7() {
+            console.log('=== Running Test Case 7: Disabled Filter Click to Active State ===');
+            
+            // Set button to running state
+            setButtonState(7, 'running');
+            
+            if (window.textFilter) {
+                // First, ensure the filter is in active state by typing text
+                window.textFilter.setValue('test text');
+                
+                // Wait a moment for state to settle
+                setTimeout(() => {
+                    // Get initial state (should be active after typing)
+                    const initialState = window.textFilter.state;
+                    console.log('Initial active state: ' + initialState);
+                    
+                    // Simulate clicking on the filter footer (filter name) to cycle from active to disabled
+                    const filterFooter = document.querySelector('.filter-footer');
+                    if (filterFooter) {
+                        filterFooter.click();
+                        
+                        // Wait for state update
+                        setTimeout(() => {
+                            const disabledState = window.textFilter.state;
+                            console.log('State after first click (should be disabled): ' + disabledState);
+                            
+                            // Second click: disabled -> active
+                            filterFooter.click();
+                            
+                            setTimeout(() => {
+                                const finalState = window.textFilter.state;
+                                console.log('Final state after second click (should be active): ' + finalState);
+                                
+                                // Update debug info
+                                updateDebugInfo();
+                                
+                                // Check if test passed
+                                const wasInitiallyActive = initialState === 'active';
+                                const becameDisabled = disabledState === 'disabled';
+                                const becameActiveAgain = finalState === 'active';
+                                const cycleCompleted = wasInitiallyActive && becameDisabled && becameActiveAgain;
+                                
+                                const result = cycleCompleted ? 'PASSED' : 'FAILED';
+                                const color = cycleCompleted ? '#28a745' : '#dc3545';
+                                
+                                document.getElementById('test7-result').innerHTML = `
+                                    <div style="padding: 10px; margin: 10px 0; border-radius: 4px; background-color: ${color}; color: white; font-weight: bold;">
+                                        Test Result: ${result}<br>
+                                        Initially active: ${wasInitiallyActive ? '✓' : '✗'}<br>
+                                        Became disabled: ${becameDisabled ? '✓' : '✗'}<br>
+                                        Became active again: ${becameActiveAgain ? '✓' : '✗'}<br>
+                                        Cycle completed: ${cycleCompleted ? '✓' : '✗'}<br>
+                                        Initial state: ${initialState}<br>
+                                        Disabled state: ${disabledState}<br>
+                                        Final state: ${finalState}
+                                    </div>
+                                `;
+                                
+                                if (cycleCompleted) {
+                                    console.log('✓ Test Case 7 PASSED: Complete cycle active → disabled → active');
+                                    setButtonState(7, 'passed');
+                                } else {
+                                    console.log('✗ Test Case 7 FAILED: Incomplete cycle');
+                                    setButtonState(7, 'failed');
+                                }
+                                
+                                updateTestSummary();
+                            }, 100);
+                        }, 100);
+                    } else {
+                        console.log('✗ Filter footer not found');
+                        setButtonState(7, 'failed');
+                    }
+                }, 100);
+            } else {
+                setButtonState(7, 'failed');
+            }
+        }
+        
+        // Update test summary
+        function updateTestSummary() {
+            const testResults = [];
+            for (let i = 1; i <= 7; i++) {
+                if (i === 2) continue; // Skip test case 2 (deleted)
+                const resultDiv = document.getElementById(`test${i}-result`);
+                if (resultDiv && resultDiv.innerHTML) {
+                    const isPassed = resultDiv.innerHTML.includes('PASSED');
+                    testResults.push({ test: i, passed: isPassed });
+                }
+            }
+            
+            if (testResults.length > 0) {
+                const passedCount = testResults.filter(r => r.passed).length;
+                const totalCount = testResults.length;
+                const summaryColor = passedCount === totalCount ? '#28a745' : '#dc3545';
+                
+                document.getElementById('test-summary').style.display = 'block';
+                document.getElementById('test-summary-content').innerHTML = `
+                    <div style="padding: 10px; margin: 10px 0; border-radius: 4px; background-color: ${summaryColor}; color: white; font-weight: bold;">
+                        Test Summary: ${passedCount}/${totalCount} tests passed
+                    </div>
+                    <div style="margin-top: 10px;">
+                        ${testResults.map(r => 
+                            `<span style="margin-right: 10px; padding: 4px 8px; border-radius: 3px; background-color: ${r.passed ? '#28a745' : '#dc3545'}; color: white; font-size: 12px;">
+                                Test ${r.test}: ${r.passed ? 'PASSED' : 'FAILED'}
+                            </span>`
+                        ).join('')}
+                    </div>
+                `;
+            }
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Page loaded, initializing filter...');
+            console.log('FilterControl available:', typeof FilterControl);
+            console.log('TextInputFilter available:', typeof TextInputFilter);
+            
+            // Find the filter wrapper
+            const filterWrapper = document.querySelector('.filter-wrapper');
+            console.log('Filter wrapper found:', filterWrapper);
+            
+            if (filterWrapper) {
+                console.log('Creating TextInputFilter...');
+                try {
+                    window.textFilter = new TextInputFilter(filterWrapper, 'search');
+                    console.log('Filter created successfully:', window.textFilter);
+                    console.log('Filter state:', window.textFilter.state);
+                    console.log('Filter type:', window.textFilter.filterType);
+                    console.log('Input element:', window.textFilter.inputElement);
+                    console.log('Clear button:', window.textFilter.clearButton);
+                    console.log('Footer element:', window.textFilter.footer);
+                    
+                    // Set up debug update callback for real-time UI updates
+                    window.textFilter.setDebugUpdateCallback(updateDebugInfo);
+                    console.log('Debug update callback set up successfully');
+                    
+                    // Subscribe to EventManager events for debugging
+                    if (window.eventManager) {
+                        console.log('EventManager found, setting up subscriptions...');
+                        console.log('EventManager status:', window.eventManager.getStatus());
+                        
+                        window.eventManager.subscribe('filterFooterClick', (event) => {
+                            console.log('EventManager: filterFooterClick event received:', event);
+                        }, 'debug-subscriber');
+                        
+                        window.eventManager.subscribe('filterInputChange', (event) => {
+                            console.log('EventManager: filterInputChange event received:', event);
+                        }, 'debug-subscriber');
+                        
+                        window.eventManager.subscribe('filterKeyUp', (event) => {
+                            console.log('EventManager: filterKeyUp event received:', event);
+                        }, 'debug-subscriber');
+                        
+                        console.log('EventManager subscriptions set up successfully');
+                        
+                        // Initial status update
+                        updateEventManagerStatus();
+                        
+                        // Test basic event handling
+                        console.log('Testing basic event handling...');
+                        const testInput = filterWrapper.querySelector('#search-input');
+                        if (testInput) {
+                            console.log('Input element found, testing event binding...');
+                            testInput.addEventListener('test', () => console.log('Test event works!'));
+                            testInput.dispatchEvent(new Event('test'));
+                        }
+                        
+                        const testFooter = filterWrapper.querySelector('.filter-footer');
+                        if (testFooter) {
+                            console.log('Footer element found, testing event binding...');
+                            testFooter.addEventListener('test', () => console.log('Footer test event works!'));
+                            testFooter.dispatchEvent(new Event('test'));
+                        }
+                        
+                        // Test if the filter's event handlers are working
+                        console.log('Testing filter event handlers...');
+                        if (window.textFilter && window.textFilter.inputElement) {
+                            console.log('Testing input event on filter...');
+                            window.textFilter.inputElement.dispatchEvent(new Event('input'));
+                        }
+                        
+                        if (window.textFilter && window.textFilter.footer) {
+                            console.log('Testing footer click on filter...');
+                            window.textFilter.footer.dispatchEvent(new Event('click'));
+                        }
+                    } else {
+                        console.error('EventManager not found!');
+                    }
+                    
+                    // Verify footer element configuration
+                    const footer = filterWrapper.querySelector('.filter-footer');
+                    if (footer) {
+                        console.log('Footer element found:', footer);
+                        console.log('Footer text content:', footer.textContent);
+                        console.log('Footer style cursor:', footer.style.cursor);
+                        console.log('Footer title:', footer.title);
+                    }
+                    
+                    updateDebugInfo();
+                    
+                    // Run a quick verification test
+                    setTimeout(() => {
+                        console.log('Running verification test...');
+                        verifyFilterInitialization();
+                    }, 100);
+                    
+                    // Set up periodic EventManager status updates
+                    setInterval(updateEventManagerStatus, 500);
+                    
+                } catch (error) {
+                    console.error('Error creating TextInputFilter:', error);
+                    document.getElementById('debug-content').innerHTML += `
+                        <p style="color: red;">Error: ${error.message}</p>
+                    `;
+                }
+            } else {
+                console.error('Filter wrapper not found');
+            }
+        });
+        
+        // Verification function to ensure filter is working correctly
+        function verifyFilterInitialization() {
+            if (window.textFilter) {
+                console.log('=== Filter Initialization Verification ===');
+                
+                // Check if all required elements are present
+                const hasInput = !!window.textFilter.inputElement;
+                const hasClearButton = !!window.textFilter.clearButton;
+                const hasFooter = !!window.textFilter.footer;
+                const hasState = !!window.textFilter.state;
+                
+                console.log('Verification results:');
+                console.log('  - Input element: ' + (hasInput ? '✓' : '✗'));
+                console.log('  - Clear button: ' + (hasClearButton ? '✓' : '✗'));
+                console.log('  - Footer: ' + (hasFooter ? '✓' : '✗'));
+                console.log('  - State: ' + (hasState ? '✓' : '✗'));
+                
+                // Check initial state
+                const initialState = window.textFilter.state;
+                const expectedState = 'inactive';
+                const stateCorrect = initialState === expectedState;
+                
+                console.log('Initial state check:');
+                console.log('  - Expected: ' + expectedState);
+                console.log('  - Actual: ' + initialState);
+                console.log('  - Correct: ' + (stateCorrect ? '✓' : '✗'));
+                
+                // Update debug info with verification results
+                const verificationDiv = document.createElement('div');
+                verificationDiv.style.marginTop = '10px';
+                verificationDiv.style.padding = '10px';
+                verificationDiv.style.backgroundColor = stateCorrect ? '#d4edda' : '#f8d7da';
+                verificationDiv.style.border = '1px solid ' + (stateCorrect ? '#c3e6cb' : '#f5c6cb');
+                verificationDiv.style.borderRadius = '4px';
+                verificationDiv.style.color = stateCorrect ? '#155724' : '#721c24';
+                verificationDiv.innerHTML = `
+                    <strong>Initialization Verification:</strong><br>
+                    Input: ${hasInput ? '✓' : '✗'}, Clear Button: ${hasClearButton ? '✓' : '✗'}, 
+                    Footer: ${hasFooter ? '✓' : '✗'}, State: ${hasState ? '✓' : '✗'}<br>
+                    Initial State: ${initialState} (Expected: ${expectedState}) - ${stateCorrect ? '✓ PASSED' : '✗ FAILED'}
+                `;
+                
+                document.getElementById('debug-content').appendChild(verificationDiv);
+                
+                if (stateCorrect && hasInput && hasClearButton && hasFooter && hasState) {
+                    console.log('✓ Filter initialization verification PASSED');
+                } else {
+                    console.log('✗ Filter initialization verification FAILED');
+                }
+            }
+        }
+    </script>
+</body>
+</html>

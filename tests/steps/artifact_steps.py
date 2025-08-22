@@ -112,6 +112,36 @@ def i_click_save_artifact(step, button_text):
     save_button = world.driver.find_element(By.XPATH, f"//button[text()='{button_text}']")
     save_button.click()
 
+@step("I save the article")
+def i_save_the_article(step):
+    """Save the article using the Editor control."""
+    from radish import world
+    from controls.editor import Editor
+    
+    # Create an Editor instance and save the article
+    editor = Editor(world.driver)
+    editor.save()
+
+@step("I set the {field} to {value:QuotedString}")
+def i_set_field_to_value(step, field, value):
+    """Generic step to set any artifact field to a specified value."""
+    from radish import world
+    from controls.editor import Editor
+    import logging
+    
+    log = logging.getLogger(__name__)
+    log.trace(f"Setting field '{field}' to value '{value}'")
+    
+    try:
+        # Create an Editor instance and use its set method
+        editor = Editor(world.driver)
+        editor.set(field, value)
+        log.trace(f"Successfully set field '{field}' to '{value}' using Editor control")
+        
+    except Exception as e:
+        log.error(f"Failed to set field '{field}' to '{value}': {e}")
+        raise AssertionError(f"Failed to set field '{field}' to '{value}': {e}")
+
 @step("a new artifact should be created")
 def new_artifact_should_be_created(step):
     """Verify that a new artifact was created."""
@@ -282,6 +312,18 @@ def only_status_artifacts_should_be_displayed(step, status):
 def i_enter_text_in_search_box(step, text):
     """Enter text in the search box."""
     from radish import world
+    from selenium.webdriver.common.by import By
+    
+    search_input = world.driver.find_element(By.ID, "search-input")
+    search_input.clear()
+    search_input.send_keys(text)
+
+@step("I type \"{text}\" in the search box")
+def i_type_text_in_search_box(step, text):
+    """Type text in the search box."""
+    from radish import world
+    from selenium.webdriver.common.by import By
+    
     search_input = world.driver.find_element(By.ID, "search-input")
     search_input.clear()
     search_input.send_keys(text)
@@ -416,3 +458,62 @@ def when_i_save_the_changes(step):
     from radish import world
     save_button = world.driver.find_element(By.XPATH, "//button[text()='Save Artifact']")
     save_button.click()
+
+@step("I set the {name} filter to {value:QuotedString}")
+def i_set_filter_to_value(step, name, value):
+    """Generic step to set any filter to a specified value."""
+    from radish import world
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.webdriver.support.ui import Select
+    import logging
+    
+    log = logging.getLogger(__name__)
+    log.trace(f"Setting filter '{name}' to value '{value}'")
+    
+    try:
+        # Map filter names to element IDs and handling methods
+        filter_mapping = {
+            "status": ("statusFilter", "select"),
+            "type": ("typeFilter", "select"),
+            "category": ("categoryFilter", "select"),
+            "verification": ("verificationFilter", "select"),
+            "activity": ("activityFilter", "input"),
+            "iteration": ("iterationFilter", "select"),
+            "flagged": ("flaggedFilter", "checkbox")
+        }
+        
+        if name.lower() not in filter_mapping:
+            raise ValueError(f"Unknown filter '{name}'. Supported filters: {', '.join(filter_mapping.keys())}")
+        
+        element_id, filter_type = filter_mapping[name.lower()]
+        
+        # Wait for the filter element to be present
+        wait = WebDriverWait(world.driver, 10)
+        element = wait.until(EC.presence_of_element_located((By.ID, element_id)))
+        
+        if filter_type == "select":
+            # Handle dropdown/select filters
+            select = Select(element)
+            select.select_by_value(value)
+            log.trace(f"Set select filter '{name}' to '{value}'")
+        elif filter_type == "input":
+            # Handle text input filters
+            element.clear()
+            element.send_keys(value)
+            log.trace(f"Set input filter '{name}' to '{value}'")
+        elif filter_type == "checkbox":
+            # Handle checkbox filters
+            if value.lower() in ["true", "yes", "1", "checked"]:
+                if not element.is_selected():
+                    element.click()
+                log.trace(f"Checked filter '{name}'")
+            else:
+                if element.is_selected():
+                    element.click()
+                log.trace(f"Unchecked filter '{name}'")
+        
+    except Exception as e:
+        log.error(f"Failed to set filter '{name}' to '{value}': {e}")
+        raise AssertionError(f"Failed to set filter '{name}' to '{value}': {e}")

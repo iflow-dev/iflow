@@ -1,5 +1,33 @@
 /* iflow - Project Artifact Manager Styles */
 
+/* Icon styles */
+.icon-svg {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    vertical-align: middle;
+    /* Ensure icon is fully visible */
+    overflow: visible;
+    max-width: none;
+    max-height: none;
+}
+
+/* Make SVG icons inherit the text color of their parent */
+/* Note: Individual filters are applied via JavaScript for different states */
+
+/* Override for buttons that should have colored icons */
+.btn-icon .icon-svg {
+    filter: none; /* Let JavaScript handle the filtering */
+}
+
+.btn-secondary .icon-svg {
+    filter: none; /* Let JavaScript handle the filtering */
+}
+
+.btn-secondary:hover .icon-svg {
+    filter: none; /* Let JavaScript handle the filtering */
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -10,6 +38,7 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background-color: #f5f5f5;
     color: #333;
+    padding-bottom: 4rem;
 }
 
 .header {
@@ -49,16 +78,102 @@ body {
 }
 
 .status-line {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
     background: #f8f9fa;
     padding: 0.5rem 1rem;
-    border-radius: 4px;
-    margin-bottom: 1rem;
+    border-radius: 4px 4px 0 0;
     border-left: 4px solid #667eea;
     font-size: 0.9rem;
     color: #6c757d;
+    z-index: 1000;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .status-text {
+    font-weight: 500;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.status-left {
+    text-align: left;
+}
+
+.status-right {
+    text-align: right;
+}
+
+.status-text #last-message {
+    font-weight: normal;
+    font-style: italic;
+}
+
+.status-text #last-message.debug {
+    color: #ff8c00;
+    font-weight: 500;
+}
+
+.status-text #last-message.info {
+    color: #667eea;
+    font-weight: 500;
+}
+
+.status-text #last-message.error {
+    color: #dc3545;
+    font-weight: 500;
+}
+
+/* Enhanced error message styling */
+.error-message {
+    color: #dc3545 !important;
+    font-weight: bold !important;
+    font-size: 1.2em !important;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    animation: errorPulse 2s infinite;
+}
+
+.success-message {
+    color: #28a745 !important;
+    font-weight: bold !important;
+    font-size: 1.1em !important;
+}
+
+.info-message {
+    color: #17a2b8 !important;
+    font-weight: bold !important;
+    font-size: 1.1em !important;
+}
+
+@keyframes errorPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+}
+
+/* Make status line more prominent for errors */
+.status-line.error {
+    border-left-color: #dc3545;
+    background: #fff5f5;
+    border-left-width: 6px;
+}
+
+.status-line.success {
+    border-left-color: #28a745;
+    background: #f8fff9;
+    border-left-width: 6px;
+}
+
+.status-line.info {
+    border-left-color: #17a2b8;
+    background: #f8fcff;
+    border-left-width: 6px;
+}
+
+.status-text #last-message.warning {
+    color: #ffc107;
     font-weight: 500;
 }
 
@@ -76,10 +191,26 @@ body {
     cursor: pointer;
     font-size: 0.9rem;
     transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.btn:hover {
-    background: #5a6fd8;
+.btn.btn-icon {
+    min-width: 40px;
+    padding: 0.5rem;
+    background: transparent;
+    color: #6c757d;
+}
+
+.btn.btn-icon .icon-svg {
+    width: 20px;
+    height: 20px;
+}
+
+.btn.btn-icon:hover {
+    background: transparent;
+    color: #ff8c00;
 }
 
 .btn-secondary {
@@ -96,12 +227,15 @@ body {
     justify-content: center;
     min-width: 40px;
     padding: 0.5rem;
+    background: transparent;
+    border: 2px solid transparent;
+    color: #6c757d;
+    transition: all 0.2s ease;
 }
 
-.btn-icon ion-icon {
-    font-size: 1.2rem;
-    width: 1.2rem;
-    height: 1.2rem;
+.btn-icon .icon-svg {
+    width: 20px;
+    height: 20px;
 }
 
 .btn-danger {
@@ -113,19 +247,210 @@ body {
 }
 
 .search-box {
-    flex: 1;
-    min-width: 200px;
-    padding: 0.5rem;
+    width: 100%;
+    min-width: 0;
+    height: 2.5rem;
+    padding: 0.5rem 2.5rem 0.5rem 0.5rem;
     border: 1px solid #ddd;
     border-radius: 6px;
     font-size: 0.9rem;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
+
+.search-box:hover {
+    border: 2px solid #ff8c00;
+    box-shadow: 0 0 5px rgba(255, 140, 0, 0.3);
+}
+
+.search-box:focus {
+    border: 2px solid #ff8c00 !important;
+    box-shadow: 0 0 5px rgba(255, 140, 0, 0.3) !important;
+    outline: none !important;
+}
+
+.search-box.active {
+    border: 2px solid #ff8c00;
+    box-shadow: 0 0 5px rgba(255, 140, 0, 0.3);
 }
 
 .filter-select {
-    padding: 0.5rem;
+    height: 2.5rem;
+    padding: 0.5rem 2.5rem 0.5rem 0.5rem;
     border: 1px solid #ddd;
     border-radius: 6px;
     font-size: 0.9rem;
+    transition: border-color 0.2s ease;
+    max-width: 200px;
+    min-width: 180px;
+    box-sizing: border-box;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Reset select element defaults and ensure our styles work */
+select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.5rem center;
+    background-size: 1em;
+}
+
+.filter-select:hover,
+select.filter-select:hover,
+#typeFilter:hover,
+#statusFilter:hover {
+    border: 2px solid #ff8c00 !important;
+    box-shadow: 0 0 5px rgba(255, 140, 0, 0.3) !important;
+    outline: none !important;
+    background-color: #fff !important;
+}
+
+.filter-select.active {
+    border: 2px solid #ff8c00;
+    box-shadow: 0 0 5px rgba(255, 140, 0, 0.3);
+}
+
+/* Custom dropdown active state */
+.custom-dropdown.active .custom-dropdown-button {
+    border: 3px solid #ff8c00;
+    box-shadow: 0 0 8px rgba(255, 140, 0, 0.4);
+}
+
+/* Flag filter active state */
+.btn-icon.active {
+    background: transparent;
+}
+
+/* Ensure flag button always has transparent background */
+.btn.btn-secondary.btn-icon {
+    background: transparent;
+}
+
+/* Clear button styling */
+.clear-btn {
+    position: absolute;
+    right: 0.5rem;
+    transform: translateY(-50%);
+    background: transparent;
+    color: #ff8c00;
+    border: none;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.clear-btn.visible {
+    display: flex;
+}
+
+/* Position relative for filter containers */
+.filter-container {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+}
+
+/* Filter wrapper for dropdowns and buttons */
+.filter-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.25rem; /* Consistent padding for all states */
+    /* Ensure content is not clipped */
+    overflow: visible;
+}
+
+/* Filter footer styling */
+.filter-footer {
+    font-size: 0.7rem;
+    margin-top: 0.25rem;
+    text-align: center;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Inactive filter styling */
+.filter-select.inactive,
+.search-box.inactive {
+    border: 3px solid #6c757d !important;
+    box-shadow: none !important;
+}
+
+.filter-select.inactive:hover,
+.search-box.inactive:hover {
+    border: 3px solid #6c757d !important;
+    box-shadow: none !important;
+}
+
+/* Filter footer clickable styling */
+.filter-footer {
+    font-size: 0.7rem;
+    margin-top: 0.25rem;
+    text-align: center;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: color 0.2s ease;
+    cursor: pointer;
+    user-select: none;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+.filter-footer:hover {
+    color: #ff8c00;
+    background-color: rgba(255, 140, 0, 0.1);
+}
+
+/* Active filter footer styling */
+.filter-wrapper.active .filter-footer,
+.filter-container.active .filter-footer {
+    color: #ff8c00;
+}
+
+/* Clear all button */
+.clear-all-btn {
+    background: transparent;
+    color: #666666;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    padding: 0.5rem;
+    min-width: 40px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.clear-all-btn:disabled {
+    background: transparent;
+    color: #cccccc;
+    cursor: not-allowed;
+}
+
+.clear-all-btn.active {
+    background: transparent;
+    /* Remove orange border - keep default styling */
+    color: #ff8c00; /* Keep orange color for the icon */
+}
+
+.clear-all-btn .icon-svg {
+    width: 20px;
+    height: 20px;
 }
 
 .stats-bar {
@@ -198,6 +523,17 @@ body {
     font-weight: 500;
     border: 2px solid;
     /* Border color will be set dynamically via JavaScript */
+}
+
+.artifact-id {
+    font-size: 0.9rem;
+    color: #6c757d;
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    background: #f8f9fa;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
 }
 
 .artifact-status {
@@ -342,8 +678,9 @@ body {
     color: #495057;
 }
 
-.artifact-actions ion-icon {
-    font-size: 1.2rem;
+.artifact-actions .icon-svg {
+    width: 20px;
+    height: 20px;
 }
 
 .artifact-category-left .category-link {
@@ -391,6 +728,12 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1.5rem;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
 .modal-title {
@@ -444,6 +787,12 @@ body {
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 0.9rem;
+    transition: border-color 0.2s ease;
+}
+
+.form-select.active {
+    border: 2px solid #ff8c00;
+    box-shadow: 0 0 5px rgba(255, 140, 0, 0.3);
 }
 
 .form-textarea {
@@ -456,6 +805,14 @@ body {
     gap: 1rem;
     justify-content: flex-end;
     margin-top: 1.5rem;
+}
+
+.form-actions-top {
+    justify-content: flex-end;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e9ecef;
 }
 
 .loading {
@@ -484,21 +841,203 @@ body {
         align-items: stretch;
     }
     
+    .filter-container {
+        flex: none;
+        width: 100%;
+    }
+    
+    .filter-wrapper {
+        align-items: center;
+        width: 100%;
+    }
+    
+    .filter-footer {
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+        text-align: center;
+    }
+    
     .artifacts-container {
         grid-template-columns: 1fr;
     }
 }
 
-/* Ionic Icons Styling */
-ion-icon {
+/* Icon Styling */
+.icon-svg {
     vertical-align: middle;
     margin-right: 0.25rem;
-    width: 1em;
-    height: 1em;
 }
 
-.artifact-type ion-icon,
-.artifact-status ion-icon {
+.artifact-type .icon-svg,
+.artifact-status .icon-svg {
     display: inline-block;
     vertical-align: text-bottom;
+}
+
+.filter-wrapper .filter-footer {
+    padding-top: 0.25rem;
+    font-size: 0.6em;
+}
+
+/* Filter Wrapper States */
+.filter-wrapper.filter-active {
+    border-radius: 8px;
+    fill: red;
+}
+
+/* Active text filter input field styling */
+.filter-wrapper.filter-active .search-box,
+.filter-wrapper.filter-active input[type="text"] {
+    border: 2px solid #ff8c00 !important;
+    box-shadow: 0 0 5px rgba(255, 140, 0, 0.3) !important;
+}
+
+/* Focus state styling for text input fields */
+.search-box:focus,
+input[type="text"]:focus {
+    border: 2px solid #ff8c00 !important;
+    box-shadow: 0 0 5px rgba(255, 140, 0, 0.3) !important;
+    outline: none !important;
+}
+
+/* Disabled state styling for text input fields */
+.filter-wrapper.filter-disabled .search-box,
+.filter-wrapper.filter-disabled input[type="text"] {
+    border: 2px solid #dee2e6 !important;
+    background-color: #f8f9fa !important;
+    opacity: 0.6 !important;
+    box-shadow: none !important;
+    color: #6c757d !important;
+}
+
+/* Disabled state hover - no orange border */
+.filter-wrapper.filter-disabled .search-box:hover,
+.filter-wrapper.filter-disabled input[type="text"]:hover {
+    border: 2px solid #dee2e6 !important;
+    background-color: #f8f9fa !important;
+    box-shadow: none !important;
+}
+
+/* Disabled state focus - no orange border */
+.filter-wrapper.filter-disabled .search-box:focus,
+.filter-wrapper.filter-disabled input[type="text"]:focus {
+    border: 2px solid #dee2e6 !important;
+    background-color: #f8f9fa !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.filter-wrapper.filter-active .icon-svg {
+    filter: brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%);
+}
+
+/* More specific rule for flag icon */
+.filter-wrapper.filter-active #flagIcon {
+    filter: brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%) !important;
+}
+
+.filter-wrapper.filter-inactive {
+    border: 2px solid transparent;
+    border-radius: 8px;
+}
+
+.filter-wrapper.filter-disabled {
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    background: #f8f9fa;
+    opacity: 0.6;
+}
+
+.filter-wrapper.filter-active .filter-footer {
+    color: #ff8c00;
+    font-weight: 600;
+}
+
+.filter-wrapper.filter-disabled .filter-footer {
+    color: #6c757d;
+    font-weight: 500;
+    opacity: 0.6;
+}
+
+
+/* Search Filter Base Class */
+.search-filter {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+}
+
+.search-filter .search-box {
+    width: 100%;
+    min-width: 0;
+    height: 2.5rem;
+    padding: 0.5rem 2.5rem 0.5rem 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
+
+.search-filter .search-box:hover {
+    border: 2px solid #ff8c00;
+    box-shadow: 0 0 5px rgba(255, 140, 0, 0.3);
+}
+
+.search-filter .search-box:focus {
+    border: 2px solid #ff8c00 !important;
+    box-shadow: 0 0 5px rgba(255, 140, 0, 0.3) !important;
+    outline: none !important;
+}
+
+.search-filter .search-box.active {
+    border: 2px solid #ff8c00;
+    box-shadow: 0 0 5px rgba(255, 140, 0, 0.3);
+}
+
+.search-filter .clear-button {
+    position: absolute;
+    right: 0.5rem;
+    top: 1rem; /* Back to original positioning since padding is now consistent */
+    background: transparent;
+    border: none;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s ease;
+    opacity: 0.7;
+}
+
+/* Hide clear button when filter is inactive */
+.filter-wrapper.filter-inactive .clear-button {
+    opacity: 0;
+    pointer-events: none; /* Prevent clicking when invisible */
+}
+
+/* Show clear button when filter is active */
+.filter-wrapper.filter-active .clear-button {
+    opacity: 0.7;
+    pointer-events: auto; /* Re-enable clicking */
+}
+
+/* Show clear button when filter is disabled (but has content) */
+.filter-wrapper.filter-disabled .clear-button {
+    opacity: 0.5;
+    pointer-events: auto; /* Re-enable clicking */
+}
+
+/* Hover effect only when button is visible */
+.filter-wrapper.filter-active .clear-button:hover,
+.filter-wrapper.filter-disabled .clear-button:hover {
+    opacity: 1;
+}
+
+.search-filter .clear-button .icon-svg {
+    width: 16px;
+    height: 16px;
 }

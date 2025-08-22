@@ -19,10 +19,10 @@ Feature: Artifact Iteration Field
     Scenario: Save artifact with iteration information
         Given I go to home
         When I create a requirement
-        And I fill in the summary with "Test artifact with iteration"
-        And I fill in the description with "This artifact has iteration tracking"
-        And I fill in the iteration field with "Sprint 3"
-        And I click the Create button
+        And I set the summary to "Test artifact with iteration"
+        And I set the description to "This artifact has iteration tracking"
+        And I set the iteration to "Sprint 3"
+        And I save the article
         Then I should see a success message
         And the artifact should be saved with iteration "Sprint 3"
 

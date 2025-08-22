@@ -9,6 +9,9 @@ environment configuration and Python path setup.
 import os
 import sys
 import subprocess
+import time
+import signal
+import atexit
 from pathlib import Path
 from typing import List, Optional
 import typer
@@ -30,7 +33,87 @@ def get_script_dir() -> Path:
     """Get the directory containing this script."""
     return Path(__file__).parent.absolute()
 
-def setup_environment(environment: str, foreground: bool = False) -> None:
+def find_available_port() -> int:
+    """Check if port 7000 is available, fail if not."""
+    import socket
+    
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind(('localhost', 7000))
+            return 7000
+    except OSError:
+        raise RuntimeError("Port 7000 is already in use. Please stop any running servers and try again.")
+
+def start_local_server(port: int = None) -> subprocess.Popen:
+    """Start a local iflow server with temporary database."""
+    if port is not None:
+        raise RuntimeError("--port is deprecated, don't use! Port 7000 is fixed.")
+    
+    script_dir = get_script_dir()
+    start_server_script = script_dir / "start_server.py"
+    
+    if not start_server_script.exists():
+        raise FileNotFoundError(f"start_server.py not found at {start_server_script}")
+    
+    # First, initialize the temp database synchronously
+    typer.echo("🔧 Initializing temporary database...")
+    cmd_init_db = [sys.executable, str(start_server_script), "--init-db", "--output-db-path"]
+    try:
+        result = subprocess.run(cmd_init_db, capture_output=True, text=True, check=True)
+        temp_db_path = result.stdout.strip()
+        typer.echo(f"✅ Database initialized: {temp_db_path}")
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"❌ Failed to initialize database: {e}")
+    
+    # Wait for DB init to complete
+    time.sleep(2)
+    
+    # Start the server with the temp database (no fallback)
+    cmd = [sys.executable, str(start_server_script), "--port", "7000", "--database", temp_db_path]
+    
+    typer.echo(f"🚀 Starting server with temp DB: {temp_db_path}")
+    
+    process = subprocess.Popen(cmd)
+    
+    # Wait for server to start
+    time.sleep(10)
+    
+    # Check if server is running
+    try:
+        import requests
+        response = requests.get("http://localhost:7000/api/artifacts", timeout=10)
+        if response.status_code == 200:
+            typer.echo("✅ Local server started successfully on port 7000")
+            return process
+        else:
+            raise RuntimeError(f"Server responded with status {response.status_code}")
+    except ImportError:
+        # If requests is not available, just check if process is still running
+        if process.poll() is None:
+            typer.echo("✅ Local server started on port 7000 (status check skipped)")
+            return process
+        else:
+            raise RuntimeError("Server process failed to start")
+    except Exception as e:
+        raise RuntimeError(f"Failed to start local server: {e}")
+
+def stop_local_server(process: subprocess.Popen) -> None:
+    """Stop the local server and clean up."""
+    if process and process.poll() is None:
+        typer.echo("Stopping local server on port 7000...")
+        process.terminate()
+        try:
+            process.wait(timeout=10)
+            typer.echo(f"✅ Local server on port {port} stopped")
+        except subprocess.TimeoutExpired:
+            typer.echo(f"⚠️  Server on port {port} didn't stop gracefully, forcing...")
+            process.kill()
+            process.wait()
+            typer.echo(f"✅ Local server on port {port} force stopped")
+    else:
+        typer.echo("Local server on port 7000 is not running")
+
+def setup_environment(environment: str, foreground: bool = False, debug: bool = False, trace: bool = False) -> None:
     """Set up environment variables for the specified environment."""
     if environment not in ENVIRONMENT_URLS:
         typer.echo(f"Error: Invalid environment '{environment}'. Must be one of: {', '.join(ENVIRONMENT_URLS.keys())}")
@@ -38,7 +121,14 @@ def setup_environment(environment: str, foreground: bool = False) -> None:
     
     url = ENVIRONMENT_URLS[environment]
     os.environ["IFLOW_BASE_URL"] = url
-    os.environ["PYTHON_LOG_LEVEL"] = "INFO"  # Set logging level for tests
+    
+    # Set logging level based on flags (TRACE takes precedence over DEBUG)
+    if trace:
+        os.environ["PYTHON_LOG_LEVEL"] = "TRACE"
+    elif debug:
+        os.environ["PYTHON_LOG_LEVEL"] = "DEBUG"
+    else:
+        os.environ["PYTHON_LOG_LEVEL"] = "INFO"
     
     # Set headless mode based on foreground flag
     if foreground:
@@ -50,7 +140,7 @@ def setup_environment(environment: str, foreground: bool = False) -> None:
     
     typer.echo(f"Using environment: {environment} (URL: {url})")
     typer.echo(f"Set IFLOW_BASE_URL={url}")
-    typer.echo(f"Set PYTHON_LOG_LEVEL=INFO")
+    typer.echo(f"Set PYTHON_LOG_LEVEL={'TRACE' if trace else 'DEBUG' if debug else 'INFO'}")
     typer.echo(f"Set HEADLESS_MODE={headless_message}")
 
 def setup_python_path() -> None:
@@ -95,7 +185,7 @@ def run_radish(args: List[str]) -> int:
 def main(
     environment: str = typer.Argument(
         ...,
-        help="Environment to run tests against (dev, qa, prod)"
+        help="Environment to run tests against (dev, qa, prod, or 'local' for auto-started server)"
     ),
     radish_args: List[str] = typer.Argument(
         ...,
@@ -105,12 +195,30 @@ def main(
         False,
         "--foreground", "-f",
         help="Run tests in foreground mode (Chrome will be visible)"
+    ),
+    local: bool = typer.Option(
+        False,
+        "--local", "-l",
+        help="Automatically start a local server with temporary database and run tests against it"
+    ),
+    debug: bool = typer.Option(
+        False,
+        "--debug", "-d",
+        help="Enable debug logging (sets PYTHON_LOG_LEVEL=DEBUG)"
+    ),
+    trace: bool = typer.Option(
+        False,
+        "--trace", "-t",
+        help="Enable TRACE level logging (sets PYTHON_LOG_LEVEL=TRACE for detailed function tracing)"
     )
 ):
     """
     Run Radish BDD tests with environment configuration.
     
     The environment parameter is required and must be one of: dev, qa, prod.
+    Use --local flag to automatically start a local server with temporary database.
+    Use --debug flag to enable debug logging (sets PYTHON_LOG_LEVEL=DEBUG).
+    Use --trace flag to enable TRACE level logging (sets PYTHON_LOG_LEVEL=TRACE).
     
     All other arguments are passed directly to the radish command.
     
@@ -119,47 +227,151 @@ def main(
         run_radish.py qa --tags smoke
         run_radish.py prod tests/features/ --verbose
         run_radish.py dev tests/features/test_status_filtering.feature --foreground
+        run_radish.py local tests/features/ --tags @smoke --local
+        run_radish.py local tests/features/test_artifact_creation.feature --local --foreground
+        run_radish.py local tests/features/ --tags @smoke --local --debug
+        run_radish.py local tests/features/ --tags @smoke --local --trace
     """
-    # Set up environment
-    setup_environment(environment, foreground)
     
-    # Set up Python path
-    setup_python_path()
+    local_server_process = None
+    local_port = None
     
-    # Run radish with all remaining arguments and get status code
-    status_code = run_radish(radish_args)
-    
-    # Exit with the radish status code
-    raise typer.Exit(status_code)
+    try:
+        if local:
+            # Override environment to 'local' when using --local flag
+            environment = "local"
+            
+            # Start local server on fixed port 7000
+            local_server_process = start_local_server()
+            
+            # Set up environment variables for local server
+            os.environ["IFLOW_BASE_URL"] = "http://localhost:7000"
+            
+            # Set logging level based on flags (TRACE takes precedence over DEBUG)
+            if trace:
+                os.environ["PYTHON_LOG_LEVEL"] = "TRACE"
+            elif debug:
+                os.environ["PYTHON_LOG_LEVEL"] = "DEBUG"
+            else:
+                os.environ["PYTHON_LOG_LEVEL"] = "INFO"
+                
+            os.environ["HEADLESS_MODE"] = "false" if foreground else "true"
+            
+            typer.echo(f"Using local environment (URL: http://localhost:{local_port})")
+            typer.echo(f"Set IFLOW_BASE_URL=http://localhost:{local_port}")
+            typer.echo(f"Set PYTHON_LOG_LEVEL={'TRACE' if trace else 'DEBUG' if debug else 'INFO'}")
+            typer.echo(f"Set HEADLESS_MODE={'false (Chrome will be visible)' if foreground else 'true (Chrome will run in headless mode)'}")
+        else:
+            # Set up environment normally
+            setup_environment(environment, foreground, debug, trace)
+        
+        # Set up Python path
+        setup_python_path()
+        
+        # Run radish with all remaining arguments and get status code
+        status_code = run_radish(radish_args)
+        
+        # Exit with the radish status code
+        raise typer.Exit(status_code)
+        
+    finally:
+        # Clean up local server if it was started
+        if local_server_process:
+            stop_local_server(local_server_process)
 
 def main_simple():
     """Simple version that doesn't use typer for argument parsing."""
     if len(sys.argv) < 3:
-        print("Usage: run_radish.py <environment> <radish_args...> [--foreground]")
+        print("Usage: run_radish.py <environment> <radish_args...> [--foreground] [--local] [--debug] [--trace]")
         print("Example: run_radish.py dev tests/features/ --tags @smoke")
         print("Example: run_radish.py dev tests/features/test_status_filtering.feature --foreground")
+        print("Example: run_radish.py local tests/features/ --tags @smoke --local")
+        print("Example: run_radish.py local tests/features/test_artifact_creation.feature --local --foreground")
+        print("Example: run_radish.py local tests/features/ --tags @smoke --local --debug")
+        print("Example: run_radish.py local tests/features/ --tags @smoke --local --trace")
         sys.exit(1)
     
     environment = sys.argv[1]
     radish_args = sys.argv[2:]
     
-    # Check for --foreground flag
+    # Check for flags
     foreground = False
+    local = False
+    debug = False
+    trace = False
+    
     if "--foreground" in radish_args:
         foreground = True
         radish_args.remove("--foreground")
     
-    # Set up environment
-    setup_environment(environment, foreground)
+    if "--local" in radish_args:
+        local = True
+        radish_args.remove("--local")
     
-    # Set up Python path
-    setup_python_path()
+    if "--debug" in radish_args:
+        debug = True
+        radish_args.remove("--debug")
     
-    # Run radish with all remaining arguments and get status code
-    status_code = run_radish(radish_args)
+    if "--trace" in radish_args:
+        trace = True
+        radish_args.remove("--trace")
     
-    # Exit with the radish status code
-    sys.exit(status_code)
+    local_server_process = None
+    local_port = None
+    
+    def cleanup_local_server(signum=None, frame=None):
+        """Clean up local server on signal or exit."""
+        if local_server_process:
+            stop_local_server(local_server_process)
+        if signum:
+            sys.exit(1)
+    
+    try:
+        if local:
+            # Override environment to 'local' when using --local flag
+            environment = "local"
+            
+            # Start local server on fixed port 7000
+            local_server_process = start_local_server()
+            
+            # Set up signal handlers for cleanup
+            signal.signal(signal.SIGINT, cleanup_local_server)
+            signal.signal(signal.SIGTERM, cleanup_local_server)
+            atexit.register(cleanup_local_server)
+            
+            # Set up environment variables for local server
+            os.environ["IFLOW_BASE_URL"] = "http://localhost:7000"
+            
+            # Set logging level based on flags (TRACE takes precedence over DEBUG)
+            if trace:
+                os.environ["PYTHON_LOG_LEVEL"] = "TRACE"
+            elif debug:
+                os.environ["PYTHON_LOG_LEVEL"] = "DEBUG"
+            else:
+                os.environ["PYTHON_LOG_LEVEL"] = "INFO"
+                
+            os.environ["HEADLESS_MODE"] = "false" if foreground else "true"
+            
+            print("Using local environment (URL: http://localhost:7000)")
+            print("Set IFLOW_BASE_URL=http://localhost:7000")
+            print(f"Set PYTHON_LOG_LEVEL={'TRACE' if trace else 'DEBUG' if debug else 'INFO'}")
+            print(f"Set HEADLESS_MODE={'false (Chrome will be visible)' if foreground else 'true (Chrome will run in headless mode)'}")
+        else:
+            # Set up environment normally
+            setup_environment(environment, foreground, debug, trace)
+        
+        # Set up Python path
+        setup_python_path()
+        
+        # Run radish with all remaining arguments and get status code
+        status_code = run_radish(radish_args)
+        
+        # Exit with the radish status code
+        sys.exit(status_code)
+        
+    finally:
+        # Clean up local server if it was started
+        cleanup_local_server()
 
 if __name__ == "__main__":
     main_simple()

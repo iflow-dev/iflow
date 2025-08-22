@@ -14,31 +14,26 @@ from controls.base import ControlBase
 class Button(ControlBase):
     """Control for locating and interacting with buttons."""
     
-    def __init__(self, text=None, context=None, icon=None):
+    def __init__(self, type, text, icon):
         """
-        Initialize button control with text content or icon.
+        Initialize button control with type, text, and icon.
         
         Args:
+            type: Button type (e.g., "submit", "icon")
             text: Button text content (e.g., "Create", "Save", "Cancel")
-            context: Optional context to narrow down the search (e.g., "modal", "toolbar")
-            icon: Icon name for icon-based buttons (e.g., "refresh-outline", "add-outline")
+            icon: Icon name for icon-based buttons (e.g., "create-outline")
         """
-        if icon:
-            # For icon-based buttons, look for buttons containing the specified icon
-            if context == "toolbar":
-                xpath = f"//div[@class='toolbar']//button[.//ion-icon[@name='{icon}']]"
+        if type == "submit":
+            if text:
+                xpath = f"//button[@type='submit' and contains(text(), '{text}')]"
             else:
-                xpath = f"//button[.//ion-icon[@name='{icon}']]"
+                xpath = "//button[@type='submit']"  # Any submit button regardless of text
+        elif type == "icon":
+            xpath = f"//button[.//img[contains(@src, '{icon}')]]"
         else:
-            # For text-based buttons
-            if context == "modal":
-                # For buttons inside the modal, look within the modal context
-                xpath = f"//div[@id='artifactModal']//button[contains(text(), '{text}')]"
-            elif context == "toolbar":
-                # For buttons in the toolbar, look in the toolbar context
-                xpath = f"//div[@class='toolbar']//button[contains(text(), '{text}')]"
-            else:
-                # Default: look for any button with the text
+            if text:
                 xpath = f"//button[contains(text(), '{text}')]"
+            else:
+                xpath = "//button"  # Any button regardless of text
         
         super().__init__(xpath)
