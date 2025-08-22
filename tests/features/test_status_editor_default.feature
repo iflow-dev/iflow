@@ -5,7 +5,6 @@ Feature: Status Field Default Values in Editor
 
   Background:
     Given I am on the main page
-    And the artifact editor is available
 
   @smoke
   Scenario: Status field shows first status as default when creating new artifact

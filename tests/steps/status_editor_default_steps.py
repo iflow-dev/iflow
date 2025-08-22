@@ -9,22 +9,7 @@ import logging
 # Set up logging
 log = logging.getLogger(__name__)
 
-@step("the artifact editor is available")
-def the_artifact_editor_is_available(step):
-    """Verify that the artifact editor is available on the page."""
-    from radish import world
-    from selenium.webdriver.common.by import By
-    from selenium.webdriver.support.ui import WebDriverWait
-    from selenium.webdriver.support import expected_conditions as EC
-    
-    try:
-        # Wait for the create button to be visible
-        create_button = WebDriverWait(world.driver, 10).until(
-            EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Create')]"))
-        )
-        log.debug("Artifact editor is available - create button found")
-    except Exception as e:
-        raise AssertionError(f"Artifact editor is not available: {e}")
+
 
 @step("the status field should show {expected_status:QuotedString}")
 def the_status_field_should_show_expected_status(step, expected_status):
