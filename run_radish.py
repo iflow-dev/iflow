@@ -224,13 +224,13 @@ def main(
     
     Examples:
         run_radish.py dev tests/features/artifact_management.feature
-        run_radish.py qa --tags smoke
+        run_radish.py qa --tags=smoke
         run_radish.py prod tests/features/ --verbose
         run_radish.py dev tests/features/test_status_filtering.feature --foreground
-        run_radish.py local tests/features/ --tags @smoke --local
+        run_radish.py local tests/features/ --tags=smoke --local
         run_radish.py local tests/features/test_artifact_creation.feature --local --foreground
-        run_radish.py local tests/features/ --tags @smoke --local --debug
-        run_radish.py local tests/features/ --tags @smoke --local --trace
+        run_radish.py local tests/features/ --tags=smoke --local --debug
+        run_radish.py local tests/features/ --tags=smoke --local --trace
     """
     
     local_server_process = None
@@ -283,12 +283,12 @@ def main_simple():
     """Simple version that doesn't use typer for argument parsing."""
     if len(sys.argv) < 3:
         print("Usage: run_radish.py <environment> <radish_args...> [--foreground] [--local] [--debug] [--trace]")
-        print("Example: run_radish.py dev tests/features/ --tags @smoke")
+        print("Example: run_radish.py dev tests/features/ --tags=smoke")
         print("Example: run_radish.py dev tests/features/test_status_filtering.feature --foreground")
-        print("Example: run_radish.py local tests/features/ --tags @smoke --local")
+        print("Example: run_radish.py local tests/features/ --tags=smoke --local")
         print("Example: run_radish.py local tests/features/test_artifact_creation.feature --local --foreground")
-        print("Example: run_radish.py local tests/features/ --tags @smoke --local --debug")
-        print("Example: run_radish.py local tests/features/ --tags @smoke --local --trace")
+        print("Example: run_radish.py local tests/features/ --tags=smoke --local --debug")
+        print("Example: run_radish.py local tests/features/ --tags=smoke --local --trace")
         sys.exit(1)
     
     environment = sys.argv[1]
