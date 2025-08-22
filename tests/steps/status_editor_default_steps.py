@@ -39,7 +39,7 @@ def i_see_status_is(step, expected_status):
 
 
 
-@step("I open the artifact {artifact_id}")
+@step("I open the artifact {artifact_id:w}")
 def i_open_artifact_by_id(step, artifact_id):
     """Open an artifact with the specified ID (no quotes = ID search)."""
     from selenium.webdriver.common.by import By
@@ -117,7 +117,7 @@ def i_save_the_artifact(step):
 
 
 
-@step("I see artifact {artifact_id} has status {status:QuotedString}")
+@step("I see artifact {artifact_id:w} has status {status:QuotedString}")
 def i_see_artifact_has_status_by_id(step, artifact_id, status):
     """Verify that the specified artifact (by ID) has the expected status."""
     from selenium.webdriver.common.by import By
@@ -160,7 +160,7 @@ def i_see_artifact_has_status_by_id(step, artifact_id, status):
     
     raise AssertionError(f"No artifact found with ID '{artifact_id}'")
 
-@step("I see artifact {summary:QuotedString} has status {status:QuotedString}")
+@step("I see artifact with {summary:QuotedString} has status {status:QuotedString}")
 def i_see_artifact_has_status_by_summary(step, summary, status):
     """Verify that the specified artifact (by title) has the expected status."""
     from selenium.webdriver.common.by import By
