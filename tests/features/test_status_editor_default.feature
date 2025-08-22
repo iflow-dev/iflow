@@ -6,7 +6,7 @@ Feature: Status Field Default Values in Editor
   Background:
     Given I am on the main page
 
-  @smoke
+  @smoke @tid:0111
   Scenario: Status field shows first status as default when creating new artifact
     When I create a new requirement
     Then I see the editor is open
@@ -15,7 +15,7 @@ Feature: Status Field Default Values in Editor
     When I set the status to "done"
     Then I see the status is "done"
 
-  @smoke
+  @smoke @tid:0112
   Scenario: Status field shows actual status when editing existing artifact
 
     When I open the artifact 00001
@@ -36,7 +36,7 @@ Feature: Status Field Default Values in Editor
     When I open the artifact 00001
     Then I see the status is "done"
 
-  @smoke
+  @smoke @tid:0113
   Scenario: Status field maintains selected value when saving artifact
     When I create a new requirement "test requirement"
     And I set the status to "in_progress"

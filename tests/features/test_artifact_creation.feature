@@ -4,6 +4,7 @@ Feature: Test Artifact Creation
   I want to create new artifacts from the search view
   So that I can add new items to the project
 
+  @tid:0101
   Scenario: Create New Artifact from Search View
     Given I go to home
     When I create a new requirement
@@ -17,6 +18,7 @@ Feature: Test Artifact Creation
     Then I see the new artifact in the list
     # Note: The artifact ID is saved in world for use in subsequent scenarios
 
+  @tid:0102
   Scenario: Cancel Artifact Creation
     Given I go to home
     When I create a new requirement

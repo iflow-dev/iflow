@@ -4,6 +4,7 @@ Feature: Test Status Filtering
     I want to filter artifacts by status
     So that I can view artifacts with specific status values
 
+    @tid:0103
     Scenario: Filter Artifacts by Status
         Given I go to home
         When I set the status filter to "open"

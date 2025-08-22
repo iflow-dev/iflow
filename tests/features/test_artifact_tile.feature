@@ -4,11 +4,13 @@ Feature: Test Artifact Tile
   I want to verify that specific artifacts are visible
   So that I can confirm the page is working correctly
 
-      # Temporarily disabled - artifact #00001 not found
-      Scenario: Verify Artifact Tile Exists
+      #  disabled - artifact #00001 not found
+      @tid:0106
+    Scenario: Verify Artifact Tile Exists
         Given I go to home
         Then I see the artifact #00001
 
-  Scenario: Verify Artifact Tile does not Exist
-    Given I go to home
+      @tid:0107
+    Scenario: Verify Artifact Tile does not Exist
+        Given I go to home
     Then I do not see the artifact #99999

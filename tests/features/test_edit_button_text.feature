@@ -4,6 +4,7 @@ Feature: Edit Dialog Button Text
     I want to see the correct button text in the edit dialog
     So that I know whether I'm creating or editing an artifact
 
+    @tid:0108
     Scenario: Create new artifact shows "Create" button
         Given I am on the main page
         When I create a new requirement
@@ -11,6 +12,7 @@ Feature: Edit Dialog Button Text
         And the submit button should say "Create"
         And I cancel the artifact creation
 
+    @tid:0109
     Scenario: Edit existing artifact shows "Save" button
         Given I go to home
         And I see artifacts displayed
