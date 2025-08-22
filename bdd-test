@@ -40,6 +40,7 @@ def print_help():
     print("    --help, -h          Show this help message")
     print("    --tags <tags>       Run tests with specific tags")
     print("    --tags=<tags>       Run tests with specific tags (alternative format)")
+    print("    --tid <id>          Run test with specific test ID (e.g., --tid 0113)")
     print("    --scenarios <n>     Run only the specified scenario(s)")
     print("    --trace             Show detailed traceback on failures")
     print()
@@ -48,6 +49,8 @@ def print_help():
     print("    ./bdd-test features/ --tags smoke       # Run only smoke tests")
     print("    ./bdd-test features/ --tags=regression  # Run only regression tests")
     print("    ./bdd-test features/ --tags smoke regression  # Run smoke AND regression tests")
+    print("    ./bdd-test features/ --tid 0113         # Run test with ID 0113")
+    print("    ./bdd-test features/ --tid 0113 --tags smoke  # Run test 0113 with smoke tag")
     print()
     print("Notes:")
     print("    - Tests tagged with @fixme are automatically excluded from test runs")
@@ -117,24 +120,59 @@ def main():
     # The first argument is the feature file/path
     feature_arg = processed_args[0]
     
-    # Parse remaining arguments to handle --tags specially
+    # Parse remaining arguments to handle --tags and --tid specially
     additional_args = []
-    user_tags = []
+    user_tags_expression = None
+    tid_expression = None
     
     i = 1
     while i < len(processed_args):
         arg = processed_args[i]
-        if arg.startswith("--tags"):
+        if arg.startswith("--tid"):
+            # Extract test ID from --tid argument
+            if "=" in arg:
+                # Format: --tid=0113
+                tid_part = arg.split("=", 1)[1]
+                # Remove surrounding quotes if present
+                if tid_part.startswith('"') and tid_part.endswith('"'):
+                    tid_part = tid_part[1:-1]
+                elif tid_part.startswith("'") and tid_part.endswith("'"):
+                    tid_part = tid_part[1:-1]
+                tid_expression = f"tid:{tid_part}"
+            else:
+                # Format: --tid 0113
+                # Look for the next argument as the tid value
+                if i + 1 < len(processed_args) and not processed_args[i + 1].startswith("-"):
+                    tid_value = processed_args[i + 1]
+                    # Remove surrounding quotes if present
+                    if tid_value.startswith('"') and tid_value.endswith('"'):
+                        tid_value = tid_value[1:-1]
+                    elif tid_value.startswith("'") and tid_value.endswith("'"):
+                        tid_value = tid_value[1:-1]
+                    tid_expression = f"tid:{tid_value}"
+                    i += 1  # Skip the next argument since we consumed it
+        elif arg.startswith("--tags"):
             # Extract tags from --tags argument
             if "=" in arg:
-                # Format: --tags=smoke
+                # Format: --tags=smoke or --tags="@smoke and not @fixme"
                 tags_part = arg.split("=", 1)[1]
-                user_tags.extend(tags_part.split())
+                # Remove surrounding quotes if present
+                if tags_part.startswith('"') and tags_part.endswith('"'):
+                    tags_part = tags_part[1:-1]
+                elif tags_part.startswith("'") and tags_part.endswith("'"):
+                    tags_part = tags_part[1:-1]
+                user_tags_expression = tags_part
             else:
-                # Format: --tags smoke
+                # Format: --tags smoke or --tags "@smoke and not @fixme"
                 # Look for the next argument as the tag value
                 if i + 1 < len(processed_args) and not processed_args[i + 1].startswith("-"):
-                    user_tags.append(processed_args[i + 1])
+                    tag_value = processed_args[i + 1]
+                    # Remove surrounding quotes if present
+                    if tag_value.startswith('"') and tag_value.endswith('"'):
+                        tag_value = tag_value[1:-1]
+                    elif tag_value.startswith("'") and tag_value.endswith("'"):
+                        tag_value = tag_value[1:-1]
+                    user_tags_expression = tag_value
                     i += 1  # Skip the next argument since we consumed it
         else:
             # Regular argument
@@ -144,13 +182,25 @@ def main():
     # Get the Python executable from venv-local
     python_exe = activate_venv_local()
     
-    # Build the tags expression combining user tags with fixme exclusion
-    tags_expression = "not fixme"
-    if user_tags:
-        tags_expression = f"({user_tags[0]})"
-        for tag in user_tags[1:]:
-            tags_expression += f" and ({tag})"
-        tags_expression += " and (not fixme)"
+    # Build the tags expression combining user tags, tid, and fixme exclusion
+    tags_parts = []
+    
+    # Add user tags if provided
+    if user_tags_expression:
+        tags_parts.append(f"({user_tags_expression})")
+    
+    # Add tid expression if provided
+    if tid_expression:
+        tags_parts.append(f"({tid_expression})")
+    
+    # Always exclude fixme tags
+    tags_parts.append("(not fixme)")
+    
+    # Combine all parts with AND
+    if len(tags_parts) == 1:
+        tags_expression = tags_parts[0]
+    else:
+        tags_expression = " and ".join(tags_parts)
     
     # Build the full command using the virtual environment Python
     # Use quotes around the tags expression to handle spaces properly
