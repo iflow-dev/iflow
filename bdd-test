@@ -1,0 +1,77 @@
+#!/usr/bin/env python3
+"""
+BDD Test Runner Script
+
+This script provides a simple interface to run BDD tests using the radish framework.
+It changes to the tests/ directory and runs the specified feature files.
+
+Usage:
+    ./bdd-test <feature_file> [options]
+    ./bdd-test features/test_artifact_flags.feature --scenarios 1
+    ./bdd-test features/ --tags=smoke
+"""
+
+import os
+import sys
+import subprocess
+from pathlib import Path
+
+def main():
+    """Main entry point for the BDD test runner."""
+    
+    # Change to tests/ directory
+    tests_dir = Path(__file__).parent / "tests"
+    if not tests_dir.exists():
+        print(f"Error: tests/ directory not found at {tests_dir}")
+        sys.exit(1)
+    
+    os.chdir(tests_dir)
+    print(f"Changed to directory: {os.getcwd()}")
+    
+    # Check if run_radish.py exists
+    run_radish_script = tests_dir / "run_radish.py"
+    if not run_radish_script.exists():
+        print(f"Error: run_radish.py not found at {run_radish_script}")
+        sys.exit(1)
+    
+    # Build the command
+    if len(sys.argv) < 2:
+        print("Usage: ./bdd-test <feature_file> [options]")
+        print("Example: ./bdd-test features/test_artifact_flags.feature --scenarios 1")
+        sys.exit(1)
+    
+    # Process arguments to remove "tests/" prefix if present
+    processed_args = []
+    for arg in sys.argv[1:]:
+        processed_args.append(arg.replace("tests/", "", 1))
+    
+    if not processed_args:
+        print("Usage: ./bdd-test <feature_file> [options]")
+        print("Example: ./bdd-test features/test_artifact_flags.feature --scenarios 1")
+        sys.exit(1)
+    
+    # The first argument is the feature file/path
+    feature_arg = processed_args[0]
+    
+    # Remaining arguments are passed to radish
+    additional_args = processed_args[1:] if len(processed_args) > 1 else []
+    
+    # Build the full command
+    cmd = [sys.executable, "run_radish.py", "local", feature_arg] + additional_args
+    
+    print(f"Running: {' '.join(cmd)}")
+    print("-" * 50)
+    
+    # Execute the command
+    try:
+        result = subprocess.run(cmd, check=False)
+        sys.exit(result.returncode)
+    except KeyboardInterrupt:
+        print("\nTest execution interrupted by user")
+        sys.exit(1)
+    except Exception as e:
+        print(f"Error running tests: {e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()

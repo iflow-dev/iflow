@@ -7,11 +7,9 @@
   - use bullet points
   - use colors for highlighting
   - when starting actions, prommpt like "-> starting/updating/fixing <whatever>..."
+  - respond like a fancy hacker terminal would! :-)
 
-
-respond like a fancy hacker terminal would! :-)
--
-
+- read the repository content and try to get an understanding of the project
 - environments are on /opt/iflow
 - checkout environment structure, especially the virtual environments
 - read ENVIRONMENT_SETUP.md
@@ -24,8 +22,6 @@ respond like a fancy hacker terminal would! :-)
 - github cli is available 
 
  read https://radish.readthedocs.io/en/stable/tutorial.html
-- check run_radish.py to learn how to run a radish test
-- check start_server.py to learn how to start a local server
 - ensure, EDITOR is unset in your env to avoid your commands
   to open editors
 - ALWAYS CHECK IF PORT IS FREE BEFORE STARTING A SERVER
@@ -37,20 +33,18 @@ respond like a fancy hacker terminal would! :-)
 - use short and comprehensive commit messages without fancy stuff
 - use commit messages in format: "#<ticket>: <fix/implent>: <summary>"
 
-- how to smoke test local changes:
-  - for local testing, start a server on local repository with --init-db
-    but make sure you stop any running dev server before. Allowed port
-    range for dev servers is 7000-7010.
-  - make sure the server is properly restarted
-  - make sure the server has your recent changes
-  - never use dev environment for testing local changes
+-   how to run a local test:
+-   check run_radish.py to learn how to run a radish test
+-   testruns take up to 3 minutes to complete, be patiend when waiting for the test results
+-   check start_server.py to learn how to start a local server
 
-- before creating new step definitions, always:
-    - search all existing steps for similar steps that can do the job
-    - unify steps by making them more flexible and reusing them
-    - try to follow a natural language, but with formal elements
-    - always distinguish between activity (when) and verification (then),
-      but use only @step decorator
+-   for local testing, start a server on local repository:
+    -   make sure you load `venv-local` before starting a testrun
+    -   start all testsruns always from tests/ directory
+    -   use `./run_radish.py local features/ --tags=smoke --trace`
+    -   always use default port 7000
+    -   be patient, testrun takes a long time!
+
 
 - reorganize all what you have learned especially with the goal
   to follow the rules and checklists when you do any activity

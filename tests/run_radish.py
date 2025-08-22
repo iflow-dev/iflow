@@ -6,14 +6,13 @@ Radish test runner with environment support.
 -   Starting the server and invoking the tests can take up to 15 seconds
 -   Running the full test suite can take up to 5 minutes
 -   USAGE:
-    1.   load virtual env under venv-local
-    2.   change to tests/ directory. run_radish.py must be started from tests/ directory at all costs.
-    3.   run smoke tests using a command like:
+    1.   run smoke tests using a command like:
 
-            ./run_radish.py local features/* --tags=smoke --trace
-
-    4.   REMEMBER: TESTS TAKE A LOT TIME
-    5.   BE PATIENT, TESTS TAKE A LONG TIME TO FINISH !!!!!!!!!!!!
+            tests/run_radish.py local features/* --tags=smoke --trace
+    2.  NOTE THAT the directory to the feature files must be relative to tests/ directory as
+        in the example 
+    3.   REMEMBER: TESTS TAKE A LOT TIME
+    4.   BE PATIENT, TESTS TAKE A LONG TIME TO FINISH !!!!!!!!!!!!
 """
 
 import os
@@ -25,6 +24,8 @@ import atexit
 from pathlib import Path
 from typing import List
 import typer
+
+script_dir = os.path.dirname(__file__)
 
 DEFAULT_PORT = 7000
 
@@ -125,7 +126,8 @@ def run_radish(args: List[str]) -> int:
     print(f"Running command: {' '.join(radish_cmd)}")
     
     try:
-        result = subprocess.run(radish_cmd, check=False)
+        result = subprocess.run("source ../venv-local/bin/activate && " + " ".join(radish_cmd),
+                                check=False, cwd=script_dir, shell=True)
         status_code = result.returncode
         print(f"Radish command completed with status code: {status_code}")
         return status_code
@@ -173,7 +175,7 @@ def main_simple():
         else:
             # dev, qa, prod, etc. all do not matter as we won't override the environment
             # but let's set base url just in case
-            env_url = ENVIRONMENT_URLS.get(environment, f"http://localhost:{DEFAULT_PORT}")
+            env_url = f"http://localhost:{DEFAULT_PORT}"
             os.environ["IFLOW_BASE_URL"] = env_url
             print(f"Using environment: {environment} => {env_url}")
         
