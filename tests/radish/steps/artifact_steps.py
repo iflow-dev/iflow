@@ -9,7 +9,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
-from controls import Title
+from bdd.controls import Title
 import time
 
 class ArtifactTestWorld:
@@ -116,7 +116,7 @@ def i_click_save_artifact(step, button_text):
 def i_save_the_article(step):
     """Save the article using the Editor control."""
     from radish import world
-    from controls.editor import Editor
+    from bdd.controls.editor import Editor
     
     # Create an Editor instance and save the article
     editor = Editor(world.driver)
@@ -126,7 +126,7 @@ def i_save_the_article(step):
 def i_set_field_to_value(step, field, value):
     """Generic step to set any artifact field to a specified value."""
     from radish import world
-    from controls.editor import Editor
+    from bdd.controls.editor import Editor
     import logging
     
     log = logging.getLogger(__name__)

@@ -6,7 +6,7 @@ All hooks are now in hooks.py for better organization.
 
 from radish import world
 import os
-from logging_config import logger as log
+from bdd.logging_config import logger as log
 
 # ============================================================================
 # WORLD CONFIGURATION

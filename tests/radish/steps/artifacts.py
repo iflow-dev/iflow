@@ -3,7 +3,7 @@ Step definitions for artifact-related functionality.
 """
 
 from radish import then
-from controls import Tile
+from bdd.controls import Tile
 
 
 @then(r"I see the artifact #{key:S}")

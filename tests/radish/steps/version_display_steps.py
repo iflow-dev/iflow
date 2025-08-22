@@ -1,7 +1,10 @@
-from radish import given, when, then, step
-from controls import Title
-from selenium.webdriver.common.by import By
 import logging
+
+from radish import given, when, then, step
+
+from selenium.webdriver.common.by import By
+
+from bdd.controls import Title
 
 # Set up logging
 log = logging.getLogger(__name__)
@@ -10,7 +13,7 @@ log = logging.getLogger(__name__)
 def i_see_version_information_in_header(step):
     """Verify that version information is displayed in the header."""
     from radish import world
-    from controls import Title
+    from bdd.controls import Title
     
     # Look for version information in the header
     try:

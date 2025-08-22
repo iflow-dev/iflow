@@ -1,0 +1,28 @@
+TODO:
+
+-   smoke:
+    -   fix all running smoke tests0
+
+-   @after-all:
+    -   check for TODO in @after.all hook
+
+-   create:
+    -   creating an artifact from a feature takes several seconds
+    -   its the time until the button is clicked which causes delay
+    -   check for sleep and delays and timinig issues
+
+-   flake8:
+    -   all python files have to pass flake8 check
+    -   create a requirement on prod server for that using backend API
+    -   create a flake.cfg
+        -   max line width 120
+
+-   steps:
+    -   replace "I press reload button" by "I reload the page"
+
+-   IC:
+    -   integrate IC from github/realtie-projects/ic
+
+DONE:
+
+-   create todo list

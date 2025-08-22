@@ -104,7 +104,7 @@ def stop_local_server(process: subprocess.Popen) -> None:
 def setup_python_path() -> None:
     """Set up Python path to include the tests directory."""
     script_dir = get_script_dir()
-    tests_dir = script_dir / "tests"
+    tests_dir = script_dir / "support"
     
     current_pythonpath = os.environ.get("PYTHONPATH", "")
     if current_pythonpath:
@@ -148,12 +148,15 @@ def main_simple():
     environment = sys.argv[1]
     radish_args = sys.argv[2:]
     
-    # Check for --foreground before filtering other known args
+    # Check for --foreground and --dry-run before filtering other known args
     foreground_mode = "--foreground" in radish_args
+    dry_run_mode = "--dry-run" in radish_args
     
-    # Filter out known args including --foreground (since we handle it separately)
-    known_args = ["--foreground", "--debug", "--trace", "--local"]
+    # Filter out known args including --foreground and --dry-run (since we handle them separately)
+    known_args = ["--foreground", "--debug", "--trace", "--local", "--dry-run"]
     radish_args = [arg for arg in radish_args if arg not in known_args]
+    
+    print(f"DEBUG: After filtering, radish_args: {radish_args}")
     
     # Hard-coded defaults
     local_mode = (environment == "local")
@@ -178,7 +181,12 @@ def main_simple():
             sys.exit(1)
     
     try:
-        if local_mode:
+        if dry_run_mode:
+            # Skip server startup for dry-run mode
+            print("🏃‍♂️ DRY-RUN MODE: Skipping server startup")
+            os.environ["IFLOW_BASE_URL"] = f"http://localhost:{DEFAULT_PORT}"
+            print(f"Set IFLOW_BASE_URL=http://localhost:{DEFAULT_PORT} (dry-run)")
+        elif local_mode:
             local_server_process = start_local_server()
             os.environ["IFLOW_BASE_URL"] = f"http://localhost:{DEFAULT_PORT}"
             print(f"Using local environment on port {DEFAULT_PORT}")
@@ -193,6 +201,12 @@ def main_simple():
         print("PYTHON_LOG_LEVEL=TRACE (hard-coded)")
         
         setup_python_path()
+        
+        # Add --dry-run flag back to radish args if dry-run mode is enabled
+        if dry_run_mode:
+            radish_args.append("--dry-run")
+            print(f"🔍 Adding --dry-run to radish command")
+        
         status_code = run_radish(radish_args)
         sys.exit(status_code)
     finally:

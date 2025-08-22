@@ -7,9 +7,9 @@ import re
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
-from controls.artifact_control import Artifacts
-from controls.page import Page
-from controls.article import Article
+from bdd.controls.artifact_control import Artifacts
+from bdd.controls.page import Page
+from bdd.controls.article import Article
 import time
 import subprocess
 
@@ -148,7 +148,7 @@ def the_flag_filter_button_should_be_grey(step):
 def i_flag_this_article(step):
     """Flag the current article using the Editor control."""
     
-    from controls.editor import Editor
+    from bdd.controls.editor import Editor
     editor = Editor(world.driver)
     editor.flag.toggle(active=True)
 

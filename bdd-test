@@ -25,46 +25,39 @@ def print_help():
     """Print help information for the BDD test runner."""
     print("BDD Test Runner")
     print("=" * 50)
-    print("This script provides a simple interface to run BDD tests using the radish framework.")
-    print("It automatically loads the venv-local virtual environment and changes to the tests/ directory")
-    print("before running the specified feature files.")
+    print("Runs BDD tests using Radish framework with local server support.")
     print()
-    print("Usage:")
-    print("    ./bdd-test <feature_file> [options]")
-    print("    ./bdd-test features/test_artifact_flags.feature --scenarios 1")
-    print("    ./bdd-test features/ --tags smoke")
-    print("    ./bdd-test features/ --tags=smoke")
-    print("    ./bdd-test --help")
+    print("USAGE:")
+    print("  ./bdd-test <feature_file> [options]")
+    print("  ./bdd-test --smoke                    # Run smoke tests only")
+    print("  ./bdd-test --dry-run                  # Show what would be executed")
+    print("  ./bdd-test --tid=0113                 # Run specific test by ID")
+    print("  ./bdd-test --tags=\"@smoke\"           # Run tests with specific tags")
     print()
-    print("Options:")
-    print("    --help, -h          Show this help message")
-    print("    --smoke             Run smoke tests (equivalent to --tags='smoke and not fixme')")
-    print("    --tags <tags>       Run tests with specific tags")
-    print("    --tags=<tags>       Run tests with specific tags (alternative format)")
-    print("    --tid <id>          Run test with specific test ID (e.g., --tid 0113)")
-    print("    --scenarios <n>     Run only the specified scenario(s)")
-    print("    --trace             Show detailed traceback on failures")
+    print("EXAMPLES:")
+    print("  ./bdd-test features/test_artifact_flags.feature")
+    print("  ./bdd-test --smoke")
+    print("  ./bdd-test --dry-run --smoke")
+    print("  ./bdd-test --tid=0113")
+    print("  ./bdd-test --tags=\"@smoke and not @fixme\"")
+    print("  ./bdd-test features/test_artifact_creation.feature --scenarios 1")
     print()
-    print("Examples:")
-    print("    ./bdd-test features/                    # Run all features")
-    print("    ./bdd-test --smoke                      # Run only smoke tests")
-    print("    ./bdd-test features/ --smoke            # Run only smoke tests")
-    print("    ./bdd-test --tags smoke                 # Run only smoke tests")
-    print("    ./bdd-test features/ --tags smoke       # Run only smoke tests")
-    print("    ./bdd-test --tags=regression            # Run only regression tests")
-    print("    ./bdd-test features/ --tags=regression  # Run only regression tests")
-    print("    ./bdd-test --tags smoke regression      # Run smoke AND regression tests")
-    print("    ./bdd-test features/ --tags smoke regression  # Run smoke AND regression tests")
-    print("    ./bdd-test --tid 0113                   # Run test with ID 0113")
-    print("    ./bdd-test features/ --tid 0113         # Run test with ID 0113")
-    print("    ./bdd-test --tid 0113 --tags smoke     # Run test 0113 with smoke tag")
-    print("    ./bdd-test features/ --tid 0113 --tags smoke  # Run test 0113 with smoke tag")
+    print("OPTIONS:")
+    print("  --smoke                    Run only smoke tests (tagged with @smoke)")
+    print("  --dry-run                  Show what would be executed without running tests")
+    print("  --tid=<id>                 Run specific test by ID (e.g., --tid=0113)")
+    print("  --tags=\"<expression>\"      Filter tests by tags")
+    print("  --help, -h                 Show this help message")
     print()
-    print("Notes:")
-    print("    - Tests tagged with @fixme are automatically excluded from test runs")
-    print("    - Tag expressions are automatically combined with 'not fixme' exclusion")
-    print("    - The script automatically activates the venv-local virtual environment")
-    print("    - All arguments are forwarded to radish after processing")
+    print("FEATURE FILES:")
+    print("  If no feature file is specified, 'features/' is used as default.")
+    print("  Feature files should be relative to the tests/ directory.")
+    print()
+    print("NOTES:")
+    print("  - Tests run against a local server on port 7000")
+    print("  - Chrome runs in headless mode by default")
+    print("  - Use --foreground to run Chrome in visible mode")
+    print("  - Test execution can take several minutes")
 
 
 def activate_venv_local():
@@ -141,13 +134,17 @@ def main():
     user_tags_expression = None
     tid_expression = None
     smoke_mode = False
+    dry_run = False
     
-    i = 1
+    i = 0
     while i < len(processed_args):
         arg = processed_args[i]
         if arg == "--smoke":
             # Enable smoke mode
             smoke_mode = True
+        elif arg == "--dry-run":
+            # Enable dry-run mode
+            dry_run = True
         elif arg.startswith("--tid"):
             # Extract test ID from --tid argument
             if "=" in arg:
@@ -228,7 +225,14 @@ def main():
     
     # Build the full command using the virtual environment Python
     # Use quotes around the tags expression to handle spaces properly
-    cmd = [python_exe, "run_radish.py", "local", feature_arg, f'--tags="{tags_expression}"'] + additional_args
+    cmd = [python_exe, "run_radish.py", "local", feature_arg, f'--tags="{tags_expression}"']
+    
+    # Add dry-run flag if enabled
+    if dry_run:
+        cmd.append("--dry-run")
+    
+    # Add any additional arguments
+    cmd.extend(additional_args)
     
     print(f"Running: {' '.join(cmd)}")
     print("-" * 50)

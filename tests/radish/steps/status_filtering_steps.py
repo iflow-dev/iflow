@@ -1,5 +1,5 @@
 from radish import given, when, then, step
-from controls import Title
+from bdd.controls import Title
 import logging
 
 # Set up logging

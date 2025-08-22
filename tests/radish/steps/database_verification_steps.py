@@ -4,7 +4,7 @@ Step definitions for database verification tests.
 
 from radish import step, world
 from selenium.webdriver.common.by import By
-from controls.artifact_control import Artifacts
+from bdd.controls.artifact_control import Artifacts
 import subprocess
 import os
 import tempfile

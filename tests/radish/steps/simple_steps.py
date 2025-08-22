@@ -9,8 +9,8 @@ Rule: driver handling
 
 from radish import given, when, then, step, world
 from selenium.webdriver.common.by import By
-from controls import Title, Button
-from controls.page import Page
+from bdd.controls import Title, Button
+from bdd.controls.page import Page
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
@@ -19,7 +19,7 @@ import os
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
-from logging_config import logger as log
+from bdd.logging_config import logger as log
 
 
 def _preinit():

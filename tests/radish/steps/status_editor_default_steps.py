@@ -5,7 +5,7 @@ This module tests that the status field properly shows default values and actual
 
 from radish import given, when, then, step, world
 import logging
-from controls.editor import Editor
+from bdd.controls.editor import Editor
 
 # Set up logging
 log = logging.getLogger(__name__)
@@ -34,8 +34,8 @@ def i_see_status_is(step, expected_status):
 @step("I open the artifact {artifact_id:w}")
 def i_open_artifact_by_id(step, artifact_id):
     """Open an artifact with the specified ID (no quotes = ID search)."""
-    from controls.artifact_control import Artifacts
-    from controls.base import ControlBase
+    from bdd.controls.artifact_control import Artifacts
+    from bdd.controls.base import ControlBase
     from selenium.webdriver.common.by import By
     from selenium.webdriver.support.ui import WebDriverWait
     from selenium.webdriver.support import expected_conditions as EC
@@ -69,8 +69,8 @@ def i_open_artifact_by_id(step, artifact_id):
 @step("I open the artifact {summary:QuotedString}")
 def i_open_artifact_by_summary(step, summary):
     """Open an artifact with the specified title/summary (quotes = title search)."""
-    from controls.artifact_control import Artifacts
-    from controls.base import ControlBase
+    from bdd.controls.artifact_control import Artifacts
+    from bdd.controls.base import ControlBase
     from selenium.webdriver.common.by import By
     
     # Enable debug mode for this test run to handle click interception issues
@@ -98,7 +98,7 @@ def i_open_artifact_by_summary(step, summary):
 @step("I save the artifact")
 def i_save_the_artifact(step):
     """Save the artifact using the Editor control."""
-    from controls.editor import Editor
+    from bdd.controls.editor import Editor
     
     # Create an Editor instance and save the article
     editor = Editor(world.driver)
@@ -109,7 +109,7 @@ def i_save_the_artifact(step):
 @step("I see artifact {artifact_id:w} has status {status:QuotedString}")
 def i_see_artifact_has_status_by_id(step, artifact_id, status):
     """Verify that the specified artifact (by ID) has the expected status."""
-    from controls.artifact_control import Artifacts
+    from bdd.controls.artifact_control import Artifacts
     from selenium.webdriver.common.by import By
     
     # Use Artifacts.find_one to locate the artifact
@@ -126,7 +126,7 @@ def i_see_artifact_has_status_by_id(step, artifact_id, status):
 @step("I see artifact with {summary:QuotedString} has status {status:QuotedString}")
 def i_see_artifact_has_status_by_summary(step, summary, status):
     """Verify that the specified artifact (by title) has the expected status."""
-    from controls.artifact_control import Artifacts
+    from bdd.controls.artifact_control import Artifacts
     from selenium.webdriver.common.by import By
     
     # Use Artifacts.find_one to locate the artifact

@@ -11,7 +11,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 import os
 import time
-from logging_config import logger as log
+from bdd.logging_config import logger as log
 
 @before.all
 def setup_test_environment(features, marker):
@@ -102,6 +102,43 @@ def after_scenario(scenario):
         log.debug(f"No modal to close or error closing modal: {e}")
     
     # Note: ChromeDriver is NOT closed here - it stays alive for the entire session
+
+# ============================================================================
+# STEP-LEVEL HOOKS
+# ============================================================================
+
+@before.each_step
+def before_step(step):
+    """Check if dry-run mode is active and skip step execution if so."""
+    print(f"DEBUG: HOOK EXECUTED for step: {step.sentence}")
+    
+    try:
+        # Debug: Check what's available in world
+        print(f"DEBUG: world attributes: {dir(world)}")
+        if hasattr(world, 'config'):
+            print(f"DEBUG: world.config attributes: {dir(world.config)}")
+            if hasattr(world.config, 'dry_run'):
+                print(f"DEBUG: world.config.dry_run = {world.config.dry_run}")
+            else:
+                print(f"DEBUG: world.config.dry_run not found")
+        else:
+            print(f"DEBUG: world.config not found")
+        
+        # Check if dry-run mode is enabled in world.config
+        if hasattr(world, 'config') and hasattr(world.config, 'dry_run') and world.config.dry_run:
+            log.trace(f"DRY-RUN MODE: Skipping step execution for: {step.sentence}")
+            step.skip("Dry-run mode: skipping step execution")
+            return
+        else:
+            print(f"DEBUG: Dry-run mode not enabled, continuing with step: {step.sentence}")
+    except Exception as e:
+        # If we can't check dry-run mode, continue with normal execution
+        log.trace(f"Could not check dry-run mode, continuing with step: {e}")
+        print(f"DEBUG: Exception checking dry-run mode: {e}")
+        pass
+    
+    # Normal step execution continues
+    log.trace(f"Executing step: {step.sentence}")
 
 # ============================================================================
 # UTILITY FUNCTIONS

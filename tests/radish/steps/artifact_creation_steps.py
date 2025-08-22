@@ -1,5 +1,5 @@
 from radish import given, when, then, step
-from controls.artifact_control import Artifact, Artifacts
+from bdd.controls.artifact_control import Artifact, Artifacts
 import logging
 
 # Set up logging
@@ -13,7 +13,7 @@ def i_create_a_new_requirement(step):
     log.trace("Starting: I create a new requirement")
     
     try:
-        from controls.editor import Editor
+        from bdd.controls.editor import Editor
         editor = Editor(world.driver)
         log.trace("Editor control created, opening modal...")
         editor.open()
@@ -30,7 +30,7 @@ def i_create_a_new_requirement_with_name(step, name):
     log.trace("Starting: I create a new requirement with name")
     
     try:
-        from controls.editor import Editor
+        from bdd.controls.editor import Editor
         editor = Editor(world.driver)
         editor.open()
         
@@ -51,7 +51,7 @@ def i_set_type_to(step, type_value):
     log.trace(f"Setting artifact type to '{type_value}'")
     
     try:
-        from controls.editor import Editor
+        from bdd.controls.editor import Editor
         editor = Editor(world.driver)
         editor.set_type(type_value)
         
@@ -67,7 +67,7 @@ def i_set_summary_to(step, summary):
     log.trace(f"Setting artifact summary to '{summary}'")
     
     try:
-        from controls.editor import Editor
+        from bdd.controls.editor import Editor
         editor = Editor(world.driver)
         editor.set_summary(summary)
         
@@ -83,7 +83,7 @@ def i_set_description_to(step, description):
     log.trace(f"Setting artifact description to '{description}'")
     
     try:
-        from controls.editor import Editor
+        from bdd.controls.editor import Editor
         editor = Editor(world.driver)
         editor.set_description(description)
         
@@ -99,7 +99,7 @@ def i_set_status_to(step, status):
     log.trace(f"Setting artifact status to '{status}'")
     
     try:
-        from controls.editor import Editor
+        from bdd.controls.editor import Editor
         editor = Editor(world.driver)
         editor.set_status(status)
         
@@ -136,7 +136,7 @@ def i_cancel_artifact_creation(step):
     log.trace("Canceling artifact creation...")
     
     try:
-        from controls.editor import Editor
+        from bdd.controls.editor import Editor
         editor = Editor(world.driver)
         editor.cancel()
         
@@ -188,7 +188,7 @@ def i_see_search_results(step, count):
     
     try:
         # Use Artifacts to count results
-        from controls.artifact_control import Artifacts
+        from bdd.controls.artifact_control import Artifacts
         artifacts = Artifacts().find()
         actual_count = len(artifacts)
         
