@@ -14,13 +14,12 @@ class Page:
         self.driver = driver
     
     def wait(self, timeout=10):
-        """Create a WebDriverWait instance with the specified timeout."""
+        """ Waits for the "loading text in view to disappear"""
+        WebDriverWait(self.driver, timeout).until(
+            EC.invisibility_of_element_located((By.XPATH, "//*[contains(text(), 'Loading...')]"))
+        )
         return WebDriverWait(self.driver, timeout)
-    
-    def wait_for_element(self, by, value, timeout=10):
-        """Wait for an element to be present and visible."""
-        wait = self.wait(timeout)
-        return wait.until(EC.presence_of_element_located((by, value)))
+
     
     def wait_for_element_visible(self, by, value, timeout=10):
         """Wait for an element to be visible."""

@@ -10,5 +10,5 @@ Feature: Test Artifact Tile
       #   Then I see the artifact #00001
 
   Scenario: Verify Artifact Tile does not Exist
-    Given I go to home
+    Given I am on the main page
     Then I do not see the artifact #99999

@@ -50,14 +50,20 @@ def setup_test_environment(features, marker):
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--window-size=1024,800")
     
+    # Add additional stability options
+    chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument("--disable-plugins")
+    chrome_options.add_argument("--disable-web-security")
+    chrome_options.add_argument("--allow-running-insecure-content")
+    
     try:
         log.trace("Creating Chrome driver with options...")
         world.driver = webdriver.Chrome(options=chrome_options)
         world.driver.implicitly_wait(10)
         log.trace("Chrome driver initialized successfully for entire test session")
     except Exception as e:
-        log.trace(f"Warning: Could not initialize Chrome driver: {e}")
-        log.trace("Tests will run but may fail without a web driver")
+        log.error(f"Failed to initialize Chrome driver: {e}")
+        raise RuntimeError(f"ChromeDriver initialization failed: {e}") from e
 
 # @after.all
 def cleanup_test_environment(features, marker):

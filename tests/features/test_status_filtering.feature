@@ -5,7 +5,7 @@ Feature: Test Status Filtering
     So that I can view artifacts with specific status values
 
     Scenario: Filter Artifacts by Status
-        Given I go to home
+        Given I am on the main page
         When I set the status filter to "open"
         And I verify the status filter is set to "open"
         Then I see only artifacts with status "open"

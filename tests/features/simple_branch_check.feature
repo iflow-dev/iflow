@@ -5,5 +5,5 @@ Feature: Simple Page Title Check
 
   Scenario: Check Page Title Display
     Given I go to home
-    Given I am on the search page
+    Given I am on the main page
     Then the page title should be displayed

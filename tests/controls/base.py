@@ -9,11 +9,11 @@ from selenium.common.exceptions import TimeoutException
 # Default timeout for element operations (in seconds)
 DEFAULT_TIMEOUT = 5
 
-# Global debug mode flag - can be toggled at runtime
-DEBUG_MODE = False
-
 
 class ControlBase:
+    # Class-level debug mode flag - can be toggled at runtime
+    DEBUG_MODE = False
+    
     def __init__(self, xpath):
         self.xpath = xpath
     
@@ -31,7 +31,7 @@ class ControlBase:
     
     def _debug_log(self, message):
         """Log debug message if debug mode is enabled."""
-        if self.DEBUG_MODE:
+        if self.__class__.DEBUG_MODE:
             print(f"🐛 [ControlBase] {message}")
 
     def locate(self, driver, timeout=None):
@@ -82,7 +82,7 @@ class ControlBase:
         
         element = self.locate(driver, timeout)
         
-        if self.DEBUG_MODE:
+        if self.__class__.DEBUG_MODE:
             # Enhanced debug mode with better click handling
             return self._click_with_debug(driver, element)
         else:

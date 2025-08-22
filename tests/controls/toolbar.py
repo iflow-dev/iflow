@@ -25,6 +25,11 @@ class Toolbar:
         """Access to filter controls in the toolbar."""
         return FilterControls(self.driver)
     
+    @property
+    def buttons(self):
+        """Access to button controls in the toolbar."""
+        return ButtonControls(self.driver)
+    
     def wait_for_toolbar(self, timeout=10):
         """Wait for the toolbar to be visible and loaded."""
         wait = WebDriverWait(self.driver, timeout)
@@ -200,4 +205,64 @@ class IterationFilter(ControlBase):
         element = self.find_element(self.driver)
         select = Select(element)
         select.select_by_value(value)
+        return self
+
+
+class ButtonControls:
+    """Control class for button-specific interactions in the toolbar."""
+    
+    def __init__(self, driver):
+        """Initialize the ButtonControls.
+        
+        Args:
+            driver: WebDriver instance
+        """
+        self.driver = driver
+    
+    @property
+    def create(self):
+        """Access to the create button."""
+        return CreateButton(self.driver)
+    
+    @property
+    def refresh(self):
+        """Access to the refresh button."""
+        return RefreshButton(self.driver)
+
+
+class CreateButton(ControlBase):
+    """Control class for the create button in the toolbar."""
+    
+    def __init__(self, driver):
+        """Initialize the CreateButton control.
+        
+        Args:
+            driver: WebDriver instance
+        """
+        super().__init__("//button[.//img[contains(@src, 'create-outline')]]")
+        self.driver = driver
+    
+    def click(self):
+        """Click the create button to open the artifact editor."""
+        element = self.find_element(self.driver)
+        element.click()
+        return self
+
+
+class RefreshButton(ControlBase):
+    """Control class for the refresh button in the toolbar."""
+    
+    def __init__(self, driver):
+        """Initialize the RefreshButton control.
+        
+        Args:
+            driver: WebDriver instance
+        """
+        super().__init__("//button[.//img[contains(@src, 'refresh-outline')]]")
+        self.driver = driver
+    
+    def click(self):
+        """Click the refresh button to reload artifacts."""
+        element = self.find_element(self.driver)
+        element.click()
         return self

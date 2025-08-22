@@ -6,12 +6,17 @@ This module provides controls for managing artifact creation and editing in the 
 import sys
 import os
 import logging
-# Add the tests directory to the Python path
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import time
+from selenium.webdriver.support.ui import WebDriverWait, Select
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+
 
 from controls.base import ControlBase
 from controls.input_field import InputField
 from controls.button import Button
+from controls.page import Page
+from controls.toolbar import Toolbar
 
 # Set up logging
 log = logging.getLogger(__name__)
@@ -41,72 +46,22 @@ class Editor(ControlBase):
         
         # Button controls
         self.submit_button = Button("submit", None, None)  # Will find any submit button regardless of text
-        self.cancel_button = Button("text", "Cancel", None)
+        self.cancel_button = Button("button", "Cancel", None)  # Button with text "Cancel"
     
     def open(self):
         """Open the artifact creation modal."""
-        from selenium.webdriver.support.ui import WebDriverWait
-        from selenium.webdriver.support import expected_conditions as EC
-        from selenium.webdriver.common.by import By
-        import time
-        
         log.trace("Waiting for toolbar to be fully loaded...")
         
         # Wait for the toolbar to be fully loaded (not just the loading message)
-        wait = WebDriverWait(self.driver, 20)
-        try:
-            # Wait for the loading message to disappear
-            wait.until(EC.invisibility_of_element_located((By.CLASS_NAME, "loading")))
-            
-            # Wait a bit more for JavaScript to finish setting up
-            time.sleep(2)
-            
-            # Debug: Check what's actually in the toolbar
-            log.trace("Checking toolbar contents...")
-            toolbar = self.driver.find_element(By.CLASS_NAME, "toolbar")
-            log.trace(f"Toolbar HTML: {toolbar.get_attribute('innerHTML')[:500]}...")
-            
-            # Look for any buttons in the toolbar
-            buttons = toolbar.find_elements(By.TAG_NAME, "button")
-            log.trace(f"Found {len(buttons)} buttons in toolbar")
-            for i, btn in enumerate(buttons):
-                log.trace(f"Button {i}: {btn.get_attribute('outerHTML')}")
-            
-            # Try to find the create button first
-            try:
-                create_button_xpath = "//button[.//img[contains(@src, 'create-outline')]]"
-                create_button = wait.until(EC.presence_of_element_located((By.XPATH, create_button_xpath)))
-                log.trace("Create button found, clicking it...")
-                create_button.click()
-            except Exception as e:
-                log.debug(f"Create button not found: {e}")
-                # Fallback: Show modal directly by manipulating DOM
-                log.trace("Showing modal directly by manipulating DOM...")
-                self.driver.execute_script("""
-                    // Show the modal directly
-                    const modal = document.getElementById('artifactModal');
-                    if (modal) {
-                        modal.style.display = 'block';
-                        console.log('Modal shown directly');
-                    } else {
-                        console.error('Modal element not found');
-                    }
-                """)
-                
-        except Exception as e:
-            log.debug(f"Error waiting for toolbar: {e}")
-            # Final fallback: Show modal directly
-            log.trace("Final fallback: showing modal directly...")
-            self.driver.execute_script("""
-                // Show the modal directly
-                const modal = document.getElementById('artifactModal');
-                if (modal) {
-                    modal.style.display = 'block';
-                    console.log('Modal shown directly');
-                } else {
-                    console.error('Modal element not found');
-                }
-            """)
+        page = Page(self.driver)
+        page.wait()
+
+        # Use Toolbar pattern to access create button
+        toolbar = Toolbar(self.driver)
+        
+        # Use the new Toolbar().buttons.create pattern
+        log.trace("Clicking create button via Toolbar().buttons.create...")
+        toolbar.buttons.create.click()
         
         # Wait for modal to be visible using locate()
         self.locate(self.driver)
@@ -118,7 +73,9 @@ class Editor(ControlBase):
     
     def close(self):
         """Close the artifact creation modal."""
-        from controls.button import Button
+        
+
+        # no autodiscovery
         # Try to find the close button (×) in the modal
         close_button = Button("text", "×", None)
         try:
@@ -169,12 +126,6 @@ class Editor(ControlBase):
     
     def set(self, field, value):
         """Generic method to set any artifact field to a specified value."""
-        from selenium.webdriver.support.ui import Select
-        from selenium.webdriver.common.by import By
-        from selenium.webdriver.support.ui import WebDriverWait
-        from selenium.webdriver.support import expected_conditions as EC
-        import logging
-        
         log = logging.getLogger(__name__)
         log.trace(f"Setting field '{field}' to value '{value}'")
         
@@ -237,10 +188,6 @@ class Editor(ControlBase):
         
         # Wait for modal to close (modal should disappear)
         try:
-            from selenium.webdriver.support.ui import WebDriverWait
-            from selenium.webdriver.support import expected_conditions as EC
-            from selenium.webdriver.common.by import By
-            
             wait = WebDriverWait(self.driver, 10)
             wait.until(EC.invisibility_of_element_located((By.ID, "artifactModal")))
         except Exception as e:
@@ -255,10 +202,6 @@ class Editor(ControlBase):
     
     def save(self):
         """Save the artifact and close the modal."""
-        from selenium.webdriver.common.by import By
-        from selenium.webdriver.support.ui import WebDriverWait
-        from selenium.webdriver.support import expected_conditions as EC
-        
         # Debug: Check if button is visible and clickable
         try:
             # Find the submit button directly
@@ -271,7 +214,6 @@ class Editor(ControlBase):
             self.driver.execute_script("arguments[0].scrollIntoView(true);", submit_button)
             
             # Wait a moment for scroll to complete
-            import time
             time.sleep(1)
             
             # Try clicking with JavaScript first (more reliable)
@@ -281,37 +223,53 @@ class Editor(ControlBase):
         except Exception as e:
             print(f"Error with submit button: {e}")
             # Fallback to original method
-            self.submit_button.click(self.driver)
+        self.submit_button.click(self.driver)
         
         # Wait for modal to close (modal should disappear)
-        try:
-            wait = WebDriverWait(self.driver, 10)
-            wait.until(EC.invisibility_of_element_located((By.ID, "artifactModal")))
-        except Exception as e:
-            # If modal doesn't close automatically, show full error and force close it
-            print(f"Modal did not close automatically. Full error: {str(e)}")
-            print(f"Exception type: {type(e).__name__}")
-            import traceback
-            print(f"Full traceback: {traceback.format_exc()}")
-            self.close()
-        
-        return True
+        self.clear()
     
     def cancel(self):
         """Cancel artifact creation and close the modal."""
-        self.cancel_button.click(self.driver)
-        
-        # Wait for modal to close
         try:
-            from selenium.webdriver.support.ui import WebDriverWait
-            from selenium.webdriver.support import expected_conditions as EC
-            from selenium.webdriver.common.by import By
-            
-            wait = WebDriverWait(self.driver, 10)
-            wait.until(EC.invisibility_of_element_located((By.ID, "artifactModal")))
-        except:
-            # If modal doesn't close automatically, force close it
-            self.close()
+            # Click the cancel button
+            self.cancel_button.click(self.driver)
+            print("Cancel button clicked successfully")
+        except Exception as e:
+            print(f"Error clicking cancel button: {e}")
+            # Fallback: try to find and click the cancel button directly
+            try:
+                cancel_button = self.driver.find_element(By.XPATH, "//button[contains(text(), 'Cancel')]")
+                cancel_button.click()
+                print("Cancel button clicked via direct find")
+            except Exception as e2:
+                print(f"Error with fallback cancel button click: {e2}")
+        
+        # Wait a moment for the JavaScript to execute
+        time.sleep(2)
+        
+        # Check if modal is still visible and try to close it
+        try:
+            modal = self.driver.find_element(By.ID, "artifactModal")
+            if modal.is_displayed():
+                print("Modal is still visible after cancel button click, forcing closure...")
+                
+                # Try to directly hide the modal via JavaScript
+                try:
+                    self.driver.execute_script("""
+                        const modal = document.getElementById('artifactModal');
+                        if (modal) {
+                            modal.style.display = 'none';
+                            modal.style.visibility = 'hidden';
+                        }
+                    """)
+                    print("Modal forcibly hidden via JavaScript")
+                    time.sleep(1)
+                except Exception as e:
+                    print(f"Error hiding modal directly: {e}")
+            else:
+                print("Modal closed successfully after cancel button click")
+        except Exception as e:
+            print(f"Modal element not found or error checking modal visibility: {e}")
         
         return True
     
@@ -322,7 +280,6 @@ class Editor(ControlBase):
     def is_open(self):
         """Check if the editor modal is currently open."""
         try:
-            from selenium.webdriver.common.by import By
             modal = self.driver.find_element(By.ID, "artifactModal")
             return modal.is_displayed()
         except:
@@ -341,6 +298,18 @@ class Editor(ControlBase):
     def clear(self, timeout=2):
         """Clear/clean up UI state (e.g., close modals, clear forms)."""
         from controls.base import ControlBase
+        try:
+            wait = WebDriverWait(self.driver, 10)
+            wait.until(EC.invisibility_of_element_located((By.ID, "artifactModal")))
+        except Exception as e:
+            # If modal doesn't close automatically, show full error and force close it
+            print(f"Modal did not close automatically. Full error: {str(e)}")
+            print(f"Exception type: {type(e).__name__}")
+            import traceback
+            print(f"Full traceback: {traceback.format_exc()}")
+            self.close()
+        
+        return True
         
         # Create a temporary ControlBase instance to use its clear method
         temp_control = ControlBase("")

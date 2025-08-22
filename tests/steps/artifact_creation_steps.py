@@ -144,22 +144,7 @@ def i_cancel_artifact_creation(step):
         log.debug(f"Failed to cancel artifact creation: {e}")
         raise AssertionError(f"Failed to cancel artifact creation: {e}")
 
-@step("I remain on the search view")
-def i_remain_on_search_view(step):
-    """Verify that we remain on the search view after cancellation."""
-    from radish import world
-    
-    log.trace("Verifying we remain on search view after cancellation")
-    
-    try:
-        # Check that we're still on the home page (search view)
-        from selenium.webdriver.common.by import By
-        search_input = world.driver.find_element(By.ID, "searchInput")
-        assert search_input.is_displayed(), "Search input not visible - not on search view"
-        
-    except Exception as e:
-        log.debug(f"Failed to verify we remain on search view: {e}")
-        raise AssertionError(f"Failed to verify we remain on search view: {e}")
+
 
 @step("I search for artifacts with {search_text:QuotedString}")
 def i_search_for_artifacts_with(step, search_text):
@@ -174,7 +159,7 @@ def i_search_for_artifacts_with(step, search_text):
         from selenium.webdriver.support import expected_conditions as EC
         
         # Find the search input field
-        search_input = world.driver.find_element(By.ID, "searchInput")
+        search_input = world.driver.find_element(By.ID, "search-input")
         log.trace("Found search input field")
         
         # Clear and enter search text

@@ -5,7 +5,7 @@ Feature: Edit Dialog Button Text
     So that I know whether I'm creating or editing an artifact
 
     Scenario: Create new artifact shows "Create" button
-        Given I go to home
+        Given I am on the main page
         When I create a new requirement
         Then I should see the edit dialog
         And the submit button should say "Create"

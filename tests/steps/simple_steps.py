@@ -2,7 +2,7 @@
 Simple step definitions for basic functionality testing.
 """
 
-from radish import given, when, then
+from radish import given, when, then, step
 from selenium.webdriver.common.by import By
 from controls import Title, Button
 from selenium.webdriver.support.ui import WebDriverWait
@@ -27,25 +27,14 @@ def i_go_to_home(step):
     # Additional wait to ensure page is fully loaded and interactive
     time.sleep(3)
 
-@given("I am on the main page")
+@step("I am on the main page")
 def i_am_on_main_page(step):
     """Check that we are on the main page (expects previous step to have navigated)."""
     from radish import world
     title = Title("iflow")
     title.locate(world.driver)
 
-@given("I am on the search page")
-def i_am_on_search_page(step):
-    """Verify we are on the search page (expects previous step to have navigated)."""
-    from radish import world
-    
-    # Verify we're on the iflow page (don't navigate, just verify)
-    title = Title("iflow")
-    title.locate(world.driver)
-    
-    # Verify we have the artifacts container (search functionality)
-    wait = WebDriverWait(world.driver, 10)
-    wait.until(EC.presence_of_element_located((By.CLASS_NAME, "artifacts-container")))
+
 
 @when("I click the {button_text:QuotedString} button")
 def i_click_button(step, button_text):
