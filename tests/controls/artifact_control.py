@@ -43,31 +43,69 @@ class Artifact(ControlBase):
             return 0
 
 
-class ArtifactFinder:
+class Artifacts:
     """Class for finding artifacts on the page."""
     
-    @staticmethod
-    def find(key=None, summary=None, driver=None):
-        """Find artifacts on the page based on key or summary."""
-        if driver is None:
+    def __init__(self, driver=None):
+        """Initialize with optional driver."""
+        self.driver = driver
+    
+    def wait(self, timeout=10):
+        """Wait for the artifacts container to be visible."""
+        if self.driver is None:
             from radish import world
-            driver = world.driver
+            self.driver = world.driver
+        
+        wait = WebDriverWait(self.driver, timeout)
+        return wait.until(EC.presence_of_element_located((By.ID, "artifacts-container")))
+    
+    def find(self, id=None, summary=None, key=None):
+        """Find artifacts on the page based on id, summary, or key."""
+        if self.driver is None:
+            from radish import world
+            self.driver = world.driver
         
         artifacts = []
-        
         try:
-            wait = WebDriverWait(driver, 10)
-            container = wait.until(EC.presence_of_element_located((By.ID, "artifacts-container")))
-            container_text = container.text.strip()
+            container = self.wait()
+            # Look for individual artifact elements - try different selectors
+            artifact_elements = container.find_elements(By.CSS_SELECTOR, ".artifact-tile")
             
-            if key and key in container_text:
-                artifact = Artifact(id=key)
-                artifacts.append(artifact)
+            # If no .artifact-tile elements found, try alternative selectors
+            if not artifact_elements:
+                artifact_elements = container.find_elements(By.CSS_SELECTOR, "[id^='artifact-']")
             
-            if summary and summary in container_text:
-                artifact = Artifact(summary=summary)
-                artifacts.append(artifact)
+            if not artifact_elements:
+                artifact_elements = container.find_elements(By.CSS_SELECTOR, ".artifact")
             
+            if not artifact_elements:
+                # Last resort: look for any div that might be an artifact
+                artifact_elements = container.find_elements(By.CSS_SELECTOR, "div")
+                # Filter to only divs that look like artifacts (have some content)
+                artifact_elements = [elem for elem in artifact_elements if elem.text.strip()]
+            
+            log.info(f"Found {len(artifact_elements)} potential artifact elements")
+            
+            for element in artifact_elements:
+                element_text = element.text.strip()
+                if not element_text:  # Skip empty elements
+                    continue
+                    
+                log.info(f"Element text: '{element_text[:100]}...'")
+                
+                # Apply filters if specified
+                if id and str(id) in element_text:
+                    artifacts.append(element)
+                elif summary and summary in element_text:
+                    artifacts.append(element)
+                elif key and key in element_text:
+                    artifacts.append(element)
+                elif not id and not summary and not key:
+                    # No filters, include all
+                    artifacts.append(element)
+                    
+            log.info(f"Returning {len(artifacts)} artifacts after filtering")
+        
         except Exception as e:
             log.debug(f"Error finding artifacts: {e}")
         

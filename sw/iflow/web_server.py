@@ -26,24 +26,20 @@ db = None
 page_title = "iflow "
 
 def init_database():
-    """Initialize the database with the default path."""
+    """Initialize the database with explicit path from environment."""
     global db
     if db is None:
-        # Check if environment variable is set
+        # Require explicit database path from environment
         env_db_path = os.environ.get("IFLOW_DATABASE_PATH")
-        if env_db_path:
+        if env_db_path and os.path.exists(env_db_path):
             print(f"Initializing database with environment path: {env_db_path}")
             db = GitDatabase(env_db_path)
         else:
-            # Try to initialize with the default path
-            default_db_path = "../../.iflow-demo"
-            if os.path.exists(default_db_path):
-                print(f"Initializing database with default path: {default_db_path}")
-                db = GitDatabase(default_db_path)
-            else:
-                print(f"Default database path not found: {default_db_path}")
-                # Fall back to the original default
-                db = GitDatabase(".iflow")
+            # No fallback - raise error if database not found
+            error_msg = f"Database not found. Set IFLOW_DATABASE_PATH environment variable."
+            if env_db_path:
+                error_msg += f" Path '{env_db_path}' does not exist."
+            raise RuntimeError(error_msg)
 
 # Initialize database when the module is imported
 init_database()

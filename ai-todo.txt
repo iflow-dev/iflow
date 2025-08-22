@@ -1,58 +1,83 @@
-AI Todo List
-============
+# AI Todo List
 
-COMPLETED:
-- follow those instructions
-- follow bootstrap.txt (COMPLETED - all steps logged and understood)
-  ✓ EDITOR unset to avoid workflow interruption
-  ✓ Prod server confirmed running on port 9000
-  ✓ Environment structure verified: /opt/iflow/{dev,qa,prod,integration}
-  ✓ Virtual environments confirmed in /opt/iflow/prod/venv/
-  ✓ ENVIRONMENT_SETUP.md found and accessible
-  ✓ run_radish.py understood: python run_radish.py <env> <args> [--foreground]
-  ✓ start_server.py understood: python start_server.py [--port PORT] [--database PATH] [--init-db]
-  ✓ GitHub CLI available (gh version 2.76.2)
-  ✓ Port ranges confirmed: dev servers 7000-7100, prod 9000
-  ✓ Artifact 00102 read: procedure execution instructions
-  ✓ Procedures and checklists loaded from prod database
-  ✓ Existing step definitions found with @step decorators
-  ✓ Common pitfalls identified and documented
+## Current Task
+- Following bootstrap.txt instructions
 
-COMPLETED:
-- create a new test case: the cross is visible after the user inputs text ✓
-  (Fixed Test Case 5 with real user interaction simulation)
-- implement new test case: filter name click to disabled state ✓
-  (Added Test Case 6 with real user click simulation and real-time debug updates)
-- implement test case: disabled filter click to active state ✓
-  (Added Test Case 7 with proper state cycling: active -> disabled -> active)
-- implement EventManager architecture for decoupled event handling ✓
-  (Created EventManager class with event queuing, distribution, and event history tracking)
-- fix double event issue and duplicate event binding ✓
-  (Prevented duplicate event binding and ensured single EventManager-driven state changes)
-- update CSS for active text filter with orange border ✓
-  (Added orange border styling for active and focused text input fields)
-- restore disabled filter formatting ✓
-  (Fixed CSS specificity issues to maintain disabled state visual appearance)
-- create similar test setup for the dropdown menu and run it ✓
-  (Created SelectFilter test template and test runner, all 5 tests passing)
-- ensure dropdown control uses the EventManager ✓
-  (Added filterSelectChange event reporting and proper EventManager integration)
+## Completed Tasks
+- ✅ Checked /opt/iflow environment structure
+- ✅ Read ENVIRONMENT_SETUP.md
+- ✅ Verified prod server running on port 9000
+- ✅ Queried backend API for artifacts
+- ✅ Read artifact 00102 (execute procedure)
+- ✅ Read all procedures and checklists
+- ✅ Checked radish documentation
+- ✅ Examined run_radish.py
+- ✅ Examined start_server.py
+- ✅ Unset EDITOR environment variable
+- ✅ Verified port 9000 is occupied by prod server
 
-CURRENT TASK:
-- All requested tasks completed successfully!
+## Pending Tasks
+- [ ] Complete bootstrap.txt following
+- [ ] Create comprehensive checklists
+- [ ] Organize learned information
 
-PENDING:
-(no pending tasks)
+## Rules & Checklists to Follow
 
-NOTES FROM BOOTSTRAP.TXT:
-- EDITOR is now unset to avoid workflow interruption
-- Prod server is running on port 9000
-- Environment structure understood: /opt/iflow/{dev,qa,prod,integration}
-- API endpoints available for artifact queries
-- Procedures and checklists loaded from prod database
-- GitHub CLI available (gh version 2.76.2)
-- Port ranges: dev servers 7000-7010, prod 9000
-- Common pitfalls identified and documented
-- Step definition patterns: use @step decorator, distinguish between activity (when) and verification (then)
-- Test execution: use run_radish.py with environment specification
-- Local server: use start_server.py with --init-db for testing local changes
+### 🚫 CRITICAL RESTRICTIONS
+- **NEVER EVER DO:**
+  - ❌ Use port 9000 for testing
+  - ❌ Use prod server for testing  
+  - ❌ Stop server on port 9000 unless updating prod server
+
+### 🔧 Environment Management
+- **Port Ranges:**
+  - Prod: 9000 (always running)
+  - Dev servers: 7000-7010 (allowed range)
+  - Integration: 8082
+  - QA: 8081
+  - Dev: 8080
+
+### 🧪 Testing Procedures
+- **Local Testing:**
+  - Use `start_server.py --init-db` for local repository testing
+  - Stop any running dev server before starting new one
+  - Ensure server has recent changes
+  - Never use dev environment for testing local changes
+
+### 📝 Git Operations
+- **Commit Messages:** `#<ticket>: <fix/implement>: <summary>`
+- **Merge Operations:** Always use `--no-edit` flag
+- **Branch Management:** Check pending changes before operations
+
+### 🧪 BDD Test Development
+- **Step Definitions:**
+  - Search existing steps before creating new ones
+  - Use only `@step` decorator
+  - Distinguish between activity (`@when`) and verification (`@then`)
+  - Follow natural language with formal elements
+  - Unify steps by making them more flexible
+
+### 🔍 Artifact Queries
+- **Always use PROD server (port 9000) for artifact queries**
+- **Query endpoints:**
+  - All artifacts: `/api/artifacts`
+  - Specific artifact: `/api/artifacts/<id>`
+  - Filtered artifacts: `/api/artifacts?category=<category>`
+
+### 🚀 Server Management
+- **Start Commands:**
+  - Prod: `/opt/iflow/prod/server start`
+  - Dev: `/opt/iflow/dev/server start`
+  - QA: `/opt/iflow/qa/server start`
+  - Integration: `/opt/iflow/integration/server start`
+
+### 📚 Documentation & Learning
+- **Radish Tutorial:** https://radish.readthedocs.io/en/stable/tutorial.html
+- **Test Execution:** `python run_radish.py <env> <args> [--foreground] [--local]`
+- **Local Server:** `python start_server.py [--port PORT] [--database PATH] [--init-db]`
+
+### ⚠️ Common Pitfalls
+- **Workflow Interruption:** EDITOR environment variable opens editors
+- **Git Merge:** Missing `--no-edit` flag
+- **Port Conflicts:** Not checking port availability before starting servers
+- **Environment Confusion:** Using wrong environment for specific tasks

@@ -1,5 +1,5 @@
 from radish import given, when, then, step
-from controls.artifact_control import Artifact, ArtifactFinder
+from controls.artifact_control import Artifact, Artifacts
 import logging
 
 # Set up logging
@@ -224,8 +224,9 @@ def i_see_search_results(step, count):
     log.trace(f"Verifying search returns {count} results")
     
     try:
-        # Use ArtifactFinder to count results
-        artifacts = ArtifactFinder.find()
+        # Use Artifacts to count results
+        from controls.artifact_control import Artifacts
+        artifacts = Artifacts(world.driver).find()
         actual_count = len(artifacts)
         
         assert actual_count == count, f"Expected {count} search results, but got {actual_count}"
@@ -234,20 +235,4 @@ def i_see_search_results(step, count):
         log.debug(f"Failed to verify search results: {e}")
         raise AssertionError(f"Failed to verify search results: {e}")
 
-@step("I see zero search results")
-def i_see_zero_search_results(step):
-    """Verify that the search returns zero results."""
-    from radish import world
-    
-    log.trace("Verifying search returns 0 results")
-    
-    try:
-        # Use ArtifactFinder to count results
-        artifacts = ArtifactFinder.find()
-        actual_count = len(artifacts)
-        
-        assert actual_count == 0, f"Expected 0 search results, but got {actual_count}"
-        
-    except Exception as e:
-        log.debug(f"Failed to verify zero search results: {e}")
-        raise AssertionError(f"Failed to verify zero search results: {e}")
+

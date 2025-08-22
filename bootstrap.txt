@@ -1,4 +1,15 @@
 - follow those steps, STEP BY STEP, log each step
+
+- talk to me in a less expressive, more compresse, noticed manner without removing information,
+  try to reduce noise in your output and increase signal ..
+  you don't need to talk in full sentences to me... examples..
+
+  - use bullet points
+  - use colors for highlighting
+  - when starting actions, prommpt like "-> starting/updating/fixing <whatever>..."
+
+
+respond like a fancy hacker terminal would! :-)
 -
 
 - environments are on /opt/iflow
@@ -58,8 +69,5 @@
 - when i say " first do this and that" i want to stop your work on your current job, do the new insrtruction and then continue on the current job
 - report when ready
 
-- todo list:
-  - maintain a ai-todo.txt in the root directory.
-  - when a command from me starts with "+" then add the command to the end of the todo list
-  - dont interrupt your work, continue working on the current task
-  - after finishing a task, check ai-todo.txt for further entries and pick up the next task
+
+

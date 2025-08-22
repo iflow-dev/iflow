@@ -33,60 +33,74 @@ def get_script_dir() -> Path:
     """Get the directory containing this script."""
     return Path(__file__).parent.absolute()
 
-def find_available_port(start_port: int = 7000, end_port: int = 7010) -> int:
-    """Find an available port in the specified range."""
+def find_available_port() -> int:
+    """Check if port 7000 is available, fail if not."""
     import socket
     
-    for port in range(start_port, end_port + 1):
-        try:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.bind(('localhost', port))
-                return port
-        except OSError:
-            continue
-    
-    raise RuntimeError(f"No available ports found in range {start_port}-{end_port}")
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind(('localhost', 7000))
+            return 7000
+    except OSError:
+        raise RuntimeError("Port 7000 is already in use. Please stop any running servers and try again.")
 
-def start_local_server(port: int) -> subprocess.Popen:
+def start_local_server(port: int = None) -> subprocess.Popen:
     """Start a local iflow server with temporary database."""
+    if port is not None:
+        raise RuntimeError("--port is deprecated, don't use! Port 7000 is fixed.")
+    
     script_dir = get_script_dir()
     start_server_script = script_dir / "start_server.py"
     
     if not start_server_script.exists():
         raise FileNotFoundError(f"start_server.py not found at {start_server_script}")
     
-    # Start the server with --init-db flag
-    cmd = [sys.executable, str(start_server_script), "--port", str(port), "--init-db"]
+    # First, initialize the temp database synchronously
+    typer.echo("🔧 Initializing temporary database...")
+    cmd_init_db = [sys.executable, str(start_server_script), "--init-db", "--output-db-path"]
+    try:
+        result = subprocess.run(cmd_init_db, capture_output=True, text=True, check=True)
+        temp_db_path = result.stdout.strip()
+        typer.echo(f"✅ Database initialized: {temp_db_path}")
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"❌ Failed to initialize database: {e}")
     
-    typer.echo(f"Starting local server on port {port} with temporary database...")
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    # Wait for DB init to complete
+    time.sleep(2)
     
-    # Wait a bit for the server to start
-    time.sleep(3)
+    # Start the server with the temp database (no fallback)
+    cmd = [sys.executable, str(start_server_script), "--port", "7000", "--database", temp_db_path]
+    
+    typer.echo(f"🚀 Starting server with temp DB: {temp_db_path}")
+    
+    process = subprocess.Popen(cmd)
+    
+    # Wait for server to start
+    time.sleep(10)
     
     # Check if server is running
     try:
         import requests
-        response = requests.get(f"http://localhost:{port}/api/artifacts", timeout=5)
+        response = requests.get("http://localhost:7000/api/artifacts", timeout=10)
         if response.status_code == 200:
-            typer.echo(f"✅ Local server started successfully on port {port}")
+            typer.echo("✅ Local server started successfully on port 7000")
             return process
         else:
             raise RuntimeError(f"Server responded with status {response.status_code}")
     except ImportError:
         # If requests is not available, just check if process is still running
         if process.poll() is None:
-            typer.echo(f"✅ Local server started on port {port} (status check skipped)")
+            typer.echo("✅ Local server started on port 7000 (status check skipped)")
             return process
         else:
             raise RuntimeError("Server process failed to start")
     except Exception as e:
         raise RuntimeError(f"Failed to start local server: {e}")
 
-def stop_local_server(process: subprocess.Popen, port: int) -> None:
+def stop_local_server(process: subprocess.Popen) -> None:
     """Stop the local server and clean up."""
     if process and process.poll() is None:
-        typer.echo(f"Stopping local server on port {port}...")
+        typer.echo("Stopping local server on port 7000...")
         process.terminate()
         try:
             process.wait(timeout=10)
@@ -97,7 +111,7 @@ def stop_local_server(process: subprocess.Popen, port: int) -> None:
             process.wait()
             typer.echo(f"✅ Local server on port {port} force stopped")
     else:
-        typer.echo(f"Local server on port {port} is not running")
+        typer.echo("Local server on port 7000 is not running")
 
 def setup_environment(environment: str, foreground: bool = False, debug: bool = False, trace: bool = False) -> None:
     """Set up environment variables for the specified environment."""
@@ -227,12 +241,11 @@ def main(
             # Override environment to 'local' when using --local flag
             environment = "local"
             
-            # Find available port and start local server
-            local_port = find_available_port()
-            local_server_process = start_local_server(local_port)
+            # Start local server on fixed port 7000
+            local_server_process = start_local_server()
             
             # Set up environment variables for local server
-            os.environ["IFLOW_BASE_URL"] = f"http://localhost:{local_port}"
+            os.environ["IFLOW_BASE_URL"] = "http://localhost:7000"
             
             # Set logging level based on flags (TRACE takes precedence over DEBUG)
             if trace:
@@ -263,8 +276,8 @@ def main(
         
     finally:
         # Clean up local server if it was started
-        if local_server_process and local_port:
-            stop_local_server(local_server_process, local_port)
+        if local_server_process:
+            stop_local_server(local_server_process)
 
 def main_simple():
     """Simple version that doesn't use typer for argument parsing."""
@@ -308,8 +321,8 @@ def main_simple():
     
     def cleanup_local_server(signum=None, frame=None):
         """Clean up local server on signal or exit."""
-        if local_server_process and local_port:
-            stop_local_server(local_server_process, local_port)
+        if local_server_process:
+            stop_local_server(local_server_process)
         if signum:
             sys.exit(1)
     
@@ -318,9 +331,8 @@ def main_simple():
             # Override environment to 'local' when using --local flag
             environment = "local"
             
-            # Find available port and start local server
-            local_port = find_available_port()
-            local_server_process = start_local_server(local_port)
+            # Start local server on fixed port 7000
+            local_server_process = start_local_server()
             
             # Set up signal handlers for cleanup
             signal.signal(signal.SIGINT, cleanup_local_server)
@@ -328,7 +340,7 @@ def main_simple():
             atexit.register(cleanup_local_server)
             
             # Set up environment variables for local server
-            os.environ["IFLOW_BASE_URL"] = f"http://localhost:{local_port}"
+            os.environ["IFLOW_BASE_URL"] = "http://localhost:7000"
             
             # Set logging level based on flags (TRACE takes precedence over DEBUG)
             if trace:
@@ -340,8 +352,8 @@ def main_simple():
                 
             os.environ["HEADLESS_MODE"] = "false" if foreground else "true"
             
-            print(f"Using local environment (URL: http://localhost:{local_port})")
-            print(f"Set IFLOW_BASE_URL=http://localhost:{local_port}")
+            print("Using local environment (URL: http://localhost:7000)")
+            print("Set IFLOW_BASE_URL=http://localhost:7000")
             print(f"Set PYTHON_LOG_LEVEL={'TRACE' if trace else 'DEBUG' if debug else 'INFO'}")
             print(f"Set HEADLESS_MODE={'false (Chrome will be visible)' if foreground else 'true (Chrome will run in headless mode)'}")
         else:

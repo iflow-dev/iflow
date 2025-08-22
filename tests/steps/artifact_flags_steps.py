@@ -6,7 +6,7 @@ from radish import step, world
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
-from controls.artifact_control import ArtifactFinder
+from controls.artifact_control import Artifacts
 from controls.page import Page
 from controls.article import Article
 import time
@@ -35,11 +35,8 @@ def i_reset_database_to_branch(step, branch):
 def i_see_artifacts_displayed(step):
     """Verify that artifacts are displayed on the page."""
     
-    # Wait for artifacts container to be visible
-    artifacts_container = Page().wait().until(EC.presence_of_element_located((By.ID, "artifacts-container")))
-    
-    # Check if artifacts are found using ArtifactFinder
-    artifacts = ArtifactFinder().find()
+    # Wait for artifacts container to be visible and check if artifacts are found
+    artifacts = Page().artifacts.wait().find()
     assert len(artifacts) > 0, "No artifacts found on the page"
 
 
@@ -53,8 +50,8 @@ def i_flag_unflag_artifact(step, unflag, artifact_id):
         artifact_id: ID of the artifact to flag/unflag
     """
     
-    # Use ArtifactFinder to find the specific artifact by ID
-    artifacts = ArtifactFinder.find(id=artifact_id)
+    # Use Artifacts to find the specific artifact by ID
+    artifacts = Artifacts(world.driver).find(id=artifact_id)
     if not artifacts:
         raise Exception(f"No artifact found with ID {artifact_id}")
     
@@ -89,6 +86,21 @@ def the_artifact_should_be_flagged_or_not(step, should):
     assert current_flag_state == expected_flagged, f"Flag state mismatch. Expected: {expected_flagged}, Got: {current_flag_state}"
 
 
+@step("the artifact should not be flagged")
+def the_artifact_should_not_be_flagged(step):
+    """Verify that the artifact is not flagged."""
+    
+    # Wait for the flag state to change
+    time.sleep(1)
+    
+    # Use the new Article().flag.active property
+    article = Article(world.driver)
+    current_flag_state = article.flag.active
+    
+    # The artifact should not be flagged
+    assert not current_flag_state, f"Artifact should not be flagged, but got: {current_flag_state}"
+
+
 
 @step("I toggle the flag filter")
 def i_toggle_flag_filter(step):
@@ -106,7 +118,7 @@ def i_should_see_only_flagged_artifacts(step):
     time.sleep(1)
     
     # Get all visible artifacts
-    artifacts = ArtifactFinder.find()
+    artifacts = Artifacts(world.driver).find()
     
        
     # Check that all visible artifacts are flagged
@@ -140,7 +152,7 @@ def i_should_see_all_artifacts_again(step):
     time.sleep(1)
     
     # Get all visible artifacts
-    artifacts = ArtifactFinder.find()
+    artifacts = Artifacts(world.driver).find()
     
     # We should see artifacts (both flagged and unflagged)
     assert len(artifacts) > 0, "No artifacts visible after removing flag filter"
@@ -192,8 +204,8 @@ def i_should_see_new_artifact_created(step):
     # Wait for the modal to close and artifacts to refresh
     time.sleep(2)
     
-    # Check that we have artifacts using ArtifactFinder
-    artifacts = ArtifactFinder.find(summary="Test artifact with flag")
+    # Check that we have artifacts using Artifacts
+    artifacts = Artifacts(world.driver).find(summary="Test artifact with flag")
     assert len(artifacts) > 0, "New artifact with test summary not found"
 
 
@@ -204,8 +216,8 @@ def the_new_artifact_should_be_flagged(step):
     # Wait for the modal to close and artifacts to refresh
     time.sleep(2)
     
-    # Find the specific artifact we created by its summary text using ArtifactFinder
-    artifacts = ArtifactFinder.find(summary="Test artifact with flag")
+    # Find the specific artifact we created by its summary text using Artifacts
+    artifacts = Artifacts(world.driver).find(summary="Test artifact with flag")
     assert len(artifacts) > 0, "No artifacts found after creation"
     
    
