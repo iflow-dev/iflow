@@ -3,215 +3,158 @@ Step definitions for testing status field default values in the editor.
 This module tests that the status field properly shows default values and actual values.
 """
 
-from radish import given, when, then, step
+from radish import given, when, then, step, world
 import logging
+from controls.editor import Editor
 
 # Set up logging
 log = logging.getLogger(__name__)
 
 
 
-@step("the status field should show {expected_status:QuotedString}")
-def the_status_field_should_show_expected_status(step, expected_status):
-    """Verify that the status field shows the expected status value."""
-    from radish import world
-    from selenium.webdriver.common.by import By
-    
-    try:
-        # Find the status select element
-        status_select = world.driver.find_element(By.ID, "artifactStatus")
-        
-        # Get the current value
-        actual_value = status_select.get_attribute("value")
-        
-        if actual_value == expected_status:
-            log.debug(f"Status field correctly shows expected status: {actual_value}")
-        else:
-            raise AssertionError(f"Expected status field to show '{expected_status}', but got '{actual_value}'")
-            
-    except Exception as e:
-        raise AssertionError(f"Failed to verify status field value: {e}")
 
-@step("I change the status to {new_status:QuotedString}")
-def i_change_status_to(step, new_status):
-    """Change the status field to the specified value."""
-    from radish import world
-    from selenium.webdriver.common.by import By
-    from selenium.webdriver.support.ui import Select
-    
-    try:
-        # Find the status select element
-        status_select = world.driver.find_element(By.ID, "artifactStatus")
-        
-        # Change the status using Select
-        select = Select(status_select)
-        select.select_by_value(new_status)
-        
-        log.debug(f"Changed status to '{new_status}'")
-        
-    except Exception as e:
-        raise AssertionError(f"Failed to change status field value: {e}")
+
+
+
+@step("I see the editor is open")
+def i_see_editor_is_open(step):
+    """Verify that the artifact editor modal is open and visible."""
+    editor = Editor(world.driver)
+    editor.locate(world.driver)
+    log.debug("Artifact editor modal is open and visible")
 
 @step("I see the status is {expected_status:QuotedString}")
 def i_see_status_is(step, expected_status):
     """Verify that the status field shows the expected status value."""
-    from radish import world
-    from selenium.webdriver.common.by import By
+    editor = Editor(world.driver)
+    actual_value = editor.get_status()
     
-    try:
-        # Find the status select element
-        status_select = world.driver.find_element(By.ID, "artifactStatus")
-        
-        # Get the current value
-        actual_value = status_select.get_attribute("value")
-        
-        if actual_value == expected_status:
-            log.debug(f"Status field correctly shows expected status: {actual_value}")
-        else:
-            raise AssertionError(f"Expected status field to show '{expected_status}', but got '{actual_value}'")
-            
-    except Exception as e:
-        raise AssertionError(f"Failed to verify status field value: {e}")
+    if actual_value == expected_status:
+        log.debug(f"Status field correctly shows expected status: {actual_value}")
+    else:
+        raise AssertionError(f"Expected status field to show '{expected_status}', but got '{actual_value}'")
 
-@step("I have an existing artifact with status {status:QuotedString}")
-def i_have_existing_artifact_with_status(step, status):
-    """Verify that there is an existing artifact with the specified status."""
-    from radish import world
-    
-    # This step assumes there are existing artifacts in the system
-    # We'll check if we can find an artifact with the given status
-    log.debug(f"Looking for existing artifact with status: {status}")
-    
-    # For now, we'll just verify that the status is valid
-    valid_statuses = ['open', 'in_progress', 'done', 'blocked']
-    if status not in valid_statuses:
-        raise AssertionError(f"Invalid status '{status}'. Valid statuses are: {valid_statuses}")
 
-@step("I edit the existing artifact")
-def i_edit_existing_artifact(step):
-    """Open the edit modal for an existing artifact."""
-    from radish import world
+
+
+
+
+@step("I open the artifact with {identifier:QuotedString}")
+def i_open_artifact_with_identifier(step, identifier):
+    """Open an artifact with the specified title or ID for editing."""
     from selenium.webdriver.common.by import By
     from selenium.webdriver.support.ui import WebDriverWait
     from selenium.webdriver.support import expected_conditions as EC
     
-    try:
-        # Find and click the first edit button available
-        edit_button = WebDriverWait(world.driver, 10).until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, ".edit-button, [title*='edit'], [aria-label*='edit']"))
-        )
-        edit_button.click()
-        log.debug("Clicked edit button for existing artifact")
-        
-        # Wait for the edit modal to open
-        WebDriverWait(world.driver, 10).until(
-            EC.visibility_of_element_located((By.ID, "artifactModal"))
-        )
-        log.debug("Edit modal opened successfully")
-        
-    except Exception as e:
-        raise AssertionError(f"Failed to open edit modal: {e}")
-
-@step("I see the artifact edit form")
-def i_see_artifact_edit_form(step):
-    """Verify that the artifact edit form is displayed."""
-    from radish import world
-    from selenium.webdriver.common.by import By
-    from selenium.webdriver.support.ui import WebDriverWait
-    from selenium.webdriver.support import expected_conditions as EC
+    wait = WebDriverWait(world.driver, 10)
     
-    try:
-        # Wait for the edit modal to be visible
-        modal = WebDriverWait(world.driver, 10).until(
-            EC.visibility_of_element_located((By.ID, "artifactModal"))
-        )
-        
-        # Check if the modal title indicates editing
-        title_element = world.driver.find_element(By.ID, "modalTitle")
-        if "Edit" in title_element.text:
-            log.debug("Artifact edit form is displayed")
-        else:
-            raise AssertionError(f"Modal title does not indicate editing: {title_element.text}")
+    # Try to find by ID first (if it looks like a number)
+    if identifier.isdigit():
+        # Look for artifact tile with data-artifact-id attribute
+        xpath = f"//div[@class='artifact-tile' and @data-artifact-id='{identifier}']"
+        try:
+            artifact_tile = wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
             
-    except Exception as e:
-        raise AssertionError(f"Failed to verify edit form is displayed: {e}")
+            # Find the edit button within this tile
+            edit_button = artifact_tile.find_element(By.CSS_SELECTOR, "button[onclick*='editArtifact'], button[onclick*='openEditModal']")
+            edit_button.click()
+            log.debug(f"Opened artifact with ID '{identifier}' for editing")
+            return
+            
+        except Exception as e:
+            log.debug(f"Could not find artifact with ID '{identifier}' using data-artifact-id: {e}")
+            
+            # Fallback: try looking for span with artifact-id class
+            xpath_fallback = f"//span[@class='artifact-id' and text()='{identifier}']"
+            try:
+                artifact_id_span = wait.until(EC.presence_of_element_located((By.XPATH, xpath_fallback)))
+                # Find the parent tile and then the edit button
+                artifact_tile = artifact_id_span.find_element(By.XPATH, "./ancestor::div[contains(@class,'artifact-tile') or contains(@class,'artifact-card')]")
+                edit_button = artifact_tile.find_element(By.CSS_SELECTOR, "button[onclick*='editArtifact'], button[onclick*='openEditModal']")
+                edit_button.click()
+                log.debug(f"Opened artifact with ID '{identifier}' for editing (fallback method)")
+                return
+            except Exception as e2:
+                log.debug(f"Fallback method also failed: {e2}")
+    else:
+        # Find by title/summary using XPath
+        xpath = f"//div[contains(@class,'artifact-tile') or contains(@class,'artifact-card')]//div[contains(@class,'artifact-summary') and text()='{identifier}']"
+        try:
+            summary_element = wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
+            
+            # Find the parent tile and then the edit button
+            artifact_tile = summary_element.find_element(By.XPATH, "./ancestor::div[contains(@class,'artifact-tile') or contains(@class,'artifact-card')]")
+            edit_button = artifact_tile.find_element(By.CSS_SELECTOR, "button[onclick*='editArtifact'], button[onclick*='openEditModal']")
+            edit_button.click()
+            log.debug(f"Opened artifact with title '{identifier}' for editing")
+            return
+            
+        except Exception as e:
+            log.debug(f"Could not find artifact with title '{identifier}': {e}")
+    
+    raise AssertionError(f"No artifact found with identifier '{identifier}'")
 
 # Note: Step "I set the status to {status:QuotedString}" is already defined in artifact_creation_steps.py
 
-@step("I should see a success message")
-def i_should_see_success_message(step):
-    """Verify that a success message is displayed."""
-    from radish import world
-    from selenium.webdriver.common.by import By
-    from selenium.webdriver.support.ui import WebDriverWait
-    from selenium.webdriver.support import expected_conditions as EC
-    
-    try:
-        # Wait for success message or modal to close
-        # Success could be indicated by modal closing or a success message
-        WebDriverWait(world.driver, 10).until(
-            EC.invisibility_of_element_located((By.ID, "artifactModal"))
-        )
-        log.debug("Success message indicated by modal closing")
-        
-    except Exception as e:
-        # Check for explicit success message
-        try:
-            success_element = world.driver.find_element(By.CSS_SELECTOR, ".success, .alert-success, [class*='success']")
-            if success_element.is_displayed():
-                log.debug("Success message found and displayed")
-                return
-        except:
-            pass
-        
-        raise AssertionError(f"Failed to verify success message: {e}")
 
-@step("the new artifact should have status {expected_status:QuotedString}")
-def the_new_artifact_should_have_status(step, expected_status):
-    """Verify that the newly created artifact has the expected status."""
-    from radish import world
+
+@step("I see artifact with {identifier:QuotedString} has status {status:QuotedString}")
+def i_see_artifact_has_status(step, identifier, status):
+    """Verify that the specified artifact has the expected status."""
     from selenium.webdriver.common.by import By
     from selenium.webdriver.support.ui import WebDriverWait
     from selenium.webdriver.support import expected_conditions as EC
     
-    try:
-        # Look for the artifact with the test summary
-        test_summary = "Test artifact with custom status"
-        
-        # Wait for artifacts to be visible
-        WebDriverWait(world.driver, 10).until(
-            EC.presence_of_element_located((By.CLASS_NAME, "artifact-card"))
-        )
-        
-        # Find the artifact with the test summary
-        artifacts = world.driver.find_elements(By.CLASS_NAME, "artifact-card")
-        target_artifact = None
-        
-        for artifact in artifacts:
-            try:
-                summary_element = artifact.find_element(By.CSS_SELECTOR, ".artifact-summary, .summary, [class*='summary']")
-                if test_summary in summary_element.text:
-                    target_artifact = artifact
-                    break
-            except:
-                continue
-        
-        if not target_artifact:
-            raise AssertionError(f"Could not find artifact with summary: {test_summary}")
-        
-        # Check the status of the found artifact
+    wait = WebDriverWait(world.driver, 10)
+    
+    # Try to find by ID first (if it looks like a number)
+    if identifier.isdigit():
+        # Look for artifact tile with data-artifact-id attribute
+        xpath = f"//div[@class='artifact-tile' and @data-artifact-id='{identifier}']"
         try:
-            status_element = target_artifact.find_element(By.CSS_SELECTOR, ".status-indicator, .artifact-status, [class*='status']")
-            actual_status_text = status_element.text.strip()
+            artifact_tile = wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
             
-            # The status text might contain the status name, so we check if it contains the expected status
-            if expected_status.lower() in actual_status_text.lower():
-                log.debug(f"New artifact correctly has status: {expected_status}")
-            else:
-                raise AssertionError(f"Expected status '{expected_status}', but artifact shows: {actual_status_text}")
-                
+            # Find the status element within this tile
+            status_element = artifact_tile.find_element(By.CSS_SELECTOR, ".artifact-status span, .artifact-status")
+            actual_status = status_element.text.lower()
+            
+            assert actual_status == status.lower(), f"Expected artifact with ID '{identifier}' to have status '{status}', but got '{actual_status}'"
+            log.debug(f"Verified artifact with ID '{identifier}' has status '{status}'")
+            return
+            
         except Exception as e:
-            raise AssertionError(f"Failed to check artifact status: {e}")
+            log.debug(f"Could not find artifact with ID '{identifier}' using data-artifact-id: {e}")
             
-    except Exception as e:
-        raise AssertionError(f"Failed to verify new artifact status: {e}")
+            # Fallback: try looking for span with artifact-id class
+            xpath_fallback = f"//span[@class='artifact-id' and text()='{identifier}']"
+            try:
+                artifact_id_span = wait.until(EC.presence_of_element_located((By.XPATH, xpath_fallback)))
+                # Find the parent tile and then the status
+                artifact_tile = artifact_id_span.find_element(By.XPATH, "./ancestor::div[contains(@class,'artifact-tile') or contains(@class,'artifact-card')]")
+                status_element = artifact_tile.find_element(By.CSS_SELECTOR, ".artifact-status span, .artifact-status")
+                actual_status = status_element.text.lower()
+                
+                assert actual_status == status.lower(), f"Expected artifact with ID '{identifier}' to have status '{status}', but got '{actual_status}'"
+                log.debug(f"Verified artifact with ID '{identifier}' has status '{status}' (fallback method)")
+                return
+            except Exception as e2:
+                log.debug(f"Fallback method also failed: {e2}")
+    else:
+        # Find by title/summary using XPath
+        xpath = f"//div[contains(@class,'artifact-tile') or contains(@class,'artifact-card')]//div[contains(@class,'artifact-summary') and text()='{identifier}']"
+        try:
+            summary_element = wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
+            
+            # Find the parent tile and then the status
+            artifact_tile = summary_element.find_element(By.XPATH, "./ancestor::div[contains(@class,'artifact-tile') or contains(@class,'artifact-card')]")
+            status_element = artifact_tile.find_element(By.CSS_SELECTOR, ".artifact-status span, .artifact-status")
+            actual_status = status_element.text.lower()
+            
+            assert actual_status == status.lower(), f"Expected artifact with title '{identifier}' to have status '{status}', but got '{actual_status}'"
+            log.debug(f"Verified artifact with title '{identifier}' has status '{status}'")
+            return
+            
+        except Exception as e:
+            log.debug(f"Could not find artifact with title '{identifier}': {e}")
+    
+    raise AssertionError(f"No artifact found with identifier '{identifier}'")

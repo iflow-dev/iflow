@@ -41,29 +41,7 @@ def i_create_a_new_requirement_with_name(step, name):
         log.debug(f"Failed to create requirement with name '{name}': {e}")
         raise AssertionError(f"Failed to create requirement with name '{name}': {e}")
 
-@step("I see the artifact creation form")
-def i_see_artifact_creation_form(step):
-    """Verify that the artifact creation form is displayed."""
-    from radish import world
-    
-    log.trace("Verifying artifact creation form is displayed")
-    
-    try:
-        from selenium.webdriver.common.by import By
-        from selenium.webdriver.support.ui import WebDriverWait
-        from selenium.webdriver.support import expected_conditions as EC
-        
-        # Wait for the modal to be visible
-        wait = WebDriverWait(world.driver, 10)
-        modal = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "modal-content")))
-        
-        # Verify the modal contains form elements
-        form_elements = modal.find_elements(By.TAG_NAME, "input")
-        assert len(form_elements) > 0, "No form elements found in modal"
-        
-    except Exception as e:
-        log.debug(f"Failed to verify artifact creation form: {e}")
-        raise AssertionError(f"Failed to verify artifact creation form: {e}")
+
 
 @step("I set the type to {type_value:QuotedString}")
 def i_set_type_to(step, type_value):
