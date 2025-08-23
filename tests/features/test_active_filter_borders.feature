@@ -4,7 +4,7 @@ Feature: Active Search Filter Borders
   So that I can easily identify which filters are currently applied
 
   Background:
-    Given I am on the main page
+    Given I go to home
     And the page has loaded completely
 
   Scenario: Type filter shows orange border when active

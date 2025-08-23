@@ -4,7 +4,7 @@ Feature: Filter Clear Buttons
   So that I can quickly reset my search criteria
 
   Background:
-    Given I am on the main page
+    Given I go to home
     And the page has loaded completely
 
   Scenario: Individual clear buttons appear when filters have values
