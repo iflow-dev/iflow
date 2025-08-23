@@ -57,9 +57,9 @@ def i_click_edit_button_on_first_artifact(step):
     
     # Wait for artifacts to be visible
     wait = WebDriverWait(world.driver, 10)
-    wait.until(EC.presence_of_element_located((By.CLASS_NAME, "artifact-card")))
+    wait.until(EC.presence_of_element_located((By.CLASS_NAME, "artifact-tile")))
     
     # Find and click the edit button on the first artifact (using ion-icon)
-    edit_button = world.driver.find_element(By.XPATH, "//div[contains(@class, 'artifact-card')][1]//button[.//ion-icon[@name='create-outline']]")
+    edit_button = world.driver.find_element(By.XPATH, "//div[contains(@class, 'artifact-tile')][1]//button[.//ion-icon[@name='create-outline']]")
     edit_button.click()
     log.debug("✅ Clicked edit button on first artifact")

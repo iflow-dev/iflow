@@ -81,56 +81,7 @@ class ControlBase:
             timeout = DEFAULT_TIMEOUT
         
         element = self.locate(timeout)
-        
-        if self.__class__.DEBUG_MODE:
-            # Enhanced debug mode with better click handling
-            return self._click_with_debug(element)
-        else:
-            # Normal click mode with fallback to JavaScript
-            try:
-                element.click()
-                return element
-            except Exception as e:
-                # If regular click fails (e.g., element intercepted), try JavaScript click
-                try:
-                    world.driver.execute_script("arguments[0].click();", element)
-                    return element
-                except Exception as js_error:
-                    # If both methods fail, raise the original error
-                    raise e from js_error
-    
-    def _click_with_debug(self, element):
-        """Enhanced click method with debugging and fallback strategies."""
-        try:
-            # First, try to scroll the element into view
-            self._debug_log(f"Scrolling element into view: {element.tag_name}")
-            world.driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", element)
-            
-            # Wait a moment for scroll to complete
-            import time
-            time.sleep(0.5)
-            
-            # Check if element is clickable
-            try:
-                wait = WebDriverWait(world.driver, 2)
-                wait.until(EC.element_to_be_clickable((By.XPATH, self.xpath)))
-                self._debug_log("Element is clickable, attempting regular click")
-                element.click()
-                self._debug_log("✅ Regular click successful")
-                return element
-            except TimeoutException:
-                self._debug_log("⚠️ Element not clickable, trying JavaScript click")
-                
-                # Try JavaScript click as fallback
-                world.driver.execute_script("arguments[0].click();", element)
-                self._debug_log("✅ JavaScript click successful")
-                return element
-                
-        except Exception as e:
-            self._debug_log(f"❌ All click methods failed: {e}")
-            # Fall back to regular click as last resort
-            element.click()
-            return element
+        element.click()
     
     def clear(self, timeout=None):
         """Clear/clean up UI state (e.g., close modals, clear forms)."""

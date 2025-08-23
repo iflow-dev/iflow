@@ -27,7 +27,7 @@ class Artifact(ControlBase):
         else:
             raise ValueError("Must provide either id, summary, or element")
     
-    def locate(self, driver, timeout=5):
+    def locate(self, timeout=5):
         """Locate the artifact element."""
         if self.element:
             # Return the stored element directly
@@ -45,9 +45,9 @@ class Artifact(ControlBase):
         """Check if artifact exists within the specified timeout."""
         try:
             self.locate(timeout)
-            return 1
+            return True
         except Exception:
-            return 0
+            return False
     
     @property
     def id(self):
