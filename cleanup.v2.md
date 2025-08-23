@@ -124,6 +124,42 @@ toolbar.filter.status.select(status)
 - ❌ **Scattered imports**
 - ❌ **Unnecessary intermediate variables**
 
+## 📚 **Lessons Learned from Real Cleanups**
+
+### **Case Study: version.py Transformation**
+
+#### **Initial State Issues Found**
+- **Local imports inside functions**: Every step had `from bdd.controls.version import Header` within the function body
+- **Unnecessary intermediate variables**: `version_text = Header().version` created pointless assignment
+- **Multiple control instantiations**: Each function imported controls separately
+
+#### **Applied Solutions**
+1. **Import consolidation**: Moved all imports to top-level: `from bdd.controls.version import Header, StatisticsLine`
+2. **Variable elimination**: Changed `version_text = Header().version; assert version_text` to `assert Header().version`
+3. **Code reduction**: 75 → 22 lines (71% reduction)
+
+#### **Key Discovery**
+**The formal cleanup procedure reveals violations that informal review misses.**
+- Initial cleanup: 75 → 26 lines (thought we were done)
+- Formal procedure: 26 → 22 lines (found critical violations)
+- **Lesson**: Always follow the systematic approach
+
+#### **Critical Violations Pattern**
+1. **Local imports** - breaks module dependency management
+2. **Unnecessary variables** - reduces code efficiency
+3. **Scattered control instantiation** - violates DRY principle
+
+### **Best Practice Template**
+```python
+# ✅ PERFECT cleanup example
+from radish import step
+from bdd.controls import ControlClass
+
+@step("step description")
+def step_function(step):
+    assert ControlClass().property, "error message"
+```
+
 ## 🚀 **Implementation Examples**
 
 ### **Before (Bad)**
@@ -203,6 +239,18 @@ def i_set_status_filter_to(step, status):
 - **Update all references** when renaming files
 - **Check import chains** for broken dependencies
 - **Verify imports work** after cleanup
+
+### **4. CRITICAL: Local Imports Violation**
+- **NEVER use local imports within functions** (`from module import Class` inside function body)
+- **Always move imports to top-level** for proper dependency management
+- **Example violation**: `from bdd.controls.version import Header` inside step function
+- **Correct approach**: All imports at module top-level
+
+### **5. Unnecessary Variables Anti-Pattern**
+- **Avoid intermediate variables when not needed** for clarity
+- **Use direct control access in assertions** where possible
+- **Example**: `version_text = Header().version; assert version_text` → `assert Header().version`
+- **Rule**: Only create variables if they add clarity or are used multiple times
 
 ## 🔧 **Verification Commands**
 
