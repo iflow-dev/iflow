@@ -56,48 +56,15 @@
                 </div>
                 
                 <div class="form-content">
-                    <div class="form-group">
-                        <label class="form-label" for="artifactType">Type</label>
-                        <select class="form-select" id="artifactType" required>
-                            <option value="">Select Type</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="artifactSummary">Summary</label>
-                        <input type="text" class="form-input" id="artifactSummary" required placeholder="Brief summary of the artifact">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="artifactDescription">Description</label>
-                        <textarea class="form-textarea" id="artifactDescription" placeholder="Detailed description of the artifact"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="artifactCategory">Category</label>
-                        <input type="text" class="form-input" id="artifactCategory" placeholder="Category (e.g., Frontend, Backend, UI/UX)">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="artifactStatus">Status</label>
-                        <select class="form-select" id="artifactStatus">
-                            <option value="">Select Status</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="artifactVerification">Verification Method</label>
-                        <input type="text" class="form-input" id="artifactVerification" placeholder="Verification method (e.g., BDD, Manual Testing, Unit Tests)" value="BDD">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="artifactActivity">Activity</label>
-                        <input type="text" class="form-input" id="artifactActivity" placeholder="Latest activity or status update">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="artifactIteration">Iteration</label>
-                        <input type="text" class="form-input" id="artifactIteration" placeholder="Sprint or iteration (e.g., Sprint 3)">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="artifactFlagged">
-                            <input type="checkbox" id="artifactFlagged" style="margin-right: 0.5rem;">
-                            Flag this artifact
-                        </label>
-                    </div>
+                    <div data-view="dropdown" data-params='{"FIELD_ID": "artifactType", "FIELD_LABEL": "Type", "PLACEHOLDER_TEXT": "Select Type", "REQUIRED_ATTR": "required"}'></div>
+                    <div data-view="dropdown" data-params='{"FIELD_ID": "artifactStatus", "FIELD_LABEL": "Status", "PLACEHOLDER_TEXT": "Select Status", "REQUIRED_ATTR": ""}'></div>
+                    <div data-view="input-field" data-params='{"FIELD_ID": "artifactSummary", "FIELD_LABEL": "Summary", "PLACEHOLDER_TEXT": "Brief summary of the artifact", "REQUIRED_ATTR": "required", "TEMPLATE": "text-input"}'></div>
+                    <div data-view="input-field" data-params='{"FIELD_ID": "artifactDescription", "FIELD_LABEL": "Description", "PLACEHOLDER_TEXT": "Detailed description of the artifact", "REQUIRED_ATTR": "", "TEMPLATE": "textarea"}'></div>
+                    <div data-view="input-field" data-params='{"FIELD_ID": "artifactCategory", "FIELD_LABEL": "Category", "PLACEHOLDER_TEXT": "Category (e.g., Frontend, Backend, UI/UX)", "REQUIRED_ATTR": "", "TEMPLATE": "text-input"}'></div>
+                    <div data-view="input-field" data-params='{"FIELD_ID": "artifactVerification", "FIELD_LABEL": "Verification Method", "PLACEHOLDER_TEXT": "Verification method (e.g., BDD, Manual Testing, Unit Tests)", "REQUIRED_ATTR": "", "TEMPLATE": "text-input", "DEFAULT_VALUE": "value=\"BDD\""}'></div>
+                    <div data-view="input-field" data-params='{"FIELD_ID": "artifactActivity", "FIELD_LABEL": "Activity", "PLACEHOLDER_TEXT": "Latest activity or status update", "REQUIRED_ATTR": "", "TEMPLATE": "text-input"}'></div>
+                    <div data-view="input-field" data-params='{"FIELD_ID": "artifactIteration", "FIELD_LABEL": "Iteration", "PLACEHOLDER_TEXT": "Sprint or iteration (e.g., Sprint 3)", "REQUIRED_ATTR": "", "TEMPLATE": "text-input"}'></div>
+                    <div data-view="input-field" data-params='{"FIELD_ID": "artifactFlagged", "FIELD_LABEL": "Flag this artifact", "REQUIRED_ATTR": "", "TEMPLATE": "checkbox"}'></div>
                 </div>
             </form>
         </div>

@@ -8,7 +8,18 @@ class ViewLoader {
         
         for (const container of containers) {
             const viewName = container.dataset.view;
-            await ViewLoader.load(viewName, container);
+            let params = {};
+            
+            // Parse data-params if present
+            if (container.dataset.params) {
+                try {
+                    params = JSON.parse(container.dataset.params);
+                } catch (error) {
+                    console.error(`Error parsing params for ${viewName}:`, error);
+                }
+            }
+            
+            await ViewLoader.load(viewName, container, params);
         }
         
         console.log(`Loaded ${containers.length} views`);
@@ -22,6 +33,14 @@ class ViewLoader {
             }
             
             let html = await response.text();
+            
+            // For input-field component, select the appropriate template
+            if (viewName === 'input-field' && params.TEMPLATE) {
+                const templateMatch = html.match(new RegExp(`<div class="form-group" data-template="${params.TEMPLATE}">[\\s\\S]*?<\\/div>`));
+                if (templateMatch) {
+                    html = templateMatch[0];
+                }
+            }
             
             // Apply template parameters if provided
             html = ViewLoader.applyTemplate(html, params);

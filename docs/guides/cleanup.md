@@ -99,6 +99,26 @@ toolbar.filter.status.select(status)
 1. **Check syntax** with `python -m py_compile`
 2. **Check style** with `flake8 --max-line-length=120`
 
+## 🚀 **Post-Cleanup Optimization**
+
+### **Performance Optimization**
+1. **Remove temporary fixes** (e.g., `time.sleep()` calls added during debugging)
+2. **Optimize control classes** by removing redundant return values and logging
+3. **Simplify method implementations** by combining similar logic patterns
+4. **Test performance impact** by running the same test before/after changes
+
+### **Code Quality Improvements**
+1. **Remove unused return statements** (e.g., `return True` in void methods)
+2. **Consolidate duplicate logging patterns** across similar methods
+3. **Simplify conditional logic** by using direct property access
+4. **Remove redundant intermediate variables** in property getters
+
+### **Verification After Optimization**
+1. **Always rerun the passing test** after each optimization step
+2. **Measure performance improvement** (test execution time)
+3. **Ensure no regression** in functionality
+4. **Update score table** with LOC reductions and performance gains
+
 ## 🎓 **Advanced Cleanup Techniques**
 
 ### **Multiple Analysis Passes**

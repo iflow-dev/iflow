@@ -1,0 +1,20 @@
+<!-- Reusable Input Field Component -->
+<!-- Text Input Template -->
+<div class="form-group" data-template="text-input">
+    <label class="form-label" for="{FIELD_ID}">{FIELD_LABEL}</label>
+    <input type="text" class="form-input" id="{FIELD_ID}" {REQUIRED_ATTR} placeholder="{PLACEHOLDER_TEXT}" {DEFAULT_VALUE}>
+</div>
+
+<!-- Textarea Template -->
+<div class="form-group" data-template="textarea">
+    <label class="form-label" for="{FIELD_ID}">{FIELD_LABEL}</label>
+    <textarea class="form-textarea" id="{FIELD_ID}" {REQUIRED_ATTR} placeholder="{PLACEHOLDER_TEXT}"></textarea>
+</div>
+
+<!-- Checkbox Template -->
+<div class="form-group" data-template="checkbox">
+    <label class="form-label" for="{FIELD_ID}">
+        <input type="checkbox" id="{FIELD_ID}" style="margin-right: 0.5rem;">
+        {FIELD_LABEL}
+    </label>
+</div>

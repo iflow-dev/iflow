@@ -145,6 +145,15 @@ document.addEventListener('DOMContentLoaded', async function() {
         // Initialize application with auto-discovery approach
         await initializeApp();
         
+        // Load all view components
+        if (typeof ViewLoader !== 'undefined') {
+            console.log('Loading view components...');
+            await ViewLoader.loadAll();
+            console.log('View components loaded');
+        } else {
+            console.warn('ViewLoader not available');
+        }
+        
     } catch (error) {
         console.error('Error during application initialization:', error);
         if (window.statusLine) {
