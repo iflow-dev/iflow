@@ -3,7 +3,7 @@ Step definitions for dropdown selection tests.
 These steps test the dropdown functionality in the artifact editor.
 """
 
-from radish import given, when, then, step
+from radish import step
 
 
 @step("the page should load successfully")
