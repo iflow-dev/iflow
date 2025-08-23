@@ -17,9 +17,14 @@ from bdd.logging_config import logger as log
 def setup_test_environment(features, marker):
     """Set up the test environment before all tests."""
     log.trace("Starting BDD test environment setup...")
+    
+    # Initialize world.driver to None
+    world.driver = None
+    log.trace("world.driver initialized to None")
 
 
-driver = None
+# Global driver variable accessible to @after.all hook
+global_driver = None
 
 def _preinit():
     # Set base URL for the application
@@ -31,11 +36,12 @@ def _preinit():
 
     # Store base URL directly in world object for easy access
     world.base_url = base_url
-    world.driver = None
     log.trace(f"Base URL set in world: {world.base_url}")
 
 
 def _init_driver():
+    global global_driver
+    
     _preinit()
 
     chrome_options = Options()
@@ -57,21 +63,40 @@ def _init_driver():
 
     world.driver = webdriver.Chrome(options=chrome_options)
     world.driver.implicitly_wait(1)
-    driver = world.driver
+    
+    # Store reference for @after.all cleanup
+    global_driver = world.driver
+    log.trace("Driver created and stored globally for cleanup")
 
 
 @after.all
 def cleanup_test_environment(features, marker):
-    if driver is not None:
-        driver.quit()
+    """Clean up the driver at the end of all tests."""
+    global global_driver
+    if global_driver is not None:
+        log.trace("Cleaning up driver in @after.all")
+        global_driver.quit()
+        global_driver = None
+        log.trace("Driver cleanup completed")
+    else:
+        log.trace("No driver to cleanup (dry-run mode or no driver created)")
 
 
 @before.each_scenario
 def before_scenario(scenario):
     """Set up the test environment before each scenario."""
     log.trace(f"Setting up scenario: {scenario.sentence}")
-    if driver is None:
+    
+    # Skip driver creation in dry-run mode
+    if hasattr(world, 'config') and hasattr(world.config, 'dry_run') and world.config.dry_run:
+        log.trace("Dry-run mode: Skipping driver creation")
+        world.driver = None
+    # Create driver only on first scenario (non-dry-run mode)
+    elif world.driver is None:
+        log.trace("Creating driver for first scenario")
         _init_driver()
+    else:
+        log.trace("Reusing existing driver for scenario")
 
     # Initialize scenario-specific state
     scenario.scenario_start_time = time.time()
