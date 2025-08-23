@@ -1,0 +1,171 @@
+# BOOTSTRAP.V2.TXT - Enhanced Project Setup & Testing Guide
+# =============================================================
+
+## 🚨 CRITICAL RULES - NEVER VIOLATE
+# ===================================
+- NEVER USE PORT 9000 FOR TESTING (production server)
+- NEVER STOP PRODUCTION SERVER on port 9000 unless updating prod
+- NEVER use production server for testing
+- ALWAYS CHECK IF PORT IS FREE BEFORE STARTING A SERVER
+- ALWAYS use PROD server for artifact queries (port 9000)
+
+## 🎯 PROJECT OVERVIEW
+# ===================
+- **Type**: BDD (Behavior-Driven Development) testing framework
+- **Framework**: Radish (Python-based BDD)
+- **Architecture**: Page Object Model with Control Classes
+- **Testing**: Selenium WebDriver with Chrome (headless by default)
+- **Local Server**: Flask app on port 7000
+- **Production**: Server on port 9000
+
+## 🏗️ ENVIRONMENT SETUP
+# ====================
+- **Environments**: Located in `/opt/iflow`
+- **Virtual Environment**: Use `venv-local` for local testing
+- **Editor**: Ensure EDITOR is unset to avoid command opening editors
+- **Git**: GitHub CLI available, use proper commit format: `#<ticket>: <fix/implement>: <summary>`
+
+## 🧪 TESTING FRAMEWORK
+# =====================
+
+### **BDD Test Script**
+- **Script**: `./bdd-test` (main testing entry point)
+- **Usage**: `./bdd-test [options] [features]`
+- **Options**:
+  - `--tid XXXX`: Run specific test by ID (0100-0200 range)
+  - `--smoke`: Run all smoke tests
+  - `--dry-run`: Skip step execution, verify syntax only
+  - `--foreground`: Run Chrome in foreground (default: headless)
+  - `--tags`: Custom tag filtering
+
+### **Local Testing Workflow**
+1. **Start from**: `tests/` directory
+2. **Load environment**: `source venv-local/bin/activate`
+3. **Check port**: Ensure port 7000 is free
+4. **Run tests**: `./bdd-test --tid XXXX` or `./bdd-test --smoke`
+5. **Wait time**: Tests take 3-5 minutes, be patient
+
+### **Test Structure**
+- **Features**: Located in `features/` directory
+- **Step Definitions**: Located in `tests/radish/steps/`
+- **Control Classes**: Located in `tests/support/bdd/controls/`
+- **Hooks**: Located in `tests/support/bdd/hooks.py`
+
+## 📚 DOCUMENTATION & GUIDES
+# ==========================
+- **BDD Architecture**: `docs/guides/bdd.md` - Basic architecture overview
+- **Step Implementation**: `docs/guides/steps.md` - Style guide for step definitions
+- **Control Classes**: `docs/guides/control.md` - Style guide for control implementation
+- **Cleanup Guide**: `cleanup.v2.md` - Step-by-step cleanup procedures
+- **Scoring**: `score.md` - Progress tracking and achievements
+
+## 🔧 DEVELOPMENT WORKFLOW
+# ========================
+
+### **Code Quality Standards**
+- **Flake8**: Max line length 120 characters
+- **Imports**: Sort from global to local, no local imports in functions
+- **Control Classes**: Use for ALL page interactions, never direct Selenium
+- **Step Functions**: Keep short, almost one-liner implementations
+
+### **Cleanup Process** (when working on step modules)
+1. **Read**: `cleanup.v2.md` for current procedures
+2. **Follow**: Step-by-step approach with verification after each step
+3. **Verify**: Syntax check and flake8 compliance before each commit
+4. **Commit**: Regular commits with descriptive messages
+5. **Update**: Score tracking after each module completion
+
+### **Common Pitfalls to Avoid**
+- ❌ Running `git merge` without commit message
+- ❌ Running `git merge` without `--no-edit`
+- ❌ Using direct Selenium calls instead of control classes
+- ❌ Local imports within functions
+- ❌ Unnecessary intermediate variables
+- ❌ Missing verification between cleanup steps
+
+## 🚀 QUICK START COMMANDS
+# ========================
+
+### **Start Local Testing**
+```bash
+cd tests/
+source venv-local/bin/activate
+./bdd-test --tid 0101
+```
+
+### **Run Smoke Tests**
+```bash
+./bdd-test --smoke
+```
+
+### **Dry Run (Syntax Check)**
+```bash
+./bdd-test --smoke --dry-run
+```
+
+### **Check Port Status**
+```bash
+lsof -i :7000  # Check if port 7000 is free
+```
+
+### **Production Server Commands**
+```bash
+/opt/iflow/prod/server start  # Start prod server if needed
+/opt/iflow/prod/server status # Check prod server status
+```
+
+## 📋 CHECKLISTS FOR DIFFERENT ACTIVITIES
+# ======================================
+
+### **Before Starting Any Test**
+- [ ] Port 7000 is free
+- [ ] Virtual environment loaded (`venv-local`)
+- [ ] Starting from `tests/` directory
+- [ ] No production server interference
+
+### **Before Code Changes**
+- [ ] Read relevant guides (`cleanup.v2.md`, style guides)
+- [ ] Understand current architecture
+- [ ] Plan step-by-step approach
+
+### **Before Committing**
+- [ ] Syntax verification passed
+- [ ] Flake8 compliance checked
+- [ ] Tests run successfully (or fail for expected reasons)
+- [ ] Commit message follows format
+
+### **After Module Cleanup**
+- [ ] Update score tracking
+- [ ] Update cleanup documentation
+- [ ] Commit all changes
+- [ ] Verify with random test
+
+## 🔍 TROUBLESHOOTING
+# ===================
+- **Port conflicts**: Use `lsof -i :7000` to check
+- **Chrome processes**: `pgrep chrome-bdd` to find, `killall chrome-bdd` to clean
+- **Import errors**: Check for duplicate step definitions or missing files
+- **Test failures**: Distinguish between framework errors (fix immediately) and functional errors (expected)
+
+## 📖 ADDITIONAL RESOURCES
+# ========================
+- **Radish Documentation**: https://radish.readthedocs.io/en/stable/tutorial.html
+- **ENVIRONMENT_SETUP.md**: Environment configuration details
+- **Repository Structure**: Explore `tests/` directory for current implementation
+- **Control Classes**: Study existing controls in `tests/support/bdd/controls/`
+
+## 🎯 SUCCESS INDICATORS
+# ======================
+- ✅ Tests load without import errors
+- ✅ Local server starts on port 7000
+- ✅ Chrome driver initializes in headless mode
+- ✅ Step definitions resolve correctly
+- ✅ Control classes handle all page interactions
+- ✅ Code follows flake8 standards
+- ✅ Regular commits with proper messages
+- ✅ Score tracking updated after each module
+
+---
+# END OF BOOTSTRAP.V2.TXT
+# Last Updated: 2025-08-23
+# Version: 2.0
