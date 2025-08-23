@@ -27,7 +27,7 @@ def i_see_editor_is_open(step):
 def i_see_status_is(step, expected_status):
     """Verify that the status field shows the expected status value."""
     editor = Editor(world.driver)
-    actual_value = editor.get_status()
+    actual_value = editor.status
 
     assert actual_value == expected_status
 

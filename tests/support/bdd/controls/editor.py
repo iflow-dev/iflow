@@ -147,3 +147,19 @@ class Editor(ControlBase):
         wait = WebDriverWait(self.driver, 10)
         wait.until(EC.invisibility_of_element_located((By.ID, "artifactModal")))
         return self
+
+    @property
+    def status(self):
+        """Get the current status field value from the editor."""
+        try:
+            # Wait for the status field to be present
+            wait = WebDriverWait(self.driver, 10)
+            element = wait.until(EC.presence_of_element_located((By.ID, "artifactStatus")))
+            
+            # Get the selected option value
+            select = Select(element)
+            selected_option = select.first_selected_option
+            return selected_option.get_attribute("value")
+        except Exception as e:
+            log.error(f"Failed to get status field value: {e}")
+            return None
