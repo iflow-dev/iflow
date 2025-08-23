@@ -1,9 +1,9 @@
 from selenium.webdriver.common.by import By
 from radish import step, world
 
-from bdd.controls.artifact_control import Artifacts
+from bdd.controls.artifact import Artifacts
 from bdd.controls.editor import Editor
-from logging_config import logger as log
+from bdd.logging_config import logger
 
 
 @step("I create a new requirement")

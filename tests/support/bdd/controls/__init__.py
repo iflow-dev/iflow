@@ -10,7 +10,7 @@ from .editor import Editor
 from .modal import Modal
 from .dropdown import Dropdown
 from .page import Page
-from .artifact_control import Artifact, Artifacts
+from .artifact import Artifact, Artifacts
 from .article import Article, Flag
 from .flag import Flag as FlagControl
 from .toolbar import Toolbar, FilterControls, StatusFilter, TypeFilter, CategoryFilter, VerificationFilter, ActivityFilter, IterationFilter, ButtonControls, CreateButton, RefreshButton

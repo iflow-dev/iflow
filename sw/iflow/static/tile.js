@@ -120,7 +120,7 @@ class TileManager {
                 <div class="artifact-id">${artifact.artifact_id}</div>
                 <div class="artifact-status">
                     <ion-icon name="${statusInfo.icon || 'help-circle-outline'}"></ion-icon>
-                    <span>${statusInfo.name || artifact.status || 'Unknown'}</span>
+                    <span>${statusInfo.name || artifact.status || 'None'}</span>
                 </div>
             </div>
             <div class="artifact-summary">${artifact.summary || 'No summary'}</div>

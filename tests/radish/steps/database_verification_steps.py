@@ -2,8 +2,9 @@
 Step definitions for database verification tests.
 """
 
-from radish import step
-from bdd.controls.artifact_control import Artifacts
+from radish import step, world
+from bdd.logging_config import logger
+from bdd.controls.artifact import Artifacts
 import subprocess
 import os
 

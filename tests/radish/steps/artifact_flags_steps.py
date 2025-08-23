@@ -7,7 +7,7 @@ import re
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
-from bdd.controls.artifact_control import Artifacts
+from bdd.controls.artifact import Artifacts
 from bdd.controls.page import Page
 from bdd.controls.article import Article
 import time
