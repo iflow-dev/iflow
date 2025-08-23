@@ -30,7 +30,5 @@ Feature: Artifact Verification Field
 
     Scenario: Display verification field in artifact tile
         Given I go to home
-        And there is an artifact with verification method "Unit Tests"
-        When I view the artifact tile
         Then I should see the verification method displayed
         And it should show "Unit Tests"
