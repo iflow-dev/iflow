@@ -8,7 +8,6 @@ from .button import Button
 from .input_field import InputField
 from .editor import Editor
 from .modal import Modal
-from .dropdown import Dropdown
 from .page import Page
 from .artifact import Artifact, Artifacts
 from .article import Article, Flag
@@ -17,6 +16,7 @@ from .toolbar import Toolbar, FilterControls, StatusFilter, TypeFilter, Category
 from .version import Header, StatisticsLine
 from .verification import VerificationField, ArtifactForm, ArtifactVerification, SuccessIndicator
 from .artifact_tile import ArtifactTile
+from .dropdown import BaseDropdown, SelectDropdown, CustomDropdown, DropdownFactory
 
 __all__ = [
     'ControlBase',
@@ -28,7 +28,6 @@ __all__ = [
     'InputField',
     'Editor',
     'Modal',
-    'Dropdown',
     'Page',
     'Artifact',
     'Artifacts',
@@ -52,5 +51,9 @@ __all__ = [
     'ArtifactForm',
     'ArtifactVerification',
     'SuccessIndicator',
-    'ArtifactTile'
+    'ArtifactTile',
+    'BaseDropdown',
+    'SelectDropdown',
+    'CustomDropdown',
+    'DropdownFactory'
 ]

@@ -7,9 +7,7 @@ from radish import step, world
 from bdd.controls.artifact import Artifacts
 from bdd.controls.editor import Editor
 from bdd.controls.artifact_tile import ArtifactTile
-
-# Set up logging
-log = world.logger if hasattr(world, 'logger') else None
+from bdd.logging_config import logger as log
 
 
 @step("I see the editor is open")

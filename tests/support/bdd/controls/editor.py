@@ -19,6 +19,7 @@ from controls.button import Button
 from controls.page import Page
 from controls.toolbar import Toolbar
 from controls.flag import Flag
+from controls.dropdown import DropdownFactory
 
 # Set up logging
 log = logging.getLogger(__name__)
@@ -73,61 +74,46 @@ class Editor(ControlBase):
 
     def set(self, field, value):
         """Generic method to set any artifact field to a specified value."""
-        log = logging.getLogger(__name__)
         log.trace(f"Setting field '{field}' to value '{value}'")
 
-        try:
-            # Map field names to element IDs and handling methods
-            field_mapping = {
-                "type": ("artifactType", "select"),
-                "summary": ("artifactSummary", "input"),
-                "description": ("artifactDescription", "textarea"),
-                "category": ("artifactCategory", "input"),
-                "status": ("artifactStatus", "select"),
-                "verification": ("artifactVerification", "input"),
-                "activity": ("artifactActivity", "input"),
-                "iteration": ("artifactIteration", "input"),
-                "flagged": ("artifactFlagged", "checkbox")
-            }
+        # Map field names to element IDs and handling methods
+        field_mapping = {
+            "type": ("artifactType", "select"),
+            "summary": ("artifactSummary", "input"),
+            "description": ("artifactDescription", "textarea"),
+            "category": ("artifactCategory", "input"),
+            "status": ("artifactStatus", "select"),
+            "verification": ("artifactVerification", "input"),
+            "activity": ("artifactActivity", "input"),
+            "iteration": ("artifactIteration", "input"),
+            "flagged": ("artifactFlagged", "checkbox")
+        }
 
-            if field.lower() not in field_mapping:
-                raise ValueError(f"Unknown field '{field}'. Supported fields: {', '.join(field_mapping.keys())}")
+        if field.lower() not in field_mapping:
+            raise ValueError(f"Unknown field '{field}'. Supported fields: {', '.join(field_mapping.keys())}")
 
-            element_id, field_type = field_mapping[field.lower()]
+        element_id, field_type = field_mapping[field.lower()]
 
-            # Wait for the element to be present
+        # Use the dropdown factory to create appropriate dropdown control
+        if field_type == "select":
+            dropdown = DropdownFactory.create_dropdown(self.driver, element_id)
+            dropdown.set_value(value)
+            log.trace(f"Set dropdown field '{field}' to '{value}' using {dropdown.__class__.__name__}")
+        elif field_type in ["input", "textarea"]:
+            # For input and textarea fields, find the element and set value
             wait = WebDriverWait(self.driver, 10)
-            element = wait.until(EC.presence_of_element_located((By.ID, element_id)))
-
-            if field_type == "select":
-                # Handle dropdown/select fields
-                select = Select(element)
-                select.select_by_value(value)
-                log.trace(f"Set select field '{field}' to '{value}'")
-            elif field_type == "input":
-                # Handle text input fields
-                element.clear()
-                element.send_keys(value)
-                log.trace(f"Set input field '{field}' to '{value}'")
-            elif field_type == "textarea":
-                # Handle textarea fields
-                element.clear()
-                element.send_keys(value)
-                log.trace(f"Set textarea field '{field}' to '{value}'")
-            elif field_type == "checkbox":
-                # Handle checkbox fields
-                if value.lower() in ["true", "yes", "1", "checked"]:
-                    if not element.is_selected():
-                        element.click()
-                    log.trace(f"Checked checkbox field '{field}'")
-                else:
-                    if element.is_selected():
-                        element.click()
-                    log.trace(f"Unchecked checkbox field '{field}'")
-
-        except Exception as e:
-            log.error(f"Failed to set field '{field}' to '{value}': {e}")
-            raise AssertionError(f"Failed to set field '{field}' to '{value}': {e}")
+            element = wait.until(EC.element_to_be_clickable((By.ID, element_id)))
+            element.clear()
+            element.send_keys(value)
+            log.trace(f"Set {field_type} field '{field}' to '{value}'")
+        elif field_type == "checkbox":
+            # Handle checkbox fields
+            wait = WebDriverWait(self.driver, 10)
+            element = wait.until(EC.element_to_be_clickable((By.ID, element_id)))
+            should_check = value.lower() in ["true", "yes", "1", "checked"]
+            if should_check != element.is_selected():
+                element.click()
+            log.trace(f"{'Checked' if should_check else 'Unchecked'} checkbox field '{field}'")
 
     def create(self):
         """Create the artifact and close the modal."""
@@ -152,14 +138,17 @@ class Editor(ControlBase):
     def status(self):
         """Get the current status field value from the editor."""
         try:
-            # Wait for the status field to be present
             wait = WebDriverWait(self.driver, 10)
             element = wait.until(EC.presence_of_element_located((By.ID, "artifactStatus")))
             
-            # Get the selected option value
-            select = Select(element)
-            selected_option = select.first_selected_option
-            return selected_option.get_attribute("value")
+            # Try to get the value from the native select element first
+            try:
+                select = Select(element)
+                return select.first_selected_option.get_attribute("value")
+            except Exception:
+                # If Select fails, try to get the value directly from the element
+                return element.get_attribute("value")
+                
         except Exception as e:
             log.error(f"Failed to get status field value: {e}")
             return None
