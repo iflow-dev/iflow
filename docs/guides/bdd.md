@@ -196,7 +196,45 @@ def i_verify_status_filter_is_set_to(step, status):
 
 - **[Step Implementation Guide](steps.md)** - How to write proper step definitions
 - **[Control Class Guide](control.md)** - How to implement control classes
-- **[Cleanup Guide](../../cleanup.v2.md)** - How to refactor existing code
+- **[Cleanup Guide](cleanup.md)** - How to refactor existing code
+
+## 🎓 **Real-World Transformation Example**
+
+### **Case Study: verification.py Module**
+
+The verification.py module demonstrates the complete BDD architecture transformation:
+
+#### **Before Transformation (verification_field_steps.py)**
+- **Lines**: 128 LOCs
+- **Architecture**: Direct Selenium usage, mixed patterns
+- **Issues**: Code duplication, intermediate variables, poor maintainability
+
+#### **After Transformation (verification.py)**
+- **Lines**: 58 LOCs (55% reduction)
+- **Architecture**: 100% control-based, clean abstractions
+- **Benefits**: Maintainable, reusable, performant
+
+#### **New Control Classes Created**
+```python
+# VerificationField - handles verification field interactions
+# ArtifactForm - manages form field operations  
+# ArtifactVerification - handles verification display logic
+# SuccessIndicator - manages success message verification
+```
+
+#### **Architecture Benefits Demonstrated**
+- **Separation of Concerns**: Each control handles one UI component
+- **Reusability**: Controls used across multiple step functions
+- **Maintainability**: Centralized element management
+- **Performance**: Optimized control usage patterns
+- **Cleanliness**: Step functions are mostly one-liners
+
+#### **Transformation Journey**
+1. **Architectural**: Direct Selenium → Control classes
+2. **Structural**: 128 lines → 58 lines
+3. **Quality**: Mixed patterns → Consistent architecture
+4. **Performance**: Unoptimized → Optimized control usage
+5. **Maintainability**: Poor → Excellent
 
 ## 🎯 **Architecture Benefits**
 
