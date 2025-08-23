@@ -9,7 +9,7 @@ from bdd.logging_config import logger
 @step("I create a new requirement")
 def i_create_a_new_requirement(step):
     editor = Editor(world.driver)
-    log.trace("Editor control created, opening modal...")
+    logger.trace("Editor control created, opening modal...")
     editor.open()
 
 
@@ -41,12 +41,12 @@ def i_cancel_artifact_creation(step):
 def i_search_for_artifacts_with(step, search_text):
     # Find the search input field
     search_input = world.driver.find_element(By.ID, "search-input")
-    log.trace("Found search input field")
+    logger.trace("Found search input field")
 
     # Clear and enter search text
     search_input.clear()
     search_input.send_keys(search_text)
-    log.trace(f"Entered search text: '{search_text}'")
+    logger.trace(f"Entered search text: '{search_text}'")
 
     # Wait for search to complete (if there's a search button, click it)
     try:
