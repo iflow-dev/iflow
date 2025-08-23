@@ -66,3 +66,4 @@ Feature: Artifact Management
     Given I have applied filters to the view
     When I click the "Refresh" button
     Then all filters should be reset
+    Then filter dropdowns should show default values

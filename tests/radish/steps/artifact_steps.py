@@ -277,6 +277,13 @@ def all_filters_should_be_reset(step):
 
 
 
+@step("filter dropdowns should show default values")
+def filter_dropdowns_should_show_default_values(step):
+    # Check type filter default
+    type_filter = world.driver.find_element(By.ID, "typeFilter")
+    select = Select(type_filter)
+    assert select.first_selected_option.text == "All Types", "Type filter should show default value"
+
 @step("I edit an artifact")
 def when_i_edit_an_artifact(step):
     # Click the edit button
