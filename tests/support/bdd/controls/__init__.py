@@ -15,6 +15,7 @@ from .article import Article, Flag
 from .flag import Flag as FlagControl
 from .toolbar import Toolbar, FilterControls, StatusFilter, TypeFilter, CategoryFilter, VerificationFilter, ActivityFilter, IterationFilter, ButtonControls, CreateButton, RefreshButton
 from .version import Header, StatisticsLine
+from .verification import VerificationField, ArtifactForm, ArtifactVerification, SuccessIndicator
 
 __all__ = [
     'ControlBase',
@@ -45,5 +46,9 @@ __all__ = [
     'CreateButton',
     'RefreshButton',
     'Header',
-    'StatisticsLine'
+    'StatisticsLine',
+    'VerificationField',
+    'ArtifactForm',
+    'ArtifactVerification',
+    'SuccessIndicator'
 ]
