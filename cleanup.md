@@ -68,6 +68,16 @@ Apply the same cleanup patterns we used in `artifact_creation_steps.py` to elimi
 - **Process**: Remove function + remove all usages + verify with dry-run
 - **Scoring**: Track LOCs and Steps removed with point multipliers
 
+### **Phase 5: Multi-File Cleanup (NEW)**
+- **Target**: Apply cleanup patterns to ALL step files in the project
+- **Priority**: Start with smallest files (1-2 steps) for quick wins
+- **Process**: Systematic cleanup of all step files using established patterns
+
+### **Phase 5: Multi-File Cleanup (NEW)**
+- **Target**: Apply cleanup patterns to ALL step files in the project
+- **Priority**: Start with smallest files (1-2 steps) for quick wins
+- **Process**: Systematic cleanup of all step files using established patterns
+
 ## 🔍 Specific Issues Identified
 
 ### **Duplicate Step Definition**
@@ -122,7 +132,9 @@ def i_set_field_to_value(step, field, value):
    - **VERIFY**: Check syntax and flake8 after each cleanup step
 4. **Function removal** (Phase 4) - Remove redundant pass functions
    - **VERIFY**: Check syntax and flake8 after each function removal
-5. **Test and verify** - Ensure cleanup doesn't break functionality
+5. **Multi-file cleanup** (Phase 5) - Apply patterns to all step files
+   - **VERIFY**: Check syntax and flake8 after each file cleanup
+6. **Test and verify** - Ensure cleanup doesn't break functionality
 
 ## ⚠️ Notes
 - **Preserve functionality**: Don't change what the steps actually do
@@ -338,3 +350,139 @@ AssertionError: DRY_RUN.. test aborted
 - **Clean verification**: Dry-run completes without step issues
 - **Accurate scoring**: LOCs and Steps properly counted
 - **Complete cleanup**: No orphaned step usages in feature files
+
+## 📁 **COMPLETE STEP FILE ANALYSIS & CLEANUP PRIORITIES**
+
+### **Project-Wide Step File Inventory**
+After comprehensive analysis using `git grep "@step\|@given\|@when\|@then"`, we discovered **19 step files** in the project.
+
+### **Step Files by Number of Steps (Smallest to Largest)**
+
+| **File** | **Steps** | **Lines** | **Cleanup Status** | **Priority** | **Estimated Effort** |
+|----------|-----------|-----------|-------------------|--------------|---------------------|
+| **`dropdown_selection_steps.py`** | **1 step** | 17 lines | ❌ **NOT CLEANED** | 🥇 **HIGHEST** | **5 minutes** |
+| **`toolbar.py`** | **1 step** | 18 lines | ❌ **NOT CLEANED** | 🥇 **HIGHEST** | **5 minutes** |
+| **`artifacts.py`** | **2 steps** | 40 lines | ❌ **NOT CLEANED** | 🥈 **HIGH** | **10 minutes** |
+| **`edit_button_steps.py`** | **4 steps** | 66 lines | ❌ **NOT CLEANED** | 🥉 **MEDIUM** | **15 minutes** |
+| **`version_display_steps.py`** | **4 steps** | 85 lines | ❌ **NOT CLEANED** | 🥉 **MEDIUM** | **15 minutes** |
+| **`activity_field_steps.py`** | **5 steps** | 68 lines | ❌ **NOT CLEANED** | 🥉 **MEDIUM** | **15 minutes** |
+| **`database_verification_steps.py`** | **5 steps** | 98 lines | ❌ **NOT CLEANED** | 🥉 **MEDIUM** | **15 minutes** |
+| **`simple_steps.py`** | **5 steps** | 73 lines | ❌ **NOT CLEANED** | 🥉 **MEDIUM** | **15 minutes** |
+| **`status_filtering_steps.py`** | **6 steps** | 168 lines | ❌ **NOT CLEANED** | 🥉 **MEDIUM** | **20 minutes** |
+| **`artifact_creation_steps.py`** | **7 steps** | 65 lines | ✅ **ALREADY CLEANED** | ✅ **DONE** | **N/A** |
+| **`refresh_filter_steps.py`** | **7 steps** | 154 lines | ❌ **NOT CLEANED** | 🥉 **MEDIUM** | **20 minutes** |
+| **`status_editor_default_steps.py`** | **7 steps** | 139 lines | ❌ **NOT CLEANED** | 🥉 **MEDIUM** | **20 minutes** |
+| **`artifact_flags_steps.py`** | **11 steps** | 170 lines | ❌ **NOT CLEANED** | 🥉 **MEDIUM** | **25 minutes** |
+| **`verification_field_steps.py`** | **12 steps** | 128 lines | ❌ **NOT CLEANED** | 🥉 **MEDIUM** | **25 minutes** |
+| **`filter_clear_buttons_steps.py`** | **16 steps** | 189 lines | ❌ **NOT CLEANED** | 🥉 **MEDIUM** | **30 minutes** |
+| **`iteration_field_steps.py`** | **16 steps** | 176 lines | ❌ **NOT CLEANED** | 🥉 **MEDIUM** | **30 minutes** |
+| **`active_filter_borders_steps.py`** | **19 steps** | 219 lines | ❌ **NOT CLEANED** | 🥉 **MEDIUM** | **35 minutes** |
+| **`artifact_steps.py`** | **31 steps** | 344 lines | ✅ **PARTIALLY CLEANED** | ✅ **IN PROGRESS** | **N/A** |
+
+### **Cleanup Strategy & Priority Matrix**
+
+#### **🥇 TIER 1: Quick Wins (1-2 steps, <50 lines)**
+- **`dropdown_selection_steps.py`** (1 step, 17 lines) - **Perfect starter**
+- **`toolbar.py`** (1 step, 18 lines) - **Quick cleanup**
+- **`artifacts.py`** (2 steps, 40 lines) - **Easy win**
+
+**Why start here:**
+- **Lowest risk** - small files, easy to understand
+- **Highest impact** - quick wins build momentum
+- **Good practice** - perfect for refining cleanup patterns
+- **Fast results** - can complete 3 files in ~20 minutes
+
+#### **🥈 TIER 2: Medium Effort (4-6 steps, 50-170 lines)**
+- **`edit_button_steps.py`** (4 steps, 66 lines)
+- **`version_display_steps.py`** (4 steps, 85 lines)
+- **`activity_field_steps.py`** (5 steps, 68 lines)
+- **`simple_steps.py`** (5 steps, 73 lines)
+
+**Why tackle next:**
+- **Moderate complexity** - manageable but not trivial
+- **Good learning** - more complex patterns to practice
+- **Steady progress** - consistent improvement
+
+#### **🥉 TIER 3: Larger Files (7+ steps, 150+ lines)**
+- **`status_filtering_steps.py`** (6 steps, 168 lines)
+- **`refresh_filter_steps.py`** (7 steps, 154 lines)
+- **`status_editor_default_steps.py`** (7 steps, 139 lines)
+
+**Why save for later:**
+- **Higher complexity** - need more experience
+- **More risk** - larger files = more potential issues
+- **Better preparation** - practice on smaller files first
+
+### **Expected Cleanup Results by Tier**
+
+#### **TIER 1 (3 files):**
+- **Total lines:** 75 → ~45 (**40% reduction**)
+- **Total steps:** 4 → 4 (**No reduction, just cleanup**)
+- **Time investment:** ~20 minutes
+- **Risk level:** **Very Low**
+
+#### **TIER 2 (4 files):**
+- **Total lines:** 292 → ~200 (**30% reduction**)
+- **Total steps:** 19 → 19 (**No reduction, just cleanup**)
+- **Time investment:** ~60 minutes
+- **Risk level:** **Low**
+
+#### **TIER 3 (3 files):**
+- **Total lines:** 461 → ~300 (**35% reduction**)
+- **Total steps:** 20 → 20 (**No reduction, just cleanup**)
+- **Time investment:** ~75 minutes
+- **Risk level:** **Medium**
+
+### **Overall Project Impact**
+- **Total step files:** 19
+- **Files already cleaned:** 1 (5%)
+- **Files to clean:** 18 (95%)
+- **Total estimated time:** ~155 minutes (~2.5 hours)
+- **Expected total LOC reduction:** ~25-30%
+- **Expected quality improvement:** **Significant**
+
+### **Next Steps Recommendation**
+1. **Start with TIER 1** - Build confidence and momentum
+2. **Move to TIER 2** - Apply learned patterns
+3. **Finish with TIER 3** - Master complex scenarios
+4. **Continuous verification** - Check syntax and flake8 after each file
+5. **Regular commits** - Save progress frequently
+
+**This systematic approach ensures steady progress with minimal risk!** 🚀
+
+## 📁 **COMPLETE STEP FILE ANALYSIS & CLEANUP PRIORITIES**
+
+### **Project-Wide Step File Inventory**
+After comprehensive analysis using `git grep "@step\|@given\|@when\|@then"`, we discovered **19 step files** in the project.
+
+### **Step Files by Number of Steps (Smallest to Largest)**
+
+| **File** | **Steps** | **Lines** | **Cleanup Status** | **Priority** |
+|----------|-----------|-----------|-------------------|--------------|
+| **`dropdown_selection_steps.py`** | **1 step** | 17 lines | ❌ **NOT CLEANED** | 🥇 **HIGHEST** |
+| **`toolbar.py`** | **1 step** | 18 lines | ❌ **NOT CLEANED** | 🥇 **HIGHEST** |
+| **`artifacts.py`** | **2 steps** | 40 lines | ❌ **NOT CLEANED** | 🥈 **HIGH** |
+| **`edit_button_steps.py`** | **4 steps** | 66 lines | ❌ **NOT CLEANED** | 🥉 **MEDIUM** |
+| **`version_display_steps.py`** | **4 steps** | 85 lines | ❌ **NOT CLEANED** | 🥉 **MEDIUM** |
+| **`artifact_creation_steps.py`** | **7 steps** | 65 lines | ✅ **ALREADY CLEANED** | ✅ **DONE** |
+| **`artifact_steps.py`** | **31 steps** | 344 lines | ✅ **PARTIALLY CLEANED** | ✅ **IN PROGRESS** |
+
+### **Cleanup Strategy & Priority Matrix**
+
+#### **🥇 TIER 1: Quick Wins (1-2 steps, <50 lines)**
+- **`dropdown_selection_steps.py`** (1 step, 17 lines) - **Perfect starter**
+- **`toolbar.py`** (1 step, 18 lines) - **Quick cleanup**
+- **`artifacts.py`** (2 steps, 40 lines) - **Easy win**
+
+**Why start here:**
+- **Lowest risk** - small files, easy to understand
+- **Highest impact** - quick wins build momentum
+- **Good practice** - perfect for refining cleanup patterns
+- **Fast results** - can complete 3 files in ~20 minutes
+
+### **Next Steps Recommendation**
+1. **Start with TIER 1** - Build confidence and momentum
+2. **Move to TIER 2** - Apply learned patterns
+3. **Finish with TIER 3** - Master complex scenarios
+4. **Continuous verification** - Check syntax and flake8 after each file
+5. **Regular commits** - Save progress frequently
