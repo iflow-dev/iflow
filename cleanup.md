@@ -486,3 +486,29 @@ After comprehensive analysis using `git grep "@step\|@given\|@when\|@then"`, we 
 3. **Finish with TIER 3** - Master complex scenarios
 4. **Continuous verification** - Check syntax and flake8 after each file
 5. **Regular commits** - Save progress frequently
+
+
+## 🤖 **AUTOCLEANUP PROCESS**
+
+### **Automated Cleanup Workflow**
+This section documents the automated cleanup process for systematically cleaning all step files in the project.
+
+### **Process Rules**
+1. **Choose smallest module** from TIER 1 priority list
+2. **Follow complete cleanup.md process** from beginning to end
+3. **Stop for review** at each designated checkpoint
+4. **Commit changes** to autocleanup branch with proper messages
+5. **Complete full cleanup.md process** for each file
+6. **One cleanup step at a time** - no combining of cleanups
+7. **Traceable progress** - each step documented separately
+
+### **Autocleanup Checkpoints**
+- **After each cleanup step** - commit with descriptive message
+- **After each verification** - commit verification results
+- **After each phase completion** - commit phase summary
+- **Before user review** - commit current state for review
+
+### **File Selection Priority**
+1. **`dropdown_selection_steps.py`** (1 step, 17 lines) - **First target**
+2. **`toolbar.py`** (1 step, 18 lines) - **Second target**
+3. **`artifacts.py`** (2 steps, 40 lines) - **Third target**
