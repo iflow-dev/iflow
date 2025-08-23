@@ -217,6 +217,45 @@ assert verification.value == default_value, \
 3. **Code reduction**: 75 → 22 lines (71% reduction)
 
 #### **Key Discovery**
+
+### Technical Debt Resolution Patterns
+
+Recent verification experiences revealed systematic approaches to resolving technical debt:
+
+**Driver Lifecycle Management:**
+```python
+# Problem: Multiple drivers, improper cleanup, resource leaks
+# Solution: Single driver session with global reference management
+
+global_driver = None
+
+def _init_driver():
+    global global_driver
+    world.driver = webdriver.Chrome(options=chrome_options)
+    global_driver = world.driver  # Store for cleanup
+
+@after.all
+def cleanup_test_environment(features, marker):
+    global global_driver
+    if global_driver is not None:
+        global_driver.quit()
+        global_driver = None
+```
+
+**Logging Infrastructure:**
+```python
+# Problem: Conditional logging that fails silently
+log = world.logger if hasattr(world, 'logger') else None
+
+# Solution: Direct, reliable imports
+from bdd.logging_config import logger as log
+```
+
+**Verification and Testing:**
+- **Dry-Run Validation**: Use `--dry-run` to test step definitions without execution
+- **Process Monitoring**: Check for leftover Chrome processes after test runs
+- **Incremental Testing**: Test fixes step-by-step to isolate issues
+- **Resource Cleanup**: Ensure proper cleanup of test resources
 **The formal cleanup procedure reveals violations that informal review misses.**
 - Initial cleanup: 75 → 26 lines (thought we were done)
 - Formal procedure: 26 → 22 lines (found critical violations)

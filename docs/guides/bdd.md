@@ -258,6 +258,39 @@ The verification.py module demonstrates the complete BDD architecture transforma
 - **Control class inheritance** promotes code reuse
 - **Standardized patterns** reduce learning curve
 
+### **Case Study: Driver Lifecycle Management**
+
+The recent verification experience revealed critical patterns for proper driver lifecycle management:
+
+**Technical Debt Identified:**
+- Multiple driver creation per scenario → Chrome process accumulation
+- Improper cleanup in `@after.all` hooks → Resource leaks
+- Missing driver reference management → Cleanup failures
+
+**Solution Pattern:**
+```python
+# Global driver variable accessible to @after.all hook
+global_driver = None
+
+def _init_driver():
+    global global_driver
+    world.driver = webdriver.Chrome(options=chrome_options)
+    global_driver = world.driver  # Store reference for cleanup
+
+@after.all
+def cleanup_test_environment(features, marker):
+    global global_driver
+    if global_driver is not None:
+        global_driver.quit()
+        global_driver = None
+```
+
+**Key Principles:**
+- **Single Driver Session**: One driver for entire test run
+- **Global Reference**: Store driver reference accessible to cleanup hooks
+- **Proper Lifecycle**: Create once, reuse, cleanup once
+- **Dry-Run Optimization**: Skip driver creation in dry-run mode
+
 ---
 
 *This architecture ensures that BDD tests are maintainable, readable, and reliable while providing a solid foundation for test automation.*

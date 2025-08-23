@@ -210,6 +210,31 @@ def i_create_new_artifact(step):
 - **Performance**: Optimized control usage
 - **Maintainability**: Maximum quality achieved
 
+### **Case Study: Logging and Driver Lifecycle**
+
+Recent verification experiences revealed critical patterns for robust step implementation:
+
+**Logging Best Practices:**
+```python
+# ❌ AVOID: Conditional logging that can fail
+log = world.logger if hasattr(world, 'logger') else None
+log.debug("message")  # AttributeError if log is None
+
+# ✅ USE: Direct import for reliable logging
+from bdd.logging_config import logger as log
+log.debug("message")  # Always works
+```
+
+**Driver Lifecycle Integration:**
+- **Single Driver Session**: Create driver once, reuse across scenarios
+- **Proper Cleanup**: Ensure driver cleanup in `@after.all` hooks
+- **Global References**: Store driver references accessible to cleanup hooks
+
+**Verification Strategies:**
+- **Dry-Run Testing**: Use `--dry-run` to validate step definitions without execution
+- **Process Monitoring**: Check for leftover Chrome processes after test runs
+- **Incremental Testing**: Test fixes step-by-step to isolate issues
+
 ---
 
 *Following this style guide ensures that step definitions are maintainable, readable, and efficient while providing a solid foundation for BDD test automation.*
