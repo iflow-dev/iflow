@@ -22,9 +22,7 @@ def i_am_on_artifacts_page(step):
     wait.until(EC.presence_of_element_located((By.CLASS_NAME, "artifacts-container")))
 
 
-@step("I am logged in as a user")
-def i_am_logged_in_as_user(step):
-    pass
+
 
 
 @step("I click the \"{button_text}\" button")
@@ -147,20 +145,11 @@ def artifact_should_be_updated(step):
     modified_artifact = world.driver.find_element(By.XPATH, "//div[contains(@class, 'artifact-description') and contains(text(), 'Modified description for testing')]")
     assert modified_artifact.is_displayed(), "Modified artifact not found"
 
-@step("the changes should be reflected immediately")
-def changes_should_be_reflected_immediately(step):
-    # This is already verified in the previous step
-    pass
 
-@step("the current filter state should be preserved")
-def current_filter_state_should_be_preserved(step):
-    # This would need to be implemented based on the current filter state
-    pass
 
-@step("I am viewing all artifacts")
-def i_am_viewing_all_artifacts(step):
-    # This step assumes we're on the artifacts page
-    pass
+
+
+
 
 @step("I select \"{value}\" from the type filter")
 def i_select_from_type_filter(step, value):
@@ -179,10 +168,7 @@ def only_type_artifacts_should_be_displayed(step, type):
             type_label = artifact.find_element(By.CLASS_NAME, "artifact-type")
             assert type in type_label.text.lower(), f"Artifact type {type_label.text} is not {type}"
 
-@step("the filter dropdown should show \"{value}\"")
-def filter_dropdown_should_show_value(step, value):
-    # This would need to be implemented based on the specific filter being tested
-    pass
+
 
 @step("I click the \"Delete\" button")
 def i_click_delete_button(step):
@@ -196,16 +182,9 @@ def i_confirm_deletion(step):
     confirm_button = world.driver.find_element(By.XPATH, "//button[contains(text(), 'Confirm') or contains(text(), 'Delete')]")
     confirm_button.click()
 
-@step("the artifact should be removed")
-def artifact_should_be_removed(step):
-    # Wait for the artifact to disappear
-    time.sleep(1)
-    # This would need to be implemented based on how we identify the specific artifact
 
-@step("it should no longer appear in the list")
-def artifact_should_not_appear_in_list(step):
-    # This is already verified in the previous step
-    pass
+
+
 
 @step("I select \"{value}\" from the status filter")
 def i_select_from_status_filter(step, value):
@@ -236,11 +215,7 @@ def i_type_text_in_search_box(step, text):
     search_input.clear()
     search_input.send_keys(text)
 
-@step("the results should filter in real-time")
-def results_should_filter_in_realtime(step):
-    # Wait for filtering to complete
-    time.sleep(1)
-    pass
+
 
 @step("only artifacts containing \"{text}\" should be displayed")
 def only_artifacts_containing_text_should_be_displayed(step, text):
@@ -258,16 +233,9 @@ def i_click_on_category_link(step):
     category_link = world.driver.find_element(By.CLASS_NAME, "category-link")
     category_link.click()
 
-@step("the view should filter to show only artifacts with that category")
-def view_should_filter_by_category(step):
-    # Wait for filtering to complete
-    time.sleep(1)
-    pass
 
-@step("the category filter input should be updated with the selected category")
-def category_filter_input_should_be_updated(step):
-    # This would need to be implemented based on the category filter implementation
-    pass
+
+
 
 @step("I have filtered artifacts by type \"{type}\"")
 def i_have_filtered_artifacts_by_type(step, type):
@@ -303,17 +271,11 @@ def all_filters_should_be_reset(step):
     select = Select(type_filter)
     assert select.first_selected_option.text == "All Types", "Type filter should be reset"
 
-@step("all artifacts should be displayed")
-def all_artifacts_should_be_displayed(step):
-    # This would need to be implemented based on the total count
-    pass
 
-@step("filter dropdowns should show default values")
-def filter_dropdowns_should_show_default_values(step):
-    # Check type filter default
-    type_filter = world.driver.find_element(By.ID, "typeFilter")
-    select = Select(type_filter)
-    assert select.first_selected_option.text == "All Types", "Type filter should show default value"
+
+
+
+
 
 @step("I edit an artifact")
 def when_i_edit_an_artifact(step):

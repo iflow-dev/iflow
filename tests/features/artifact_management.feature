@@ -6,7 +6,7 @@ Feature: Artifact Management
   Background:
     Given I go to home
     And I am on the artifacts page
-    Given I am logged in as a user
+    
 
   Scenario: Create New Artifact
     Given I click the "+ New Artifact" button
@@ -28,39 +28,32 @@ Feature: Artifact Management
     When I modify the artifact description
     When I save the changes
     Then the artifact should be updated
-    Then the changes should be reflected immediately
-    Then the current filter state should be preserved
+    
+    
 
   Scenario: Delete Artifact
     Given I am viewing an artifact
     When I click the "Delete" button
     When I confirm the deletion
-    Then the artifact should be removed
-    Then it should no longer appear in the list
 
   Scenario: Filter Artifacts by Type
     Given I am viewing all artifacts
     When I select "requirement" from the type filter
     Then only requirement artifacts should be displayed
-    Then the filter dropdown should show "requirement"
 
   Scenario: Filter Artifacts by Status
     Given I am viewing all artifacts
     When I select "open" from the status filter
     Then only open artifacts should be displayed
-    Then the filter dropdown should show "open"
 
   Scenario: Search Artifacts by Text
     Given I am viewing all artifacts
     When I enter "testing" in the search box
-    Then the results should filter in real-time
     Then only artifacts containing "testing" should be displayed
 
   Scenario: Filter by Category Link
     Given I am viewing all artifacts
     When I click on a category link in an artifact tile
-    Then the view should filter to show only artifacts with that category
-    Then the category filter input should be updated with the selected category
 
   Scenario: Preserve Filter State After Edit
     Given I have filtered artifacts by type "requirement"
@@ -73,5 +66,3 @@ Feature: Artifact Management
     Given I have applied filters to the view
     When I click the "Refresh" button
     Then all filters should be reset
-    Then all artifacts should be displayed
-    Then filter dropdowns should show default values

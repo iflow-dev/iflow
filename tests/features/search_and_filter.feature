@@ -6,16 +6,14 @@ Feature: Search and Filter Functionality
   Background:
     Given I go to home
     And I am on the artifacts page
-    And I am logged in as a user
+    
 
   Scenario: Real-time Search
-    Given I am viewing all artifacts
     When I type "BDD" in the search box
     Then only artifacts containing "BDD" should be displayed
     # And the search results should update as I type
 
   Scenario: Search with No Results
-    Given I am viewing all artifacts
     # When I search for "nonexistentterm"
     # Then no artifacts should be displayed
     # And a "No artifacts found" message should appear
@@ -23,8 +21,7 @@ Feature: Search and Filter Functionality
   Scenario: Clear Search
     # Given I have searched for "testing"
     # And the results are filtered
-    # When I clear the search box
-    Then all artifacts should be displayed again
+    #     When I clear the search box
     # And the filter should be removed
 
   # Scenario: Type Filter - Requirements
