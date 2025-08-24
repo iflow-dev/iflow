@@ -1,8 +1,5 @@
 - follow those steps, STEP BY STEP, log each step
 
-- talk to me in a less expressive, more compresse, noticed manner without removing information,
-  try to reduce noise in your output and increase signal ..
-  you don't need to talk in full sentences to me... examples..
 
   - use bullet points
   - use colors for highlighting

@@ -120,6 +120,7 @@ def after_scenario(scenario):
 
 @before.each_step
 def before_step(step):
+    # time.sleep(2)  # Add a delay of 2 seconds before each step
     pass
 
 

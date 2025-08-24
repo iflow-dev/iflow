@@ -12,7 +12,6 @@ from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 
-
 from controls.base import ControlBase
 from controls.input_field import InputField
 from controls.button import Button
@@ -23,7 +22,6 @@ from controls.dropdown import DropdownFactory
 
 # Set up logging
 log = logging.getLogger(__name__)
-
 
 class Editor(ControlBase):
 
@@ -139,7 +137,8 @@ class Editor(ControlBase):
         """Get the current status field value from the editor."""
         try:
             wait = WebDriverWait(self.driver, 10)
-            element = wait.until(EC.presence_of_element_located((By.ID, "artifactStatus")))
+            # Locate the element for the status field
+            element = wait.until(EC.visibility_of_element_located((By.ID, "artifactStatus")))
             
             # Try to get the value from the native select element first
             try:
@@ -148,7 +147,6 @@ class Editor(ControlBase):
             except Exception:
                 # If Select fails, try to get the value directly from the element
                 return element.get_attribute("value")
-                
         except Exception as e:
             log.error(f"Failed to get status field value: {e}")
             return None
