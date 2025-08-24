@@ -46,8 +46,7 @@ class StatisticsManager {
             return;
         }
 
-        // Display version in header instead of stats bar
-        this.displayVersionInHeader();
+
         
         // Format last tag display
         let lastTagDisplay = '';
@@ -118,13 +117,7 @@ class StatisticsManager {
         return this.currentStats ? this.currentStats.last_commit : null;
     }
 
-    displayVersionInHeader() {
-        const headerVersionElement = document.getElementById('header-version');
-        if (headerVersionElement && this.projectConfig && this.projectConfig.version) {
-            const versionText = `v${this.projectConfig.version}`;
-            headerVersionElement.textContent = versionText;
-        }
-    }
+
 
     cleanup() {
         this.currentStats = null;

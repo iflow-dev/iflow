@@ -13,10 +13,10 @@ from .artifact import Artifact, Artifacts
 from .article import Article, Flag
 from .flag import Flag as FlagControl
 from .toolbar import Toolbar, FilterControls, StatusFilter, TypeFilter, CategoryFilter, VerificationFilter, ActivityFilter, IterationFilter, ButtonControls, CreateButton, RefreshButton
-from .version import Header, StatisticsLine
+from .version import Header, Footer, Version, StatisticsLine
 from .verification import VerificationField, ArtifactForm, ArtifactVerification, SuccessIndicator
 from .artifact_tile import ArtifactTile
-from .dropdown import BaseDropdown, SelectDropdown, CustomDropdown, DropdownFactory
+from .dropdown import BaseDropdown, SelectDropdown, CustomDropdown
 
 __all__ = [
     'ControlBase',
@@ -46,6 +46,8 @@ __all__ = [
     'CreateButton',
     'RefreshButton',
     'Header',
+    'Footer',
+    'Version',
     'StatisticsLine',
     'VerificationField',
     'ArtifactForm',
@@ -55,5 +57,5 @@ __all__ = [
     'BaseDropdown',
     'SelectDropdown',
     'CustomDropdown',
-    'DropdownFactory'
+
 ]

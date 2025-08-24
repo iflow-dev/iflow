@@ -4,7 +4,7 @@ Step definitions for refresh filter functionality.
 
 from radish import given, when, then
 from selenium.webdriver.common.by import By
-from bdd.controls.dropdown import DropdownFactory
+
 from bdd.logging_config import logger as log
 
 

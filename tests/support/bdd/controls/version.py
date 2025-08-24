@@ -8,11 +8,25 @@ class Header(ControlBase):
     def __init__(self):
         super().__init__("//header")
 
+
+class Footer(ControlBase):
+    """Control for footer elements."""
+
+    def __init__(self):
+        super().__init__("//div[@id='status-line']")
+
+
+class Version(ControlBase):
+    """Control for version information elements."""
+
+    def __init__(self):
+        super().__init__("//span[@id='footer-version']")
+
     @property
-    def version(self):
-        """Get version information from header."""
+    def text(self):
+        """Get version information text."""
         try:
-            element = self.locate().find_element(By.ID, "header-version")
+            element = self.locate()
             return element.text.strip()
         except Exception:
             return None

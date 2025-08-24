@@ -8,9 +8,9 @@
     <!-- Icons handled by CSS classes -->
 </head>
 <body>
-    <div class="header">
-        <h1>iflow - Project Artifact Manager</h1>
-        <div class="header-version" id="header-version"></div>
+    <!-- Auto-loading header -->
+    <div data-view="header">
+        <div class="loading">Loading header...</div>
     </div>
     
     <div class="container">
@@ -32,7 +32,11 @@
         <div class="status-line" id="status-line">
             <div class="status-text">
                 <span class="status-left">Last message: <span id="last-message">Ready</span></span>
-                <span class="status-right">Results: <span id="filtered-count">0</span></span>
+                <span class="status-right">
+                    Results: <span id="filtered-count">0</span>
+                    <span class="status-separator">|</span>
+                    <span class="footer-version" id="footer-version"></span>
+                </span>
             </div>
         </div>
     </div>

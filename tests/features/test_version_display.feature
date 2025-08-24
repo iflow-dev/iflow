@@ -1,13 +1,13 @@
 @smoke
 Feature: Version Display Verification
   As a user
-  I want to see version information in the header
+  I want to see version information in the footer
   So that I can identify the current application version
 
   @tid:0104
-  Scenario: Verify Version Information in Header
+  Scenario: Verify Version Information in Footer
     Given I go to home
-    Then I see version information in the header
+    Then I see version information in the footer
     And I do not see version information in the statistics line
 
   @tid:0105

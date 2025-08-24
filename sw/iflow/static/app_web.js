@@ -106,6 +106,10 @@ async function initializeManagers() {
         // Initialize UI components
         if (window.statusLine) {
             window.statusLine.initialize();
+            // Display version information in footer
+            if (projectConfig && projectConfig.version) {
+                window.statusLine.displayVersion(projectConfig.version);
+            }
         }
         
         if (window.statisticsLine) {

@@ -1,10 +1,10 @@
 from radish import then
-from bdd.controls.version import Header, StatisticsLine
+from bdd.controls.version import Version, StatisticsLine
 
 
-@then("I see version information in the header")
-def i_see_version_information_in_header(step):
-    assert Header().version, "Version information not found in header"
+@then("I see version information in the footer")
+def i_see_version_information_in_footer(step):
+    assert Version().text, "Version information not found in footer"
 
 
 @then("I do not see version information in the statistics line")

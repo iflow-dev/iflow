@@ -99,6 +99,24 @@ class StatusLine {
     }
     
     /**
+     * Display version information in the footer
+     */
+    displayVersion(version) {
+        if (!this.initialized) return;
+        
+        try {
+            const footerVersionElement = document.getElementById('footer-version');
+            if (footerVersionElement && version) {
+                const versionText = `v${version}`;
+                footerVersionElement.textContent = versionText;
+                console.log(`Footer version updated: ${versionText}`);
+            }
+        } catch (error) {
+            console.error('Error displaying version in footer:', error);
+        }
+    }
+    
+    /**
      * Clear the status line
      */
     clear() {
