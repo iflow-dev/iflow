@@ -51,14 +51,10 @@ def i_open_artifact(step, identifier):
 
 # Note: Step "I set the status to {status:QuotedString}" is already defined in artifact_creation_steps.py
 
-@step("I save the artifact")
-def i_save_the_artifact(step):
-    """Save the artifact using the Editor control."""
-    editor = Editor(world.driver)
-    editor.save()
+# Note: Step "I save the artifact" is already defined in artifact_steps.py
 
 
-@step("I see artifact {identifier} has status {status:QuotedString}")
+@step("I see artifact {identifier:w} has status {status:QuotedString}")
 def i_see_artifact_has_status(step, identifier, status):
     """Verify that the specified artifact has the expected status."""
     artifacts = Artifacts()

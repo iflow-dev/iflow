@@ -41,9 +41,12 @@ Feature: Status Field Default Values in Editor
 
   @smoke @tid:0113
   Scenario: Status field maintains selected value when saving artifact
+
     When I create a new requirement "test requirement"
     And I set the status to "in_progress"
     And I set the summary to "Test artifact with custom status"
     And I set the description to "Testing status persistence"
-    And I save the article
-    Then I see artifact with "test requirement" has status "in_progress"
+    And I save the artifact
+ 
+    When I open the artifact "test requirement"
+    Then I see the status is "in_progress"

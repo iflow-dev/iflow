@@ -7,6 +7,7 @@ Feature: Filter Clear Buttons
     Given I go to home
     And the page has loaded completely
 
+  @tid:0140
   Scenario: Individual clear buttons appear when filters have values
     When I enter "test" in the search box
     Then the search clear button should be visible
@@ -17,6 +18,7 @@ Feature: Filter Clear Buttons
     When I clear the category filter
     Then the category clear button should not be visible
 
+  @tid:0141
   Scenario: Clear all button is enabled when filters are active
     When I select a type filter "requirement"
     And I select a status filter "open"
@@ -24,6 +26,7 @@ Feature: Filter Clear Buttons
     When I clear all filters
     Then the clear all button should be disabled
 
+  @tid:0142
   Scenario: Clear all button clears all filters
     When I select a type filter "requirement"
     And I select a status filter "open"
@@ -35,6 +38,7 @@ Feature: Filter Clear Buttons
     Then no filters should have active states
     And the clear all button should be disabled
 
+  @tid:0143
   Scenario: Individual clear buttons work correctly
     When I enter "test" in the search box
     And I enter "testing" in the category filter

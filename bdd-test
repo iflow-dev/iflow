@@ -46,6 +46,7 @@ def print_help():
     print("  --smoke                    Run only smoke tests (tagged with @smoke)")
     print("  --dry-run                  Show what would be executed without running tests")
     print("  --tid=<id>                 Run specific test by ID (e.g., --tid=0113)")
+    print("  --feature=<id>             Run tests for specific feature ID (e.g., --feature=123)")
     print("  --tags=\"<expression>\"      Filter tests by tags")
     print("  --help, -h                 Show this help message")
     print()
@@ -133,6 +134,7 @@ def main():
     additional_args = []
     user_tags_expression = None
     tid_expression = None
+    feature_expression = None
     smoke_mode = False
     dry_run = False
     
@@ -191,6 +193,29 @@ def main():
                         tag_value = tag_value[1:-1]
                     user_tags_expression = tag_value
                     i += 1  # Skip the next argument since we consumed it
+        elif arg.startswith("--feature"):
+            # Extract feature ID from --feature argument
+            if "=" in arg:
+                # Format: --feature=123
+                feature_part = arg.split("=", 1)[1]
+                # Remove surrounding quotes if present
+                if feature_part.startswith('"') and feature_part.endswith('"'):
+                    feature_part = feature_part[1:-1]
+                elif feature_part.startswith("'") and feature_part.endswith("'"):
+                    feature_part = feature_part[1:-1]
+                feature_expression = f"feature:{feature_part}"
+            else:
+                # Format: --feature 123
+                # Look for the next argument as the feature value
+                if i + 1 < len(processed_args) and not processed_args[i + 1].startswith("-"):
+                    feature_value = processed_args[i + 1]
+                    # Remove surrounding quotes if present
+                    if feature_value.startswith('"') and feature_value.endswith('"'):
+                        feature_value = feature_value[1:-1]
+                    elif feature_value.startswith("'") and feature_value.endswith("'"):
+                        feature_value = feature_value[1:-1]
+                    feature_expression = f"feature:{feature_value}"
+                    i += 1  # Skip the next argument since we consumed it
         else:
             # Regular argument
             additional_args.append(arg)
@@ -213,6 +238,10 @@ def main():
     # Add tid expression if provided
     if tid_expression:
         tags_parts.append(f"({tid_expression})")
+    
+    # Add feature expression if provided
+    if feature_expression:
+        tags_parts.append(f"({feature_expression})")
     
     # Always exclude fixme tags (note: no @ symbol for radish)
     tags_parts.append("(not fixme)")

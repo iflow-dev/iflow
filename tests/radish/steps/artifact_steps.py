@@ -86,9 +86,9 @@ def i_click_save_artifact(step, button_text):
     save_button = world.driver.find_element(By.XPATH, f"//button[text()='{button_text}']")
     save_button.click()
 
-@step("I save the article")
-def i_save_the_article(step):
-    # Create an Editor instance and save the article
+@step("I save the artifact")
+def i_save_the_artifact(step):
+    # Create an Editor instance and save the artifact
     editor = Editor(world.driver)
     editor.save()
 

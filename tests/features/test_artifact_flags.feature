@@ -4,6 +4,7 @@ Feature: Artifact Flags
     I want to flag artifacts for easy identification
     So that I can filter and find important artifacts quickly
 
+    @tid:0135
     Scenario: Flag and unflag an artifact
         Given I reset the database to master
         And I go to home
@@ -13,6 +14,7 @@ Feature: Artifact Flags
         When I flag artifact #00001
         Then the artifact should not be flagged
 
+    @tid:0136
     Scenario: Filter by flagged artifacts
         Given I reset the database to master
         And I go to home
@@ -25,6 +27,7 @@ Feature: Artifact Flags
         Then I should see all artifacts again
         And the flag filter button should be grey
 
+    @tid:0137
     Scenario: Create artifact with flag
         Given I reset the database to master
         And I go to home
@@ -33,7 +36,7 @@ Feature: Artifact Flags
         And I set the summary to "Test artifact with flag"
         And I set the description to "Test artifact for flag functionality"
         And I set the status to "open"
-        And I save the article
+                        And I save the artifact
         Then I should see the new artifact created
         # TODO: Flag functionality not working - checkbox clicked but not saved
         And the artifact should be flagged

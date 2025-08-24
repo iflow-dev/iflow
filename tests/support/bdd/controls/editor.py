@@ -119,9 +119,8 @@ class Editor(ControlBase):
         return self.clear()
 
     def save(self):
-        submit_button = Button("submit", None, None)
-        submit_button.click()
-        self.clear()
+        self.submit_button.click()
+        return self.clear()
 
     def cancel(self):
         self.cancel_button.click()

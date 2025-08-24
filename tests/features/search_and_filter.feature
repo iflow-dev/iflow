@@ -8,6 +8,7 @@ Feature: Search and Filter Functionality
     And I am on the artifacts page
     
 
+  @tid:0123
   Scenario: Real-time Search
     When I type "BDD" in the search box
     Then only artifacts containing "BDD" should be displayed

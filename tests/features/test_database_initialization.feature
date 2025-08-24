@@ -3,6 +3,7 @@ Feature: Database Initialization
     I want to ensure the database starts with exactly one artifact
     So that tests have a clean, predictable starting state
 
+    @tid:0138
     Scenario: Verify database has exactly one artifact after initialization
         Given I go to home
         When I check the database state
@@ -13,6 +14,7 @@ Feature: Database Initialization
         And the artifact should have status "open"
         And the artifact should not be flagged
 
+    @tid:0139
     Scenario: Verify database repository tags
         Given I go to home
         When I check the database repository

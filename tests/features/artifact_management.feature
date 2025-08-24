@@ -8,6 +8,7 @@ Feature: Artifact Management
     And I am on the artifacts page
     
 
+  @tid:0114
   Scenario: Create New Artifact
     Given I click the "+ New Artifact" button
     When I fill in the artifact details
@@ -22,6 +23,7 @@ Feature: Artifact Management
     Then it should appear in the artifacts list
     Then the modal should close
 
+  @tid:0115
   Scenario: Edit Existing Artifact
     Given I am viewing an artifact
     When I click the "Edit" button
@@ -31,30 +33,36 @@ Feature: Artifact Management
     
     
 
+  @tid:0116
   Scenario: Delete Artifact
     Given I am viewing an artifact
     When I click the "Delete" button
     When I confirm the deletion
 
+  @tid:0117
   Scenario: Filter Artifacts by Type
     Given I am viewing all artifacts
     When I select "requirement" from the type filter
     Then only requirement artifacts should be displayed
 
+  @tid:0118
   Scenario: Filter Artifacts by Status
     Given I am viewing all artifacts
     When I select "open" from the status filter
     Then only open artifacts should be displayed
 
+  @tid:0119
   Scenario: Search Artifacts by Text
     Given I am viewing all artifacts
     When I enter "testing" in the search box
     Then only artifacts containing "testing" should be displayed
 
+  @tid:0120
   Scenario: Filter by Category Link
     Given I am viewing all artifacts
     When I click on a category link in an artifact tile
 
+  @tid:0121
   Scenario: Preserve Filter State After Edit
     Given I have filtered artifacts by type "requirement"
     When I edit an artifact
@@ -62,6 +70,7 @@ Feature: Artifact Management
     Then the type filter should still show "requirement"
     Then only requirement artifacts should be displayed
 
+  @tid:0122
   Scenario: Refresh Artifacts
     Given I have applied filters to the view
     When I click the "Refresh" button
