@@ -1,6 +1,7 @@
 # TODO:
 # - use 4 space indents
 #
+@feature:0002
 Feature: Status Field Default Values in Editor
   As a user
   I want the status field in the artifact editor to have proper default values
@@ -21,7 +22,7 @@ Feature: Status Field Default Values in Editor
   @smoke @tid:0112
   Scenario: Status field shows actual status when editing existing artifact
 
-    When I open the artifact 00001
+    When I open the artifact #00001
     Then I see the editor is open
     When I set the status to "open"
     Then I see the status is "open"
@@ -29,22 +30,22 @@ Feature: Status Field Default Values in Editor
     When I save the artifact
     Then I see artifact 00001 has status "open"
 
-    When I open the artifact 00001
+    When I open the artifact #00001
     Then I see the status is "open"
 
     When I set the status to "done"
     When I save the artifact
     Then I see artifact 00001 has status "done"
 
-    When I open the artifact 00001
+    When I open the artifact #00001
     Then I see the status is "done"
 
   @smoke @tid:0113
   Scenario: Status field maintains selected value when saving artifact
 
-    When I create a new requirement "test requirement"
+    When I create a requirement
+    When I set the summary to "test requirement"
     And I set the status to "in_progress"
-    And I set the summary to "Test artifact with custom status"
     And I set the description to "Testing status persistence"
     And I save the artifact
  

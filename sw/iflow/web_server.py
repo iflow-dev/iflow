@@ -9,6 +9,9 @@ from flask import Flask, render_template_string, request, jsonify
 from .core import Artifact, ArtifactType
 from .database import GitDatabase
 from .version import get_version_info
+import logging
+logger = logging.getLogger()
+logger.setLevel(logging.WARNING)
 
 import os
 
@@ -16,9 +19,9 @@ import os
 import os
 # Get the absolute path to the static folder in the installed package
 static_folder = os.path.join(os.path.dirname(__file__), 'static')
-print(f"DEBUG: __file__ = {__file__}")
-print(f"DEBUG: static_folder = {static_folder}")
-print(f"DEBUG: static_folder exists = {os.path.exists(static_folder)}")
+logger.info(f"DEBUG: __file__ = {__file__}")
+logger.info(f"DEBUG: static_folder = {static_folder}")
+logger.info(f"DEBUG: static_folder exists = {os.path.exists(static_folder)}")
 app = Flask(__name__, static_folder=static_folder, static_url_path='/static')
 
 # Global variables
@@ -32,7 +35,7 @@ def init_database():
         # Require explicit database path from environment
         env_db_path = os.environ.get("IFLOW_DATABASE_PATH")
         if env_db_path and os.path.exists(env_db_path):
-            print(f"Initializing database with environment path: {env_db_path}")
+            logger.info(f"Initializing database with environment path: {env_db_path}")
             db = GitDatabase(env_db_path)
         else:
             # No fallback - raise error if database not found
@@ -54,7 +57,7 @@ def create_app(database_path=".iflow"):
 @app.errorhandler(500)
 def internal_error(error):
     """Handle 500 internal server errors."""
-    print(f"500 Internal Server Error: {error}")
+    logger.info(f"500 Internal Server Error: {error}")
     import traceback
     traceback.print_exc()
     return jsonify({'error': 'Internal server error'}), 500
@@ -62,7 +65,7 @@ def internal_error(error):
 @app.errorhandler(Exception)
 def handle_exception(e):
     """Handle any unhandled exceptions."""
-    print(f"Unhandled exception: {e}")
+    logger.info(f"Unhandled exception: {e}")
     import traceback
     traceback.print_exc()
     return jsonify({'error': str(e)}), 500
@@ -82,9 +85,9 @@ def index():
 def get_stats():
     """Get database statistics."""
     try:
-        print("Getting database statistics...")
+        logger.info("Getting database statistics...")
         stats = db.get_stats()
-        print(f"Raw stats: {stats}")
+        logger.info(f"Raw stats: {stats}")
         
         # Ensure datetime objects are serializable
         if 'last_commit' in stats and stats['last_commit']:
@@ -95,10 +98,10 @@ def get_stats():
             elif hasattr(commit_info, 'isoformat'):
                 stats['last_commit'] = commit_info.isoformat()
         
-        print(f"Processed stats: {stats}")
+        logger.info(f"Processed stats: {stats}")
         return jsonify(stats)
     except Exception as e:
-        print(f"Error getting stats: {e}")
+        logger.info(f"Error getting stats: {e}")
         import traceback
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
@@ -110,7 +113,7 @@ def get_work_item_types():
         work_item_types = db.config.get("work_item_types", [])
         return jsonify(work_item_types)
     except Exception as e:
-        print(f"Error getting work item types: {e}")
+        logger.info(f"Error getting work item types: {e}")
         import traceback
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
@@ -122,7 +125,7 @@ def get_artifact_statuses():
         artifact_statuses = db.config.get("artifact_statuses", [])
         return jsonify(artifact_statuses)
     except Exception as e:
-        print(f"Error getting artifact statuses: {e}")
+        logger.info(f"Error getting artifact statuses: {e}")
         import traceback
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
@@ -148,7 +151,7 @@ def get_project_info():
         
         return jsonify(project_info)
     except Exception as e:
-        print(f"Error getting project info: {e}")
+        logger.info(f"Error getting project info: {e}")
         import traceback
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
@@ -162,7 +165,7 @@ def list_artifacts():
         category_filter = request.args.get('category')
         search_filter = request.args.get('search')
         
-        print(f"Listing artifacts, filters: type={artifact_type}, status={status_filter}, category={category_filter}, search={search_filter}")
+        logger.info(f"Listing artifacts, filters: type={artifact_type}, status={status_filter}, category={category_filter}, search={search_filter}")
         
         # Get all artifacts first
         if artifact_type:
@@ -192,13 +195,13 @@ def list_artifacts():
             
             filtered_artifacts.append(artifact)
         
-        print(f"Found {len(filtered_artifacts)} artifacts after filtering")
+        logger.info(f"Found {len(filtered_artifacts)} artifacts after filtering")
         
         # Convert to dictionaries for JSON serialization
         result = [artifact_to_dict(artifact) for artifact in filtered_artifacts]
         return jsonify(result)
     except Exception as e:
-        print(f"Error listing artifacts: {e}")
+        logger.info(f"Error listing artifacts: {e}")
         import traceback
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
@@ -240,14 +243,14 @@ def create_artifact():
 def update_artifact(artifact_id):
     """Update an existing artifact."""
     try:
-        print(f"Updating artifact: {artifact_id}")
+        logger.info(f"Updating artifact: {artifact_id}")
         artifact = db.get_artifact(artifact_id)
         if not artifact:
-            print(f"Artifact not found: {artifact_id}")
+            logger.info(f"Artifact not found: {artifact_id}")
             return jsonify({'error': 'Artifact not found'}), 404
         
         data = request.get_json()
-        print(f"Update data: {data}")
+        logger.info(f"Update data: {data}")
         
         # Update fields
         if 'type' in data:
@@ -272,16 +275,16 @@ def update_artifact(artifact_id):
         # Update timestamp
         artifact.update()
         
-        print(f"Artifact updated, saving to database...")
+        logger.info(f"Artifact updated, saving to database...")
         # Save to database
         db.save_artifact(artifact)
-        print(f"Artifact saved successfully")
+        logger.info(f"Artifact saved successfully")
         
         result = artifact_to_dict(artifact)
-        print(f"Returning result: {result}")
+        logger.info(f"Returning result: {result}")
         return jsonify(result)
     except Exception as e:
-        print(f"Error updating artifact {artifact_id}: {e}")
+        logger.info(f"Error updating artifact {artifact_id}: {e}")
         import traceback
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
@@ -290,14 +293,14 @@ def update_artifact(artifact_id):
 def patch_artifact(artifact_id):
     """Partially update an artifact (for flag updates)."""
     try:
-        print(f"Patching artifact: {artifact_id}")
+        logger.info(f"Patching artifact: {artifact_id}")
         artifact = db.get_artifact(artifact_id)
         if not artifact:
-            print(f"Artifact not found: {artifact_id}")
+            logger.info(f"Artifact not found: {artifact_id}")
             return jsonify({'error': 'Artifact not found'}), 404
         
         data = request.get_json()
-        print(f"Patch data: {data}")
+        logger.info(f"Patch data: {data}")
         
         # Update specific fields
         if 'flagged' in data:
@@ -306,16 +309,16 @@ def patch_artifact(artifact_id):
         # Update timestamp
         artifact.update()
         
-        print(f"Artifact patched, saving to database...")
+        logger.info(f"Artifact patched, saving to database...")
         # Save to database
         db.save_artifact(artifact)
-        print(f"Artifact saved successfully")
+        logger.info(f"Artifact saved successfully")
         
         result = artifact_to_dict(artifact)
-        print(f"Returning result: {result}")
+        logger.info(f"Returning result: {result}")
         return jsonify(result)
     except Exception as e:
-        print(f"Error patching artifact {artifact_id}: {e}")
+        logger.info(f"Error patching artifact {artifact_id}: {e}")
         import traceback
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
@@ -324,12 +327,12 @@ def patch_artifact(artifact_id):
 def delete_artifact(artifact_id):
     """Delete an artifact."""
     try:
-        print(f"Attempting to delete artifact: {artifact_id}")
+        logger.info(f"Attempting to delete artifact: {artifact_id}")
         db.delete_artifact(artifact_id)
-        print(f"Successfully deleted artifact: {artifact_id}")
+        logger.info(f"Successfully deleted artifact: {artifact_id}")
         return jsonify({'success': True})
     except Exception as e:
-        print(f"Error deleting artifact {artifact_id}: {e}")
+        logger.info(f"Error deleting artifact {artifact_id}: {e}")
         import traceback
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
@@ -405,7 +408,7 @@ def run_web_server(database_path=".iflow", host="127.0.0.1", port=5000, debug=Tr
     
     # Initialize database with initial artifact if requested
     if init_db:
-        print("Initializing database with initial artifact...")
+        logger.info("Initializing database with initial artifact...")
         try:
             # Create database instance
             init_db_instance = GitDatabase(database_path)
@@ -422,20 +425,20 @@ def run_web_server(database_path=".iflow", host="127.0.0.1", port=5000, debug=Tr
             
             # Save the initial artifact
             init_db_instance.save_artifact(initial_artifact)
-            print(f"✅ Created initial artifact: {initial_artifact.artifact_id} - {initial_artifact.summary}")
+            logger.info(f"✅ Created initial artifact: {initial_artifact.artifact_id} - {initial_artifact.summary}")
             
         except Exception as e:
-            print(f"❌ Failed to initialize database: {e}")
+            logger.info(f"❌ Failed to initialize database: {e}")
             import traceback
             traceback.print_exc()
     
     # Initialize database with the correct path
     db = GitDatabase(database_path)
     
-    print(f"Starting iflow web server...")
-    print(f"Database: {database_path}")
-    print(f"URL: http://{host}:{port}")
-    print(f"Press Ctrl+C to stop")
+    logger.info(f"Starting iflow web server...")
+    logger.info(f"Database: {database_path}")
+    logger.info(f"URL: http://{host}:{port}")
+    logger.info(f"Press Ctrl+C to stop")
     
     app.run(host=host, port=port, debug=debug)
 
@@ -459,11 +462,11 @@ if __name__ == "__main__":
     # Set the global title
     page_title = args.title
     
-    print(f"Starting iflow web server...")
-    print(f"Database: {args.database}")
-    print(f"Host: {args.host}")
-    print(f"Port: {args.port}")
-    print(f"Title: {args.title}")
-    print(f"Initialize DB: {args.init_db}")
+    logger.info(f"Starting iflow web server...")
+    logger.info(f"Database: {args.database}")
+    logger.info(f"Host: {args.host}")
+    logger.info(f"Port: {args.port}")
+    logger.info(f"Title: {args.title}")
+    logger.info(f"Initialize DB: {args.init_db}")
     
     run_web_server(database_path=args.database, host=args.host, port=args.port, debug=False, init_db=args.init_db)

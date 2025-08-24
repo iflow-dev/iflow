@@ -103,6 +103,11 @@ class StatusFilter(ControlBase):
         select.select_by_value(value)
         return self
 
+    def set(self, value):
+        """Set the status filter value (alias for select)."""
+        self.select(value)
+        return self
+
 
 class TypeFilter(ControlBase):
     """Control class for the type filter dropdown."""
@@ -122,6 +127,11 @@ class TypeFilter(ControlBase):
         element = self.find_element(self.driver)
         select = Select(element)
         select.select_by_value(value)
+        return self
+
+    def set(self, value):
+        """Set the type filter value (alias for select)."""
+        self.select(value)
         return self
 
 
@@ -145,6 +155,11 @@ class CategoryFilter(ControlBase):
         select.select_by_value(value)
         return self
 
+    def set(self, value):
+        """Set the category filter value (alias for select)."""
+        self.select(value)
+        return self
+
 
 class VerificationFilter(ControlBase):
     """Control class for the verification filter dropdown."""
@@ -164,6 +179,11 @@ class VerificationFilter(ControlBase):
         element = self.find_element(self.driver)
         select = Select(element)
         select.select_by_value(value)
+        return self
+
+    def set(self, value):
+        """Set the verification filter value (alias for select)."""
+        self.select(value)
         return self
 
 
@@ -186,6 +206,11 @@ class ActivityFilter(ControlBase):
         element.send_keys(value)
         return self
 
+    def set(self, value):
+        """Set the activity filter value (alias for set_value)."""
+        self.set_value(value)
+        return self
+
 
 class IterationFilter(ControlBase):
     """Control class for the iteration filter dropdown."""
@@ -205,6 +230,11 @@ class IterationFilter(ControlBase):
         element = self.find_element(self.driver)
         select = Select(element)
         select.select_by_value(value)
+        return self
+
+    def set(self, value):
+        """Set the iteration filter value (alias for select)."""
+        self.select(value)
         return self
 
 

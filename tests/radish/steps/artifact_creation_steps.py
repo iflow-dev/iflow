@@ -3,27 +3,28 @@ from radish import step, world
 
 from bdd.controls.artifact import Artifacts
 from bdd.controls.editor import Editor
-from bdd.logging_config import logger
+from logging_config import logger
 
 
-@step("I create a requirement")
-def i_create_a_requirement(step):
-    """Create a new requirement (default type)."""
-    editor = Editor(world.driver)
-    logger.trace("Editor control created, opening modal...")
-    editor.open()
-    # Set the default type to "requirement"
-    editor.set("type", "requirement")
-
-
-@step("I create a {artifact_type}")
+@step("I create a {artifact_type:w}")
+@step("I create a new {artifact_type:w}")
 def i_create_an_artifact(step, artifact_type):
-    """Create a new artifact with the specified type."""
+    """Create a new artifact with the specified type.
+
+    Accept both "I create a requirement" and "I create a new requirement".
+    """
     editor = Editor(world.driver)
     logger.trace(f"Editor control created, opening modal for {artifact_type}...")
     editor.open()
+    # If the captured artifact_type is the word 'new' (due to pattern ambiguity),
+    # try to recover a sensible default: treat it as 'requirement'.
+    if artifact_type.lower() == "new":
+        resolved_type = "requirement"
+        logger.trace("Captured artifact_type='new' — defaulting to 'requirement'")
+    else:
+        resolved_type = artifact_type
     # Set the type field to the specified artifact type
-    editor.set("type", artifact_type)
+    editor.set("type", resolved_type)
 
 
 @step("I create a new requirement with name {name:QuotedString}")
@@ -35,7 +36,7 @@ def i_create_a_new_requirement_with_name(step, name):
     editor.set("summary", name)
 
 
-@step("I set the {field} to {value:QuotedString}")
+@step("I set the {field:w} to {value:QuotedString}")
 def i_set_field_to(step, field, value):
     editor = Editor(world.driver)
     editor.set(field, value)

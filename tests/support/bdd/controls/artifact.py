@@ -7,7 +7,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from radish import world
-
+from logging_config import logger
+ 
 
 class Artifact(ControlBase):
     """Control for locating and interacting with individual artifacts."""
@@ -122,9 +123,9 @@ class Artifacts:
         
         except Exception as e:
             # Log the error for debugging
-            print(f"Error in Artifacts.find(): {e}")
+            log.trace(f"Error in Artifacts.find(): {e}")
             pass
-        
+       
         return artifacts
     
     def find_one(self, id=None, summary=None, key=None):
@@ -133,7 +134,7 @@ class Artifacts:
         if not artifacts:
             raise ValueError(f"No artifact found with id={id}, summary={summary}, key={key}")
         if len(artifacts) > 1:
-            print(f"Warning: Multiple artifacts found ({len(artifacts)}), using first one")
+            log.trace(f"Warning: Multiple artifacts found ({len(artifacts)}), using first one")
         
         # Return the first matching artifact
         return artifacts[0]

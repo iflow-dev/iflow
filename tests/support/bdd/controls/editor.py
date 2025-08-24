@@ -5,7 +5,6 @@ This module provides controls for managing artifact creation and editing in the 
 
 import sys
 import os
-import logging
 import time
 import traceback
 from selenium.webdriver.support.ui import WebDriverWait, Select
@@ -20,8 +19,7 @@ from controls.toolbar import Toolbar
 from controls.flag import Flag
 from controls.dropdown import DropdownFactory
 
-# Set up logging
-log = logging.getLogger(__name__)
+from bdd.logging import logger
 
 class Editor(ControlBase):
 
@@ -48,7 +46,7 @@ class Editor(ControlBase):
         self.cancel_button = Button("button", "Cancel", None)  # Button with text "Cancel"
 
     def open(self):
-        log.trace("Waiting for toolbar to be fully loaded...")
+        logger.trace("Waiting for toolbar to be fully loaded...")
 
         # Wait for the toolbar to be fully loaded (not just the loading message)
         page = Page()
@@ -58,7 +56,7 @@ class Editor(ControlBase):
         toolbar = Toolbar(self.driver)
 
         # Use the new Toolbar().buttons.create pattern
-        log.trace("Clicking create button via Toolbar().buttons.create...")
+        logger.trace("Clicking create button via Toolbar().buttons.create...")
         toolbar.buttons.create.click()
 
         # Wait for modal to be visible using locate()
@@ -72,7 +70,7 @@ class Editor(ControlBase):
 
     def set(self, field, value):
         """Generic method to set any artifact field to a specified value."""
-        log.trace(f"Setting field '{field}' to value '{value}'")
+        logger.trace(f"Setting field '{field}' to value '{value}'")
 
         # Map field names to element IDs and handling methods
         field_mapping = {
@@ -96,14 +94,14 @@ class Editor(ControlBase):
         if field_type == "select":
             dropdown = DropdownFactory.create_dropdown(self.driver, element_id)
             dropdown.set_value(value)
-            log.trace(f"Set dropdown field '{field}' to '{value}' using {dropdown.__class__.__name__}")
+            logger.trace(f"Set dropdown field '{field}' to '{value}' using {dropdown.__class__.__name__}")
         elif field_type in ["input", "textarea"]:
             # For input and textarea fields, find the element and set value
             wait = WebDriverWait(self.driver, 10)
             element = wait.until(EC.element_to_be_clickable((By.ID, element_id)))
             element.clear()
             element.send_keys(value)
-            log.trace(f"Set {field_type} field '{field}' to '{value}'")
+            logger.trace(f"Set {field_type} field '{field}' to '{value}'")
         elif field_type == "checkbox":
             # Handle checkbox fields
             wait = WebDriverWait(self.driver, 10)
@@ -111,7 +109,7 @@ class Editor(ControlBase):
             should_check = value.lower() in ["true", "yes", "1", "checked"]
             if should_check != element.is_selected():
                 element.click()
-            log.trace(f"{'Checked' if should_check else 'Unchecked'} checkbox field '{field}'")
+            logger.trace(f"{'Checked' if should_check else 'Unchecked'} checkbox field '{field}'")
 
     def create(self):
         """Create the artifact and close the modal."""
@@ -147,5 +145,5 @@ class Editor(ControlBase):
                 # If Select fails, try to get the value directly from the element
                 return element.get_attribute("value")
         except Exception as e:
-            log.error(f"Failed to get status field value: {e}")
+            logger.error(f"Failed to get status field value: {e}")
             return None

@@ -8,7 +8,11 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from radish import world
-
+import logging
+ 
+# Module logger
+logger = logging.getLogger(__name__)
+ 
 # Default timeout for element operations (in seconds)
 DEFAULT_TIMEOUT = 5
 
@@ -24,24 +28,22 @@ class ControlBase:
     def set_debug_mode(cls, enabled):
         """Enable or disable debug mode for all controls."""
         cls.DEBUG_MODE = enabled
-        print(f"🔧 ControlBase debug mode: {'ON' if enabled else 'OFF'}")
+        logger.debug(f"🔧 ControlBase debug mode: {'ON' if enabled else 'OFF'}")
     
     @classmethod
     def enable_debug_for_test(cls):
         """Enable debug mode for the current test run."""
         cls.set_debug_mode(True)
-        print("🐛 Debug mode enabled for this test run")
+        logger.debug("🐛 Debug mode enabled for this test run")
     
     def _debug_log(self, message):
         """Log debug message if debug mode is enabled."""
         if self.__class__.DEBUG_MODE:
-            print(f"🐛 [ControlBase] {message}")
+            logger.debug(f"🐛 [ControlBase] {message}")
 
     def locate(self, timeout=None):
         """Locate the element within timeout, assert if not found."""
-        import logging
-        logging.basicConfig(level=logging.INFO)
-        logger = logging.getLogger(__name__)
+        # Use module-level logger defined at top of file
         
         # Set default timeout if None is provided
         if timeout is None:

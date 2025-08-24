@@ -7,7 +7,7 @@ Feature: Edit Dialog Button Text
     @tid:0108
     Scenario: Create new artifact shows "Create" button
         Given I go to home
-        When I create a new requirement
+        When I create a requirement
         Then I should see the edit dialog
         And the submit button should say "Create"
         And I cancel the artifact creation

@@ -3,7 +3,11 @@ Terrain file for radish BDD tests.
 This file is automatically loaded by radish and sets up the test environment.
 """
 
-# Import support modules
+from bdd.logging import logger
+
+# NOTE: REQUIRED IN ORDER TO LOAD THE HOOKS. DONT REMOVE!!!!
 from bdd import hooks
 
-print("TERRRAIN IS LOADED")
+logger.trace("TERRRAIN IS LOADED")
+
+# Removed direct print to stdout for test cleanliness

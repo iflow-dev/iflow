@@ -6,7 +6,7 @@ Feature: Artifact Activity Field
     @tid:0130
     Scenario: Create artifact with activity field
         Given I go to home
-        When I create a new requirement
+        When I create a requirement
         Then I should see the edit dialog
         And I should see an activity field
         And the activity field is empty
@@ -22,13 +22,13 @@ Feature: Artifact Activity Field
     @tid:0132
     Scenario: Save artifact with activity information
         Given I go to home
-        When I create a new requirement
+        When I create a requirement
         And I set the summary to "Test artifact with activity"
         And I set the description to "This artifact has activity tracking"
         And I set activity to "Initial development started"
                         And I save the artifact
         Then I should see a success message
-        And I open the artifact with title "Test artifact with activity"
+        And I open the artifact "Test artifact with activity"
         And I see the activity is "Initial development started"
 
     @tid:0133
@@ -47,5 +47,5 @@ Feature: Artifact Activity Field
         And I set activity to "Testing in progress"
         And I click the "Save" button
         Then I should see a success message
-        And I open the artifact with title "Test artifact with activity"
+        And I open the artifact "Test artifact with activity"
         And I see the activity is "Testing in progress"

@@ -24,6 +24,18 @@ import atexit
 from pathlib import Path
 from typing import List
 import typer
+import logging
+
+# Ensure TRACE log level and a trace() method exist on Logger
+TRACE = 15
+logging.addLevelName(TRACE, "TRACE")
+if not hasattr(logging.Logger, "trace"):
+    def _trace(self, message, *args, **kwargs):
+        if self.isEnabledFor(TRACE):
+            self._log(TRACE, message, args, **kwargs)
+    logging.Logger.trace = _trace
+
+logger = logging.getLogger(__name__)
 
 script_dir = os.path.dirname(__file__)
 
@@ -44,14 +56,21 @@ def start_local_server() -> subprocess.Popen:
         raise FileNotFoundError(f"start_server.py not found at {start_server_script}")
     
     # Initialize the temp database synchronously
-    print("🔧 Initializing temporary database...")
+    logger.trace("🔧 Initializing temporary database...")
     cmd_init_db = [sys.executable, str(start_server_script), "--init-db", "--output-db-path"]
     try:
-        result = subprocess.run(cmd_init_db, capture_output=True, text=True, check=True)
-        temp_db_path = result.stdout.strip()
-        print(f"✅ Database initialized: {temp_db_path}")
+        # Run init command in the tests directory so relative paths resolve correctly
+        result = subprocess.run(cmd_init_db, capture_output=True, text=True, check=True, cwd=script_dir)
+        temp_db_path = (result.stdout or "").strip()
+        if not temp_db_path:
+            # If stdout is empty, try stderr as a fallback for integration with different runners
+            temp_db_path = (result.stderr or "").strip()
+        if not temp_db_path:
+            raise RuntimeError(f"Init-db command did not return a database path. stdout={result.stdout!r} stderr={result.stderr!r}")
+        logger.trace(f"✅ Database initialized: {temp_db_path}")
     except subprocess.CalledProcessError as e:
-        raise RuntimeError(f"❌ Failed to initialize database: {e}")
+        # Provide stderr in the error for easier debugging
+        raise RuntimeError(f"❌ Failed to initialize database: {e}; stderr={e.stderr!r}")
     
     time.sleep(2)
     
@@ -60,8 +79,9 @@ def start_local_server() -> subprocess.Popen:
            "--port", str(DEFAULT_PORT),
            "--database", temp_db_path]
     
-    print(f"🚀 Starting server with temp DB: {temp_db_path}")
-    process = subprocess.Popen(cmd)
+    logger.trace(f"🚀 Starting server with temp DB: {temp_db_path}")
+    # Start the server in the tests directory so the server uses local repo files
+    process = subprocess.Popen(cmd, cwd=script_dir, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     
     # Wait for server to start
     time.sleep(10)
@@ -71,14 +91,14 @@ def start_local_server() -> subprocess.Popen:
         import requests
         response = requests.get(f"http://localhost:{DEFAULT_PORT}/api/artifacts", timeout=10)
         if response.status_code == 200:
-            print(f"✅ Local server started successfully on port {DEFAULT_PORT}")
+            logger.trace(f"✅ Local server started successfully on port {DEFAULT_PORT}")
             return process
         else:
             raise RuntimeError(f"Server responded with status {response.status_code}")
     except ImportError:
         # If requests is not available, just check if process is still running
         if process.poll() is None:
-            print(f"✅ Local server started on port {DEFAULT_PORT} (status check skipped)")
+            logger.trace(f"✅ Local server started on port {DEFAULT_PORT} (status check skipped)")
             return process
         else:
             raise RuntimeError("Server process failed to start")
@@ -88,18 +108,18 @@ def start_local_server() -> subprocess.Popen:
 def stop_local_server(process: subprocess.Popen) -> None:
     """Stop the local server on port 7000 and clean up."""
     if process and process.poll() is None:
-        print(f"Stopping local server on port {DEFAULT_PORT}...")
+        logger.trace(f"Stopping local server on port {DEFAULT_PORT}...")
         process.terminate()
         try:
             process.wait(timeout=10)
-            print(f"✅ Local server on port {DEFAULT_PORT} stopped")
+            logger.trace(f"✅ Local server on port {DEFAULT_PORT} stopped")
         except subprocess.TimeoutExpired:
-            print(f"⚠️  Server on port {DEFAULT_PORT} didn't stop gracefully, forcing...")
+            logger.trace(f"⚠️  Server on port {DEFAULT_PORT} didn't stop gracefully, forcing...")
             process.kill()
             process.wait()
-            print(f"✅ Local server on port {DEFAULT_PORT} force stopped")
+            logger.trace(f"✅ Local server on port {DEFAULT_PORT} force stopped")
     else:
-        print(f"Local server on port {DEFAULT_PORT} is not running")
+        logger.trace(f"Local server on port {DEFAULT_PORT} is not running")
 
 def setup_python_path() -> None:
     """Set up Python path to include the tests directory."""
@@ -123,16 +143,16 @@ def run_radish(args: List[str]) -> int:
     args.append("-t")
     radish_cmd = ["radish"] + args
     
-    print(f"Running command: {' '.join(radish_cmd)}")
+    logger.trace(f"Running command: {' '.join(radish_cmd)}")
     
     try:
         result = subprocess.run("source ../venv-local/bin/activate && " + " ".join(radish_cmd),
                                 check=False, cwd=script_dir, shell=True)
         status_code = result.returncode
-        print(f"Radish command completed with status code: {status_code}")
+        logger.trace(f"Radish command completed with status code: {status_code}")
         return status_code
     except FileNotFoundError:
-        print("Error: 'radish' command not found. Please install radish-bdd.")
+        logger.trace("Error: 'radish' command not found. Please install radish-bdd.")
         return 1
 
 def main_simple():
@@ -141,7 +161,7 @@ def main_simple():
     and always runs with PYTHON_LOG_LEVEL=TRACE.
     """
     if len(sys.argv) < 3:
-        print("Usage: run_radish.py <environment> <radish_args...>\nExample: run_radish.py local tests/features/")
+        logger.trace("Usage: run_radish.py <environment> <radish_args...>\nExample: run_radish.py local tests/features/")
         sys.exit(1)
     
     # We ignore environment, just read the param to check if 'local' is used
@@ -156,7 +176,7 @@ def main_simple():
     known_args = ["--foreground", "--debug", "--trace", "--local", "--dry-run"]
     radish_args = [arg for arg in radish_args if arg not in known_args]
     
-    print(f"DEBUG: After filtering, radish_args: {radish_args}")
+    logger.trace(f"DEBUG: After filtering, radish_args: {radish_args}")
     
     # Hard-coded defaults
     local_mode = (environment == "local")
@@ -167,10 +187,10 @@ def main_simple():
     # Set headless mode based on --foreground flag
     if foreground_mode:
         os.environ["HEADLESS_MODE"] = "false"
-        print("HEADLESS_MODE=false (foreground mode enabled)")
+        logger.trace("HEADLESS_MODE=false (foreground mode enabled)")
     else:
         os.environ["HEADLESS_MODE"] = "true"
-        print("HEADLESS_MODE=true (headless mode enabled)")
+        logger.trace("HEADLESS_MODE=true (headless mode enabled)")
     
     local_server_process = None
     
@@ -183,29 +203,29 @@ def main_simple():
     try:
         if dry_run_mode:
             # Skip server startup for dry-run mode
-            print("🏃‍♂️ DRY-RUN MODE: Skipping server startup")
+            logger.trace("🏃‍♂️ DRY-RUN MODE: Skipping server startup")
             os.environ["IFLOW_BASE_URL"] = f"http://localhost:{DEFAULT_PORT}"
-            print(f"Set IFLOW_BASE_URL=http://localhost:{DEFAULT_PORT} (dry-run)")
+            logger.trace(f"Set IFLOW_BASE_URL=http://localhost:{DEFAULT_PORT} (dry-run)")
         elif local_mode:
             local_server_process = start_local_server()
             os.environ["IFLOW_BASE_URL"] = f"http://localhost:{DEFAULT_PORT}"
-            print(f"Using local environment on port {DEFAULT_PORT}")
-            print(f"Set IFLOW_BASE_URL=http://localhost:{DEFAULT_PORT}")
+            logger.trace(f"Using local environment on port {DEFAULT_PORT}")
+            logger.trace(f"Set IFLOW_BASE_URL=http://localhost:{DEFAULT_PORT}")
         else:
             # dev, qa, prod, etc. all do not matter as we won't override the environment
             # but let's set base url just in case
             env_url = f"http://localhost:{DEFAULT_PORT}"
             os.environ["IFLOW_BASE_URL"] = env_url
-            print(f"Using environment: {environment} => {env_url}")
+            logger.trace(f"Using environment: {environment} => {env_url}")
         
-        print("PYTHON_LOG_LEVEL=TRACE (hard-coded)")
+        logger.trace("PYTHON_LOG_LEVEL=TRACE (hard-coded)")
         
         setup_python_path()
         
         # Add --dry-run flag back to radish args if dry-run mode is enabled
         if dry_run_mode:
             radish_args.append("--dry-run")
-            print(f"🔍 Adding --dry-run to radish command")
+            logger.trace(f"🔍 Adding --dry-run to radish command")
         
         status_code = run_radish(radish_args)
         sys.exit(status_code)

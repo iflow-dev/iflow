@@ -31,7 +31,7 @@ Feature: Artifact Flags
     Scenario: Create artifact with flag
         Given I reset the database to master
         And I go to home
-        When I create a new requirement
+        When I create a requirement
         And I set the type to "requirement"
         And I set the summary to "Test artifact with flag"
         And I set the description to "Test artifact for flag functionality"

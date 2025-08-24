@@ -1,8 +1,3 @@
-"""
-Hooks for radish BDD tests.
-This file contains test lifecycle hooks and utilities.
-"""
-
 from radish import before, after, world
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -11,16 +6,16 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 import os
 import time
-from bdd.logging_config import logger as log
+from bdd.logging import logger
 
 @before.all
 def setup_test_environment(features, marker):
     """Set up the test environment before all tests."""
-    log.trace("Starting BDD test environment setup...")
+    logger.trace("Starting BDD test environment setup...")
     
     # Initialize world.driver to None
     world.driver = None
-    log.trace("world.driver initialized to None")
+    logger.trace("world.driver initialized to None")
 
 
 # Global driver variable accessible to @after.all hook
@@ -30,13 +25,13 @@ def _preinit():
     # Set base URL for the application
     base_url = os.getenv('IFLOW_BASE_URL')
     if not base_url:
-        log.trace("IFLOW_BASE_URL environment variable not set")
+        logger.trace("IFLOW_BASE_URL environment variable not set")
         raise ValueError("IFLOW_BASE_URL environment variable must be set")
-    log.trace(f"Testing against: {base_url}")
+    logger.trace(f"Testing against: {base_url}")
 
     # Store base URL directly in world object for easy access
     world.base_url = base_url
-    log.trace(f"Base URL set in world: {world.base_url}")
+    logger.trace(f"Base URL set in world: {world.base_url}")
 
 
 def _init_driver():
@@ -66,7 +61,7 @@ def _init_driver():
     
     # Store reference for @after.all cleanup
     global_driver = world.driver
-    log.trace("Driver created and stored globally for cleanup")
+    logger.trace("Driver created and stored globally for cleanup")
 
 
 @after.all
@@ -74,54 +69,56 @@ def cleanup_test_environment(features, marker):
     """Clean up the driver at the end of all tests."""
     global global_driver
     if global_driver is not None:
-        log.trace("Cleaning up driver in @after.all")
+        logger.trace("Cleaning up driver in @after.all")
         global_driver.quit()
         global_driver = None
-        log.trace("Driver cleanup completed")
+        logger.trace("Driver cleanup completed")
     else:
-        log.trace("No driver to cleanup (dry-run mode or no driver created)")
+        logger.trace("No driver to cleanup (dry-run mode or no driver created)")
 
 
 @before.each_scenario
 def before_scenario(scenario):
     """Set up the test environment before each scenario."""
-    log.trace(f"Setting up scenario: {scenario.sentence}")
+    logger.trace(f"Setting up scenario: {scenario.sentence}")
     
     # Skip driver creation in dry-run mode
     if hasattr(world, 'config') and hasattr(world.config, 'dry_run') and world.config.dry_run:
-        log.trace("Dry-run mode: Skipping driver creation")
+        logger.trace("Dry-run mode: Skipping driver creation")
         world.driver = None
     # Create driver only on first scenario (non-dry-run mode)
     elif world.driver is None:
-        log.trace("Creating driver for first scenario")
+        logger.trace("Creating driver for first scenario")
         _init_driver()
     else:
-        log.trace("Reusing existing driver for scenario")
+        logger.trace("Reusing existing driver for scenario")
 
     # Initialize scenario-specific state
     scenario.scenario_start_time = time.time()
     scenario.current_page = None
     scenario.last_action = None
-    log.trace("Scenario state initialized")
+    logger.trace("Scenario state initialized")
 
 
 @after.each_scenario
 def after_scenario(scenario):
     """Clean up after each scenario."""
-    log.trace(f"Cleaning up scenario: {scenario.sentence}")
+    logger.trace(f"Cleaning up scenario: {scenario.sentence}")
 
     # Calculate scenario duration
     if hasattr(scenario, 'scenario_start_time'):
         duration = time.time() - scenario.scenario_start_time
-        log.trace(f"Scenario completed in {duration:.2f} seconds")
+        logger.trace(f"Scenario completed in {duration:.2f} seconds")
 
-    log.trace("Scenario cleanup completed")
+    logger.trace("Scenario cleanup completed")
 
 
 @before.each_step
 def before_step(step):
-    # time.sleep(2)  # Add a delay of 2 seconds before each step
-    pass
+    # Add a delay of 2 seconds before each step when in foreground mode
+    headless_mode = os.environ.get("HEADLESS_MODE", "true").lower() == "true"
+    if not headless_mode:
+        time.sleep(2)
 
 
 def wait_for_element(driver, by, value, timeout=10):
@@ -140,9 +137,9 @@ def take_screenshot(driver, name):
         timestamp = time.strftime("%Y%m%d-%H%M%S")
         filename = f"test_screenshots/{name}_{timestamp}.png"
         driver.save_screenshot(filename)
-        log.debug(f"Screenshot saved: {filename}")
+        logger.debug(f"Screenshot saved: {filename}")
     except Exception as e:
-        log.debug(f"Could not take screenshot: {e}")
+        logger.debug(f"Could not take screenshot: {e}")
 
 def log_test_step(context, step_name, details=None):
     """Log test step execution for debugging."""
@@ -150,9 +147,9 @@ def log_test_step(context, step_name, details=None):
     log_entry = f"[{timestamp}] {step_name}"
     if details:
         log_entry += f" - {details}"
-    log.debug(log_entry)
+    logger.debug(log_entry)
     context.last_action = step_name
 
 
-log.error("HOOOOOOKS ARRREE LOAAAADED")
-log.error("HOOOOOOKS ARRREE LOAAAADED")
+logger.error("HOOOOOOKS ARRREE LOAAAADED")
+logger.error("HOOOOOOKS ARRREE LOAAAADED")

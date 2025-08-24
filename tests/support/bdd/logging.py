@@ -58,7 +58,7 @@ def configure_logging():
     level = level_map[log_level_str]
 
     # Compute repository root and logs directory
-    # logging_config.py is at tests/support/bdd/
+    # logging.py is at tests/support/bdd/
     # go up 3 levels to reach repository root
     repo_root = Path(__file__).resolve().parents[3]
     logs_dir = repo_root / "logs"
@@ -70,7 +70,7 @@ def configure_logging():
     # Configure root logger: remove existing handlers to avoid duplicates.
     # Set root level to TRACE so handlers control what is emitted (handlers will filter).
     root = logging.getLogger()
-    root.setLevel(TRACE)
+    root.setLevel(logging.WARNING)
     
     # Remove existing handlers added by other code (if any)
     for h in list(root.handlers):

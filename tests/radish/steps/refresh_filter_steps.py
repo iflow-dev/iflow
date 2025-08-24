@@ -5,6 +5,7 @@ Step definitions for refresh filter functionality.
 from radish import given, when, then
 from selenium.webdriver.common.by import By
 from bdd.controls.dropdown import DropdownFactory
+from bdd.logging_config import logger as log
 
 
 
@@ -19,7 +20,7 @@ def filter_for_type(step, filter_value):
     # Strip quotes from the filter value
     filter_value = filter_value.strip('"')
     
-    print(f"Debug: Setting up type filter for '{filter_value}'")
+    log.trace(f"Debug: Setting up type filter for '{filter_value}'")
     
     # Use the dropdown control to select the option
     type_dropdown = Dropdown('type')
@@ -30,7 +31,7 @@ def filter_for_type(step, filter_value):
     
     # Verify that filtering worked by checking the number of displayed artifacts
     artifacts = world.driver.find_elements(By.CSS_SELECTOR, ".artifact-card")
-    print(f"Debug: Found {len(artifacts)} artifacts after applying type filter '{filter_value}'")
+    log.trace(f"Debug: Found {len(artifacts)} artifacts after applying type filter '{filter_value}'")
 
 
 @given("I filter for status {filter_value}")
@@ -42,7 +43,7 @@ def filter_for_status(step, filter_value):
     # Strip quotes from the filter value
     filter_value = filter_value.strip('"')
     
-    print(f"Debug: Setting up status filter for '{filter_value}'")
+    log.trace(f"Debug: Setting up status filter for '{filter_value}'")
     
     # Use the dropdown control to select the option
     status_dropdown = Dropdown('status')
@@ -53,7 +54,7 @@ def filter_for_status(step, filter_value):
     
     # Verify that filtering worked by checking the number of displayed artifacts
     artifacts = world.driver.find_elements(By.CSS_SELECTOR, ".artifact-card")
-    print(f"Debug: Found {len(artifacts)} artifacts after applying status filter '{filter_value}'")
+    log.trace(f"Debug: Found {len(artifacts)} artifacts after applying status filter '{filter_value}'")
 
 
 @when("I refresh the view")
@@ -90,7 +91,7 @@ def see_type_filter_set_to(step, expected_value):
     type_dropdown = Dropdown('type')
     actual_value = type_dropdown.get_selected_value(world.driver)
     
-    print(f"Debug: Type filter shows '{actual_value}', expected '{expected_value}'")
+    log.trace(f"Debug: Type filter shows '{actual_value}', expected '{expected_value}'")
     
     # Check if the expected value is in the actual text (case insensitive)
     assert expected_value.lower() in actual_value.lower(), f"Type filter should show '{expected_value}', but shows '{actual_value}'"
@@ -108,7 +109,7 @@ def see_status_filter_set_to(step, expected_value):
     status_dropdown = Dropdown('status')
     actual_value = status_dropdown.get_selected_value(world.driver)
     
-    print(f"Debug: Status filter shows '{actual_value}', expected '{expected_value}'")
+    log.trace(f"Debug: Status filter shows '{actual_value}', expected '{expected_value}'")
     
     # Check if the expected value is in the actual text (case insensitive)
     assert expected_value.lower() in actual_value.lower(), f"Status filter should show '{expected_value}', but shows '{actual_value}'"

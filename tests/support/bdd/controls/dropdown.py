@@ -8,11 +8,8 @@ from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import TimeoutException
-import logging
-
-# Set up logging
-log = logging.getLogger(__name__)
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from bdd.logging import logger
 
 
 class BaseDropdown(ABC):
@@ -49,11 +46,11 @@ class SelectDropdown(BaseDropdown):
     def set_value(self, value):
         """Set the dropdown value using native select methods."""
         try:
-            log.trace(f"Setting native select dropdown to value '{value}'")
+            logger.trace(f"Setting native select dropdown to value '{value}'")
             self.select.select_by_value(value)
-            log.trace(f"Successfully set native select dropdown to '{value}'")
+            logger.trace(f"Successfully set native select dropdown to '{value}' by value")
         except Exception as e:
-            log.error(f"Failed to set native select dropdown to '{value}': {e}")
+            logger.error(f"Failed to set native select dropdown to '{value}': {e}")
             raise
     
     def get_value(self):
@@ -62,7 +59,7 @@ class SelectDropdown(BaseDropdown):
             selected_option = self.select.first_selected_option
             return selected_option.get_attribute("value")
         except Exception as e:
-            log.error(f"Failed to get native select dropdown value: {e}")
+            logger.error(f"Failed to get native select dropdown value: {e}")
             return None
     
     def get_options(self):
@@ -70,7 +67,7 @@ class SelectDropdown(BaseDropdown):
         try:
             return [option.get_attribute("value") for option in self.select.options]
         except Exception as e:
-            log.error(f"Failed to get native select dropdown options: {e}")
+            logger.error(f"Failed to get native select dropdown options: {e}")
             return []
 
 
@@ -84,7 +81,7 @@ class CustomDropdown(BaseDropdown):
     def set_value(self, value):
         """Set the dropdown value using JavaScript."""
         try:
-            log.trace(f"Setting custom dropdown to value '{value}'")
+            logger.trace(f"Setting custom dropdown to value '{value}'")
             # Find the input field within the custom dropdown
             input_field = self.element.find_element(By.CSS_SELECTOR, "input[data-field]")
             
@@ -98,9 +95,9 @@ class CustomDropdown(BaseDropdown):
             # Trigger a click on the dropdown to ensure it's properly activated
             self.element.click()
             
-            log.trace(f"Successfully set custom dropdown to '{value}'")
+            logger.trace(f"Successfully set custom dropdown to '{value}'")
         except Exception as e:
-            log.error(f"Failed to set custom dropdown to '{value}': {e}")
+            logger.error(f"Failed to set custom dropdown to '{value}': {e}")
             raise
     
     def get_value(self):
@@ -109,7 +106,7 @@ class CustomDropdown(BaseDropdown):
             input_field = self.element.find_element(By.CSS_SELECTOR, "input[data-field]")
             return input_field.get_attribute("value")
         except Exception as e:
-            log.error(f"Failed to get custom dropdown value: {e}")
+            logger.error(f"Failed to get custom dropdown value: {e}")
             return None
     
     def get_options(self):
@@ -119,7 +116,7 @@ class CustomDropdown(BaseDropdown):
             # This is a simplified implementation
             return []
         except Exception as e:
-            log.error(f"Failed to get custom dropdown options: {e}")
+            logger.error(f"Failed to get custom dropdown options: {e}")
             return []
 
 
@@ -145,24 +142,24 @@ class DropdownFactory:
             # First try to find a native select element
             select_element = wait.until(EC.element_to_be_clickable((By.ID, element_id)))
             if select_element.tag_name.lower() == "select":
-                log.trace(f"Found native select dropdown for '{element_id}'")
+                logger.trace(f"Found native select dropdown for '{element_id}'")
                 return SelectDropdown(select_element)
         except TimeoutException:
-            log.trace(f"Native select not found for '{element_id}', looking for custom dropdown")
+            logger.trace(f"Native select not found for '{element_id}', looking for custom dropdown")
         
         try:
             # Look for custom dropdown div
             custom_dropdown_xpath = f"//div[@class='custom-dropdown' and .//input[@data-field='{element_id}']]"
             custom_element = wait.until(EC.element_to_be_clickable((By.XPATH, custom_dropdown_xpath)))
-            log.trace(f"Found custom dropdown for '{element_id}'")
+            logger.trace(f"Found custom dropdown for '{element_id}'")
             return CustomDropdown(custom_element)
         except TimeoutException:
-            log.trace(f"Custom dropdown not found for '{element_id}', trying fallback")
+            logger.trace(f"Custom dropdown not found for '{element_id}', trying fallback")
         
         try:
             # Fallback: try to find any element with the ID
             fallback_element = wait.until(EC.presence_of_element_located((By.ID, element_id)))
-            log.trace(f"Found fallback element for '{element_id}'")
+            logger.trace(f"Found fallback element for '{element_id}'")
             
             # Determine type based on tag name
             if fallback_element.tag_name.lower() == "select":

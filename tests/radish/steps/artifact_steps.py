@@ -10,6 +10,7 @@ from radish import step, world
 
 from bdd.controls import Title
 from bdd.controls.editor import Editor
+from bdd.controls import DropdownFactory
 
 @step("I am on the artifacts page")
 def i_am_on_artifacts_page(step):
@@ -46,8 +47,9 @@ def i_fill_in_artifact_details(step):
             
             if field and value:
                 if field == "Type":
-                    select = Select(world.driver.find_element(By.ID, "artifactType"))
-                    select.select_by_value(value)
+                    # Use DropdownFactory to support native <select> and custom DIV dropdowns.
+                    dropdown = DropdownFactory.create_dropdown(world.driver, "artifactType")
+                    dropdown.set_value(value)
                 elif field == "Summary":
                     world.driver.find_element(By.ID, "artifactSummary").send_keys(value)
                 elif field == "Description":
@@ -55,8 +57,8 @@ def i_fill_in_artifact_details(step):
                 elif field == "Category":
                     world.driver.find_element(By.ID, "artifactCategory").send_keys(value)
                 elif field == "Status":
-                    select = Select(world.driver.find_element(By.ID, "artifactStatus"))
-                    select.select_by_value(value)
+                    dropdown = DropdownFactory.create_dropdown(world.driver, "artifactStatus")
+                    dropdown.set_value(value)
     else:
         # Default values if no table provided
         default_data = {
@@ -69,8 +71,8 @@ def i_fill_in_artifact_details(step):
         
         for field, value in default_data.items():
             if field == "Type":
-                select = Select(world.driver.find_element(By.ID, "artifactType"))
-                select.select_by_value(value)
+                dropdown = DropdownFactory.create_dropdown(world.driver, "artifactType")
+                dropdown.set_value(value)
             elif field == "Summary":
                 world.driver.find_element(By.ID, "artifactSummary").send_keys(value)
             elif field == "Description":
@@ -78,8 +80,8 @@ def i_fill_in_artifact_details(step):
             elif field == "Category":
                 world.driver.find_element(By.ID, "artifactCategory").send_keys(value)
             elif field == "Status":
-                select = Select(world.driver.find_element(By.ID, "artifactStatus"))
-                select.select_by_value(value)
+                dropdown = DropdownFactory.create_dropdown(world.driver, "artifactStatus")
+                dropdown.set_value(value)
 
 @step("I click \"{button_text}\"")
 def i_click_save_artifact(step, button_text):
@@ -153,9 +155,9 @@ def artifact_should_be_updated(step):
 
 @step("I select \"{value}\" from the type filter")
 def i_select_from_type_filter(step, value):
-    type_filter = world.driver.find_element(By.ID, "typeFilter")
-    select = Select(type_filter)
-    select.select_by_value(value)
+    # Use DropdownFactory to support both native and custom dropdown controls
+    dropdown = DropdownFactory.create_dropdown(world.driver, "typeFilter")
+    dropdown.set_value(value)
 
 @step("only {type} artifacts should be displayed")
 def only_type_artifacts_should_be_displayed(step, type):
@@ -188,9 +190,9 @@ def i_confirm_deletion(step):
 
 @step("I select \"{value}\" from the status filter")
 def i_select_from_status_filter(step, value):
-    status_filter = world.driver.find_element(By.ID, "statusFilter")
-    select = Select(status_filter)
-    select.select_by_value(value)
+    # Use DropdownFactory to support both native and custom dropdown controls
+    dropdown = DropdownFactory.create_dropdown(world.driver, "statusFilter")
+    dropdown.set_value(value)
 
 @step("only {status} artifacts should be displayed")
 def only_status_artifacts_should_be_displayed(step, status):
@@ -239,10 +241,9 @@ def i_click_on_category_link(step):
 
 @step("I have filtered artifacts by type \"{type}\"")
 def i_have_filtered_artifacts_by_type(step, type):
-    # Select the type filter
-    type_filter = world.driver.find_element(By.ID, "typeFilter")
-    select = Select(type_filter)
-    select.select_by_value(type)
+    # Select the type filter using DropdownFactory (handles DIV dropdowns)
+    dropdown = DropdownFactory.create_dropdown(world.driver, "typeFilter")
+    dropdown.set_value(type)
     time.sleep(1)
 
 @step("the type filter should still show \"{type}\"")
@@ -253,10 +254,9 @@ def type_filter_should_still_show(step, type):
 
 @step("I have applied filters to the view")
 def i_have_applied_filters_to_view(step):
-    # Apply a type filter as an example
-    type_filter = world.driver.find_element(By.ID, "typeFilter")
-    select = Select(type_filter)
-    select.select_by_value("requirement")
+    # Apply a type filter as an example using DropdownFactory
+    dropdown = DropdownFactory.create_dropdown(world.driver, "typeFilter")
+    dropdown.set_value("requirement")
     time.sleep(1)
 
 @step("I click the \"Refresh\" button")
@@ -299,6 +299,7 @@ def when_i_edit_an_artifact(step):
     description_field.clear()
     description_field.send_keys("Modified description for testing")
 
+# TODO delete this step, replace it's usage by "I save the artivact"
 @step("I save the changes")
 def when_i_save_the_changes(step):
     save_button = world.driver.find_element(By.XPATH, "//button[text()='Save Artifact']")
@@ -327,9 +328,10 @@ def i_set_filter_to_value(step, name, value):
     element = wait.until(EC.presence_of_element_located((By.ID, element_id)))
     
     if filter_type == "select":
-        # Handle dropdown/select filters
-        select = Select(element)
-        select.select_by_value(value)
+        # Handle dropdown/select filters using our Dropdown control
+        from bdd.controls.dropdown import Dropdown
+        dropdown = Dropdown(element)
+        dropdown.set_value(value)
     elif filter_type == "input":
         # Handle text input filters
         element.clear()

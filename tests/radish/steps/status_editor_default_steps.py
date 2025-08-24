@@ -7,7 +7,7 @@ from radish import step, world
 from bdd.controls.artifact import Artifacts
 from bdd.controls.editor import Editor
 from bdd.controls.artifact_tile import ArtifactTile
-from bdd.logging_config import logger as log
+from bdd.logging import logger
 
 
 @step("I see the editor is open")
@@ -15,7 +15,6 @@ def i_see_editor_is_open(step):
     """Verify that the artifact editor modal is open and visible."""
     editor = Editor(world.driver)
     editor.locate()
-    log.debug("Artifact editor modal is open and visible")
 
 
 @step("I see the status is {expected_status:QuotedString}")
@@ -26,25 +25,20 @@ def i_see_status_is(step, expected_status):
     assert actual_value == expected_status
 
 
-@step("I open the artifact {identifier:w}")
-def i_open_artifact(step, identifier):
-    """Open an artifact with the specified ID or summary."""
+@step("I open the artifact #{id:w}")
+def i_open_artifact_by_id(step, id):
+    """Open an artifact with the specified numeric ID."""
     artifacts = Artifacts()
-    
-    # Try to find by ID first (if it's numeric), then by summary
-    try:
-        # Check if identifier is a numeric string like "00001"
-        if identifier.isdigit():
-            # Look for artifact with this exact ID string
-            artifact_element = artifacts.find_one(id=identifier)
-        else:
-            # Treat as summary
-            artifact_element = artifacts.find_one(summary=identifier)
-    except (ValueError, AttributeError):
-        # Fallback to summary search
-        artifact_element = artifacts.find_one(summary=identifier)
-    
-    # Create ArtifactTile control and click edit button
+    artifact_element = artifacts.find_one(id=id)
+    tile = ArtifactTile(artifact_element.locate())
+    tile.click_edit_button(world.driver)
+
+
+@step("I open the artifact {title:QuotedString}")
+def i_open_artifact_by_title(step, title):
+    """Open an artifact with the specified title/summary."""
+    artifacts = Artifacts()
+    artifact_element = artifacts.find_one(summary=title)
     tile = ArtifactTile(artifact_element.locate())
     tile.click_edit_button(world.driver)
 

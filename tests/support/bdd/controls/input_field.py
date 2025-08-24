@@ -7,9 +7,10 @@ import sys
 import os
 # Add the tests directory to the Python path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
+ 
 from controls.base import ControlBase
 from selenium.webdriver.common.by import By
+from bdd.logging import logger
 
 
 class InputField(ControlBase):
@@ -48,7 +49,7 @@ class InputField(ControlBase):
                 # Look for custom dropdown structure
                 custom_dropdown = element.find_element(By.XPATH, "..//div[contains(@class, 'custom-dropdown')]")
                 if custom_dropdown:
-                    print(f"Found custom dropdown, using custom dropdown method for '{value}'")
+                    logger.trace(f"Found custom dropdown, using custom dropdown method for '{value}'")
                     return self._set_custom_dropdown_value(driver, custom_dropdown, value)
             except:
                 pass
@@ -75,13 +76,13 @@ class InputField(ControlBase):
                 parent = dropdown_element.find_element(By.XPATH, "..")
                 original_select = parent.find_element(By.TAG_NAME, "select")
                 select_id = original_select.get_attribute("id")
-                print(f"Found original select element: {select_id}")
+                logger.trace(f"Found original select element: {select_id}")
             except Exception as e:
-                print(f"Could not find original select element: {e}")
+                logger.trace(f"Could not find original select element: {e}")
                 return dropdown_element
             
             # Use the new JavaScript accessibility function to set the value
-            print(f"Using JavaScript accessibility function to set dropdown value '{value}'...")
+            logger.trace(f"Using JavaScript accessibility function to set dropdown value '{value}'...")
             
             # Call the global setDropdownValue function
             result = driver.execute_script(f"""
@@ -94,7 +95,7 @@ class InputField(ControlBase):
             """)
             
             if result:
-                print(f"Successfully set dropdown value '{value}' using JavaScript accessibility function")
+                logger.trace(f"Successfully set dropdown value '{value}' using JavaScript accessibility function")
                 
                 # Verify the value was set correctly
                 actual_value = driver.execute_script(f"""
@@ -106,17 +107,17 @@ class InputField(ControlBase):
                 """)
                 
                 if actual_value == value:
-                    print(f"Verified dropdown value is now '{actual_value}'")
+                    logger.trace(f"Verified dropdown value is now '{actual_value}'")
                 else:
-                    print(f"Warning: Expected value '{value}', but got '{actual_value}'")
+                    logger.trace(f"Warning: Expected value '{value}', but got '{actual_value}'")
                 
                 return dropdown_element
             else:
-                print(f"Failed to set dropdown value '{value}' using JavaScript accessibility function")
+                logger.trace(f"Failed to set dropdown value '{value}' using JavaScript accessibility function")
                 raise Exception(f"JavaScript setDropdownValue returned false for value '{value}'")
                 
         except Exception as e:
-            print(f"JavaScript accessibility function failed: {e}")
+            logger.trace(f"JavaScript accessibility function failed: {e}")
             raise Exception(f"Failed to set dropdown value '{value}' using accessibility functions: {e}")
     
     def _set_standard_select_value(self, driver, element, value):
@@ -132,17 +133,17 @@ class InputField(ControlBase):
                 # Check if there are any options with values (not just the default "Select Type" option)
                 options = element.find_elements(By.CSS_SELECTOR, 'option[value]')
                 if len(options) > 1:  # More than just the default option
-                    print(f"Dropdown options populated after {wait_time}s, found {len(options)} options")
+                    logger.trace(f"Dropdown options populated after {wait_time}s, found {len(options)} options")
                     break
                 time.sleep(0.5)
                 wait_time += 0.5
             except Exception as e:
-                print(f"Error checking dropdown options: {e}")
+                logger.trace(f"Error checking dropdown options: {e}")
                 time.sleep(0.5)
                 wait_time += 0.5
         
         if wait_time >= max_wait:
-            print("Warning: Dropdown options not populated after waiting")
+            logger.trace("Warning: Dropdown options not populated after waiting")
         
         # Now try to select the value using multiple methods
         success = False
@@ -153,29 +154,29 @@ class InputField(ControlBase):
                 from selenium.webdriver.support.ui import Select
                 select = Select(element)
                 select.select_by_value(value)
-                print(f"Successfully selected '{value}' using Select class")
+                logger.trace(f"Successfully selected '{value}' using Select class")
                 success = True
             except Exception as e:
-                print(f"Select class method failed: {e}")
+                logger.trace(f"Select class method failed: {e}")
         
         # Method 2: Try JavaScript
         if not success:
             try:
                 driver.execute_script(f"arguments[0].value = '{value}';", element)
-                print(f"Successfully selected '{value}' using JavaScript")
+                logger.trace(f"Successfully selected '{value}' using JavaScript")
                 success = True
             except Exception as e:
-                print(f"JavaScript method failed: {e}")
+                logger.trace(f"JavaScript method failed: {e}")
         
         # Method 3: Try clicking the option directly
         if not success:
             try:
                 option = element.find_element(By.CSS_SELECTOR, f'option[value="{value}"]')
                 option.click()
-                print(f"Successfully selected '{value}' using click method")
+                logger.trace(f"Successfully selected '{value}' using click method")
                 success = True
             except Exception as e:
-                print(f"Click method failed: {e}")
+                logger.trace(f"Click method failed: {e}")
         
         if not success:
             raise Exception(f"All methods failed to select '{value}' from dropdown")

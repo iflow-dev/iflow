@@ -33,7 +33,7 @@ Feature: Artifact Iteration Field
     Scenario: Display iteration field in artifact tile
         Given I go to home
         And there is an artifact with iteration "Sprint 2"
-        When I open the artifact with title "Test artifact with iteration"
+        When I open the artifact "Test artifact with iteration"
         Then I see the iteration is set to "Sprint 2"
 
     @tid:0148
