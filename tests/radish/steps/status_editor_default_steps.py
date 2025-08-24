@@ -33,10 +33,15 @@ def i_open_artifact(step, identifier):
     
     # Try to find by ID first (if it's numeric), then by summary
     try:
-        artifact_id = int(identifier)
-        artifact_element = artifacts.find_one(id=artifact_id)
-    except ValueError:
-        # Not numeric, treat as summary
+        # Check if identifier is a numeric string like "00001"
+        if identifier.isdigit():
+            # Look for artifact with this exact ID string
+            artifact_element = artifacts.find_one(id=identifier)
+        else:
+            # Treat as summary
+            artifact_element = artifacts.find_one(summary=identifier)
+    except (ValueError, AttributeError):
+        # Fallback to summary search
         artifact_element = artifacts.find_one(summary=identifier)
     
     # Create ArtifactTile control and click edit button
@@ -60,10 +65,15 @@ def i_see_artifact_has_status(step, identifier, status):
     
     # Try to find by ID first (if it's numeric), then by summary
     try:
-        artifact_id = int(identifier)
-        artifact_element = artifacts.find_one(id=artifact_id)
-    except ValueError:
-        # Not numeric, treat as summary
+        # Check if identifier is a numeric string like "00001"
+        if identifier.isdigit():
+            # Look for artifact with this exact ID string
+            artifact_element = artifacts.find_one(id=identifier)
+        else:
+            # Treat as summary
+            artifact_element = artifacts.find_one(summary=identifier)
+    except (ValueError, AttributeError):
+        # Fallback to summary search
         artifact_element = artifacts.find_one(summary=identifier)
     
     # Create ArtifactTile control and get status text
