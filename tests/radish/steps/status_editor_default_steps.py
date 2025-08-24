@@ -26,7 +26,7 @@ def i_see_status_is(step, expected_status):
     assert actual_value == expected_status
 
 
-@step("I open the artifact {identifier}")
+@step("I open the artifact {identifier:w}")
 def i_open_artifact(step, identifier):
     """Open an artifact with the specified ID or summary."""
     artifacts = Artifacts()
