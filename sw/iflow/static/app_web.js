@@ -154,6 +154,12 @@ document.addEventListener('DOMContentLoaded', async function() {
             console.log('Loading view components...');
             await ViewLoader.loadAll();
             console.log('View components loaded');
+            
+            // Now that views are loaded, populate dropdown options
+            console.log('Populating dropdown options...');
+            updateStatusFilterOptions();
+            updateStatusFormOptions();
+            updateTypeFilterOptions();
         } else {
             console.warn('ViewLoader not available');
         }
@@ -243,7 +249,6 @@ async function loadConfiguration() {
             workItemTypes = await typesResponse.json();
             console.log('Work item types loaded:', workItemTypes);
             console.log('workItemTypes array length:', workItemTypes.length);
-            updateTypeFilterOptions();
             if (window.statusLine) {
             window.statusLine.showInfo(`Loaded ${workItemTypes.length} work item types`);
         }

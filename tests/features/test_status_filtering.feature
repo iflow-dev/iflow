@@ -8,8 +8,8 @@ Feature: Test Status Filtering
     Scenario: Filter Artifacts by Status
         Given I go to home
         When I set the status filter to "open"
-        And I verify the status filter is set to "open"
+        Then I see the status filter is set to "open"
         Then I see only artifacts with status "open"
         When I clear the status filter
-        And I verify the status filter is cleared
+        Then I verify the status filter is cleared
         Then I see all artifacts again

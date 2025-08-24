@@ -18,7 +18,7 @@ Feature: Refresh Button Filter Persistence
         And I filter for status "open"
         When I refresh the view
         Then I see the type filter is set to "requirement"
-        And I see the status filter is set to "open"
+        Then I see the status filter is set to "open"
         And I only see requirement items with open status
 
     @tid:0151
@@ -28,5 +28,5 @@ Feature: Refresh Button Filter Persistence
         And I filter for status "open"
         When I refresh the view
         Then I see the type filter is set to "requirement"
-        And I see the status filter is set to "open"
+        Then I see the status filter is set to "open"
         And I only see requirement items with open status

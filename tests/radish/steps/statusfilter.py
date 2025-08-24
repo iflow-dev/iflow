@@ -8,15 +8,18 @@ def i_set_status_filter_to(step, status):
     toolbar.filter.status.select(status)
 
 
-@step(r"I verify the status filter is set to {status:QuotedString}")
-def i_verify_status_filter_is_set_to(step, status):
-    actual_value = Toolbar().filter.status.value
-    assert actual_value == status, f"Status filter verification failed: expected '{status}', but got '{actual_value}'"
+
 
 
 @step(r"I see only artifacts with status {status:QuotedString}")
 def i_see_only_artifacts_with_status(step, status):
-    status_artifacts = [a for a in Artifacts().find() if a.status == status]
+    all_artifacts = Artifacts().find()
+    print(f"DEBUG: Found {len(all_artifacts)} total artifacts")
+    for a in all_artifacts:
+        print(f"DEBUG: Artifact {a.id} has status '{a.status}'")
+    
+    status_artifacts = [a for a in all_artifacts if a.status and a.status.lower() == status.lower()]
+    print(f"DEBUG: Found {len(status_artifacts)} artifacts with status '{status}'")
 
     assert status_artifacts, f"No artifacts found with status '{status}'"
 

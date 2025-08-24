@@ -2,7 +2,7 @@
 Step definitions for refresh filter functionality.
 """
 
-from radish import given, when, then
+from radish import given, when, then, step
 from selenium.webdriver.common.by import By
 
 from bdd.logging_config import logger as log
@@ -83,36 +83,50 @@ def refresh_the_view(step):
 def see_type_filter_set_to(step, expected_value):
     """Check that the type filter shows the expected value."""
     from radish import world
+    from selenium.webdriver.support.ui import Select
+    from selenium.webdriver.common.by import By
     
     # Strip quotes from expected value
     expected_value = expected_value.strip('"')
     
-    # Use the dropdown control to get the selected value
-    type_dropdown = Dropdown('type')
-    actual_value = type_dropdown.get_selected_value(world.driver)
+    # Find the type filter element and get its selected value
+    type_filter = world.driver.find_element(By.ID, "typeFilter")
+    select = Select(type_filter)
+    selected_option = select.first_selected_option
     
-    log.trace(f"Debug: Type filter shows '{actual_value}', expected '{expected_value}'")
-    
-    # Check if the expected value is in the actual text (case insensitive)
-    assert expected_value.lower() in actual_value.lower(), f"Type filter should show '{expected_value}', but shows '{actual_value}'"
+    if selected_option:
+        actual_value = selected_option.text.strip()
+        log.trace(f"Debug: Type filter shows '{actual_value}', expected '{expected_value}'")
+        
+        # Check if the expected value is in the actual text (case insensitive)
+        assert expected_value.lower() in actual_value.lower(), f"Type filter should show '{expected_value}', but shows '{actual_value}'"
+    else:
+        assert False, "No option selected in type filter"
 
 
-@then("I see the status filter is set to {expected_value}")
+@step("I see the status filter is set to {expected_value:QuotedString}")
 def see_status_filter_set_to(step, expected_value):
     """Check that the status filter shows the expected value."""
     from radish import world
+    from selenium.webdriver.support.ui import Select
+    from selenium.webdriver.common.by import By
     
     # Strip quotes from expected value
     expected_value = expected_value.strip('"')
     
-    # Use the dropdown control to get the selected value
-    status_dropdown = Dropdown('status')
-    actual_value = status_dropdown.get_selected_value(world.driver)
+    # Find the status filter element and get its selected value
+    status_filter = world.driver.find_element(By.ID, "statusFilter")
+    select = Select(status_filter)
+    selected_option = select.first_selected_option
     
-    log.trace(f"Debug: Status filter shows '{actual_value}', expected '{expected_value}'")
-    
-    # Check if the expected value is in the actual text (case insensitive)
-    assert expected_value.lower() in actual_value.lower(), f"Status filter should show '{expected_value}', but shows '{actual_value}'"
+    if selected_option:
+        actual_value = selected_option.text.strip()
+        log.trace(f"Debug: Status filter shows '{actual_value}', expected '{expected_value}'")
+        
+        # Check if the expected value is in the actual text (case insensitive)
+        assert expected_value.lower() in actual_value.lower(), f"Status filter should show '{expected_value}', but shows '{actual_value}'"
+    else:
+        assert False, "No option selected in status filter"
 
 
 @then("I only see requirement items")

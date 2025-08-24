@@ -107,6 +107,24 @@ class StatusFilter(ControlBase):
         """Set the status filter value (alias for select)."""
         self.select(value)
         return self
+    
+    @property
+    def value(self):
+        """Get the currently selected status filter value."""
+        from selenium.webdriver.support.ui import Select
+        from selenium.webdriver.common.by import By
+        
+        try:
+            element = self.find_element(self.driver)
+            select = Select(element)
+            selected_option = select.first_selected_option
+            
+            if selected_option:
+                return selected_option.get_attribute("value")
+            else:
+                return ""
+        except Exception:
+            return ""
 
 
 class TypeFilter(ControlBase):

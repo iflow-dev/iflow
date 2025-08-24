@@ -17,7 +17,7 @@ from controls.button import Button
 from controls.page import Page
 from controls.toolbar import Toolbar
 from controls.flag import Flag
-from controls.dropdown import CustomDropdown
+from controls.dropdown import CustomDropdown, SelectDropdown
 
 from bdd.logging import logger
 
@@ -62,6 +62,7 @@ class Editor(ControlBase):
         # Wait for modal to be visible using locate()
         self.locate()
 
+
         return self
 
     def close(self):
@@ -90,9 +91,9 @@ class Editor(ControlBase):
 
         element_id, field_type = field_mapping[field.lower()]
 
-        # Use CustomDropdown for select fields
+        # Use SelectDropdown for select fields (they are native HTML select elements)
         if field_type == "select":
-            dropdown = CustomDropdown(self.driver.find_element(By.ID, element_id))
+            dropdown = SelectDropdown(self.driver.find_element(By.ID, element_id))
             dropdown.set_value(value)
             logger.trace(f"Set dropdown field '{field}' to '{value}' using {dropdown.__class__.__name__}")
         elif field_type in ["input", "textarea"]:

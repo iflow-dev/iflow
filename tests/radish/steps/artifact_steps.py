@@ -328,9 +328,9 @@ def i_set_filter_to_value(step, name, value):
     element = wait.until(EC.presence_of_element_located((By.ID, element_id)))
     
     if filter_type == "select":
-        # Handle dropdown/select filters using our Dropdown control
-        from bdd.controls.dropdown import Dropdown
-        dropdown = Dropdown(element)
+        # Handle dropdown/select filters using SelectDropdown
+        from bdd.controls.dropdown import SelectDropdown
+        dropdown = SelectDropdown(element)
         dropdown.set_value(value)
     elif filter_type == "input":
         # Handle text input filters
