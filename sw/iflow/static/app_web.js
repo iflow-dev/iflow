@@ -396,44 +396,41 @@ function updateProjectHeader() {
 // Tile-related functions are now handled by the TileManager class
 
 // Modal Management
-function openCreateModal() {
-    editingArtifactId = null;
-    document.getElementById('modalTitle').textContent = 'Create New Artifact';
-    document.getElementById('artifactForm').reset();
-    
-    // Set submit button text to "Create"
-    const submitButton = document.getElementById('submitButton');
-    if (submitButton) {
-        submitButton.textContent = 'Create';
-    }
-    
-    // Debug: Log the current state
-    console.log('openCreateModal: workItemTypes.length =', workItemTypes.length);
-    console.log('openCreateModal: artifactStatuses.length =', artifactStatuses.length);
-    
+function ensureModalReady(callback) {
+    /*
+     * Unified function to ensure modal is ready with all configuration loaded.
+     * This function provides consistent safeguards for both create and edit modals.
+     * 
+     * Args:
+     *   callback: Function to call when modal is ready (should contain modal-specific logic)
+     */
     // Check if configuration is loaded
     if (workItemTypes.length === 0 || artifactStatuses.length === 0) {
         console.log('Configuration not loaded yet, waiting for it...');
         // Wait for configuration to be loaded using polling
         const checkConfig = () => {
             if (workItemTypes.length > 0 && artifactStatuses.length > 0) {
-                console.log('Configuration loaded, now opening modal...');
-                openModalWithConfig();
+                console.log('Configuration loaded, now preparing modal...');
+                prepareModalAndExecute(callback);
             } else {
                 console.log('Still waiting for configuration...');
                 setTimeout(checkConfig, 100);
             }
         };
         checkConfig();
-        return; // Exit early, modal will be opened by checkConfig
+        return; // Exit early, modal will be prepared by checkConfig
     }
     
-    // Configuration is already loaded, open modal immediately
-    openModalWithConfig();
+    // Configuration is already loaded, prepare modal immediately
+    prepareModalAndExecute(callback);
 }
 
-function openModalWithConfig() {
-    console.log('Opening modal with configuration loaded');
+function prepareModalAndExecute(callback) {
+    /*
+     * Prepare the modal with all necessary configuration and then execute the callback.
+     * This ensures consistent modal preparation regardless of create or edit mode.
+     */
+    console.log('Preparing modal with configuration loaded');
     
     // Ensure dropdown options are populated before opening modal
     if (workItemTypes.length > 0) {
@@ -468,97 +465,125 @@ function openModalWithConfig() {
         }
     }
     
-    // Set default status to the first status from the status list for new artifacts
-    const artifactStatusSelect = document.getElementById('artifactStatus');
-    if (artifactStatusSelect && artifactStatuses.length > 0) {
-        artifactStatusSelect.value = artifactStatuses[0].id;
+    // Execute the callback (which will contain modal-specific logic)
+    if (typeof callback === 'function') {
+        callback();
     }
-    
-    // Reset flag checkbox for new artifacts
-    const artifactFlaggedCheckbox = document.getElementById('artifactFlagged');
-    if (artifactFlaggedCheckbox) {
-        artifactFlaggedCheckbox.checked = false;
-    }
-    
-    // Set default verification method for new artifacts
-    const artifactVerificationField = document.getElementById('artifactVerification');
-    if (artifactVerificationField) {
-        artifactVerificationField.value = 'BDD';
-    }
-    
-    // Hide artifact ID display for new artifacts
-    document.getElementById('artifactIdDisplay').style.display = 'none';
-    document.getElementById('artifactModal').style.display = 'block';
 }
+
+function openCreateModal() {
+    editingArtifactId = null;
+    
+    // Use the unified approach
+    ensureModalReady(() => {
+        // Modal-specific logic for create mode
+        document.getElementById('modalTitle').textContent = 'Create New Artifact';
+        document.getElementById('artifactForm').reset();
+        
+        // Set submit button text to "Create"
+        const submitButton = document.getElementById('submitButton');
+        if (submitButton) {
+            submitButton.textContent = 'Create';
+        }
+        
+        // Set default status to the first status from the status list for new artifacts
+        const artifactStatusSelect = document.getElementById('artifactStatus');
+        if (artifactStatusSelect && artifactStatuses.length > 0) {
+            artifactStatusSelect.value = artifactStatuses[0].id;
+        }
+        
+        // Reset flag checkbox for new artifacts
+        const artifactFlaggedCheckbox = document.getElementById('artifactFlagged');
+        if (artifactFlaggedCheckbox) {
+            artifactFlaggedCheckbox.checked = false;
+        }
+        
+        // Set default verification method for new artifacts
+        const artifactVerificationField = document.getElementById('artifactVerification');
+        if (artifactVerificationField) {
+            artifactVerificationField.value = 'BDD';
+        }
+        
+        // Hide artifact ID display for new artifacts
+        document.getElementById('artifactIdDisplay').style.display = 'none';
+        document.getElementById('artifactModal').style.display = 'block';
+    });
+}
+
+// Remove the old openModalWithConfig function as it's now replaced by prepareModalAndExecute
 
 function openEditModal(artifactId) {
     editingArtifactId = artifactId;
     const artifact = currentArtifacts.find(a => a.artifact_id === artifactId);
     if (artifact) {
-        document.getElementById('modalTitle').textContent = 'Edit Artifact';
-        
-        // Set submit button text to "Save"
-        const submitButton = document.getElementById('submitButton');
-        if (submitButton) {
-            submitButton.textContent = 'Save';
-        }
-        
-        // Set values on form fields
-        document.getElementById('artifactSummary').value = artifact.summary;
-        document.getElementById('artifactDescription').value = artifact.description || '';
-        document.getElementById('artifactCategory').value = artifact.category || '';
-        document.getElementById('artifactVerification').value = artifact.verification || 'BDD';
-        document.getElementById('artifactActivity').value = artifact.activity || '';
-        document.getElementById('artifactIteration').value = artifact.iteration || '';
-        document.getElementById('artifactFlagged').checked = artifact.flagged || false;
-        
-        // Set values on custom dropdowns
-        const artifactTypeSelect = document.getElementById('artifactType');
-        const artifactStatusSelect = document.getElementById('artifactStatus');
-        
-        if (artifactTypeSelect) {
-            // Check if it's a custom dropdown by looking for the custom dropdown element
-            let customDropdown = null;
-            if (artifactTypeSelect.classList.contains('custom-dropdown')) {
-                customDropdown = artifactTypeSelect;
-            } else {
-                // Look for the custom dropdown that replaced this select
-                customDropdown = artifactTypeSelect.parentNode.querySelector('.custom-dropdown');
+        // Use the unified approach
+        ensureModalReady(() => {
+            // Modal-specific logic for edit mode
+            document.getElementById('modalTitle').textContent = 'Edit Artifact';
+            
+            // Set submit button text to "Save"
+            const submitButton = document.getElementById('submitButton');
+            if (submitButton) {
+                submitButton.textContent = 'Save';
             }
             
-            if (customDropdown && customDropdown.classList.contains('custom-dropdown')) {
-                dropdownManager.setCustomDropdownValue(customDropdown, artifact.type);
-            } else {
-                // Fallback to native select
-                artifactTypeSelect.value = artifact.type;
-            }
-        }
-        
-        if (artifactStatusSelect) {
-            // Check if it's a custom dropdown by looking for the custom dropdown element
-            let customDropdown = null;
-            if (artifactStatusSelect.classList.contains('custom-dropdown')) {
-                customDropdown = artifactStatusSelect;
-            } else {
-                // Look for the custom dropdown that replaced this select
-                customDropdown = artifactStatusSelect.parentNode.querySelector('.custom-dropdown');
+            // Set values on form fields
+            document.getElementById('artifactSummary').value = artifact.summary;
+            document.getElementById('artifactDescription').value = artifact.description || '';
+            document.getElementById('artifactCategory').value = artifact.category || '';
+            document.getElementById('artifactVerification').value = artifact.verification || 'BDD';
+            document.getElementById('artifactActivity').value = artifact.activity || '';
+            document.getElementById('artifactIteration').value = artifact.iteration || '';
+            document.getElementById('artifactFlagged').checked = artifact.flagged || false;
+            
+            // Set values on custom dropdowns
+            const artifactTypeSelect = document.getElementById('artifactType');
+            const artifactStatusSelect = document.getElementById('artifactStatus');
+            
+            if (artifactTypeSelect) {
+                // Check if it's a custom dropdown by looking for the custom dropdown element
+                let customDropdown = null;
+                if (artifactTypeSelect.classList.contains('custom-dropdown')) {
+                    customDropdown = artifactTypeSelect;
+                } else {
+                    // Look for the custom dropdown that replaced this select
+                    customDropdown = artifactTypeSelect.parentNode.querySelector('.custom-dropdown');
+                }
+                
+                if (customDropdown && customDropdown.classList.contains('custom-dropdown')) {
+                    dropdownManager.setCustomDropdownValue(customDropdown, artifact.type);
+                } else {
+                    // Fallback to native select
+                    artifactTypeSelect.value = artifact.type;
+                }
             }
             
-            if (customDropdown && customDropdown.classList.contains('custom-dropdown')) {
-                dropdownManager.setCustomDropdownValue(customDropdown, artifact.status || (artifactStatuses.length > 0 ? artifactStatuses[0].id : 'open'));
-            } else {
-                // Fallback to native select
-                artifactStatusSelect.value = artifact.status || (artifactStatuses.length > 0 ? artifactStatuses[0].id : 'open');
+            if (artifactStatusSelect) {
+                // Check if it's a custom dropdown by looking for the custom dropdown element
+                let customDropdown = null;
+                if (artifactStatusSelect.classList.contains('custom-dropdown')) {
+                    customDropdown = artifactStatusSelect;
+                } else {
+                    // Look for the custom dropdown that replaced this select
+                    customDropdown = artifactStatusSelect.parentNode.querySelector('.custom-dropdown');
+                }
+                
+                if (customDropdown && customDropdown.classList.contains('custom-dropdown')) {
+                    dropdownManager.setCustomDropdownValue(customDropdown, artifact.status || (artifactStatuses.length > 0 ? artifactStatuses[0].id : 'open'));
+                } else {
+                    // Fallback to native select
+                    artifactStatusSelect.value = artifact.status || (artifactStatuses.length > 0 ? artifactStatuses[0].id : 'open');
+                }
             }
-        }
-        
-        // Show and populate artifact ID display
-        const artifactIdDisplay = document.getElementById('artifactIdDisplay');
-        const artifactIdLarge = document.getElementById('artifactIdLarge');
-        artifactIdDisplay.style.display = 'block';
-        artifactIdLarge.textContent = artifact.artifact_id;
-        
-        document.getElementById('artifactModal').style.display = 'block';
+            
+            // Show and populate artifact ID display
+            const artifactIdDisplay = document.getElementById('artifactIdDisplay');
+            const artifactIdLarge = document.getElementById('artifactIdLarge');
+            artifactIdDisplay.style.display = 'block';
+            artifactIdLarge.textContent = artifact.artifact_id;
+            
+            document.getElementById('artifactModal').style.display = 'block';
+        });
     }
 }
 
