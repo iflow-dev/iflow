@@ -8,7 +8,6 @@ from selenium.webdriver.common.by import By
 @then("I should see an iteration field")
 def should_see_iteration_field(step):
     """Check that the iteration field is visible in the edit dialog."""
-    from radish import world
 
     iteration_field = world.driver.find_element(By.ID, "artifactIteration")
     assert iteration_field.is_displayed(), "Iteration field should be visible"
@@ -17,7 +16,6 @@ def should_see_iteration_field(step):
 @then("the field iteration is set to {value}")
 def field_iteration_set_to(step, value):
     """Check that the iteration field has the specified value."""
-    from radish import world
 
     iteration_field = world.driver.find_element(By.ID, "artifactIteration")
     actual_value = iteration_field.get_attribute("value")
@@ -29,7 +27,6 @@ def field_iteration_set_to(step, value):
 @step("I fill the iteration field with {text}")
 def fill_iteration_field_with(step, text):
     """Fill the iteration field with the specified text."""
-    from radish import world
 
     iteration_field = world.driver.find_element(By.ID, "artifactIteration")
     iteration_field.clear()
@@ -38,7 +35,6 @@ def fill_iteration_field_with(step, text):
 @when("I fill in the iteration field with {text}")
 def fill_iteration_field(step, text):
     """Fill in the iteration field with the specified text."""
-    from radish import world
 
     iteration_field = world.driver.find_element(By.ID, "artifactIteration")
     iteration_field.clear()
@@ -47,7 +43,6 @@ def fill_iteration_field(step, text):
 @when("I update the iteration field to {text}")
 def update_iteration_field(step, text):
     """Update the iteration field with the specified text."""
-    from radish import world
 
     iteration_field = world.driver.find_element(By.ID, "artifactIteration")
     iteration_field.clear()
@@ -70,8 +65,6 @@ def existing_artifact(step):
 @then("the artifact should be saved with iteration {iteration}")
 def artifact_saved_with_iteration(step, iteration):
     """Check that the artifact was saved with the specified iteration."""
-    from radish import world
-
     # This step will need to be implemented based on how iteration is displayed
     # For now, we'll use "not implemented yet" as specified in the procedure
     step.context.not_implemented = True
@@ -80,7 +73,6 @@ def artifact_saved_with_iteration(step, iteration):
 @then("I should see the iteration information displayed")
 def should_see_iteration_displayed(step):
     """Check that iteration information is displayed in the artifact tile."""
-    from radish import world
 
     # This step will need to be implemented based on how iteration is displayed
     # For now, we'll use "not implemented yet" as specified in the procedure
@@ -90,7 +82,6 @@ def should_see_iteration_displayed(step):
 @then("it should show {iteration}")
 def should_show_iteration(step, iteration):
     """Check that the displayed iteration matches the expected value."""
-    from radish import world
 
     # This step will need to be implemented based on how iteration is displayed
     # For now, we'll use "not implemented yet" as specified in the procedure
@@ -100,7 +91,6 @@ def should_show_iteration(step, iteration):
 @then("the artifact should be updated with new iteration {iteration}")
 def artifact_updated_with_iteration(step, iteration):
     """Check that the artifact was updated with the new iteration."""
-    from radish import world
 
     # This step will need to be implemented based on how iteration is displayed
     # For now, we'll use "not implemented yet" as specified in the procedure
@@ -110,7 +100,6 @@ def artifact_updated_with_iteration(step, iteration):
 @then("I see the iteration is set to {iteration}")
 def see_iteration_set_to(step, iteration):
     """Check that the iteration is set to the specified value."""
-    from radish import world
 
     # This step will need to be implemented based on how iteration is displayed
     # For now, we'll use "not implemented yet" as specified in the procedure
@@ -120,7 +109,6 @@ def see_iteration_set_to(step, iteration):
 @step("I edit the first artifact")
 def edit_first_artifact(step):
     """Edit the first artifact by clicking its edit button."""
-    from radish import world
     from selenium.webdriver.support.ui import WebDriverWait
     from selenium.webdriver.support import expected_conditions as EC
     from selenium.webdriver.common.by import By
@@ -136,7 +124,6 @@ def edit_first_artifact(step):
 @step("I click the edit button on the artifact")
 def click_edit_button_on_artifact(step):
     """Click the edit button on an artifact."""
-    from radish import world
     from selenium.webdriver.support.ui import WebDriverWait
     from selenium.webdriver.support import expected_conditions as EC
     from selenium.webdriver.common.by import By
@@ -152,7 +139,6 @@ def click_edit_button_on_artifact(step):
 @step("I click the Save button")
 def click_save_button(step):
     """Click the Save button."""
-    from radish import world
     from selenium.webdriver.common.by import By
 
     save_button = world.driver.find_element(By.XPATH, "//button[text()='Save']")
