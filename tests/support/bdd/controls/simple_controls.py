@@ -31,7 +31,7 @@ class Tile(ControlBase):
         # The artifacts are displayed directly in the container, not as .artifact-card elements
         # Look for the content anywhere in the artifacts container
         super().__init__(f"//div[@id='artifacts-container'][contains(., '{tile_id}')]")
-    
+
     def locate(self, timeout=5):
         """Override locate to handle the case where artifacts are displayed as text, not as cards."""
         try:
@@ -39,17 +39,17 @@ class Tile(ControlBase):
             from selenium.webdriver.common.by import By
             from selenium.webdriver.support.ui import WebDriverWait
             from selenium.webdriver.support import expected_conditions as EC
-            
+
             from radish import world
             wait = WebDriverWait(world.driver, timeout)
             container = wait.until(EC.presence_of_element_located((By.ID, "artifacts-container")))
-            
+
             # Check if the container contains our search text
             if self.tile_id in container.text:
                 return container
             else:
                 raise Exception(f"Content '{self.tile_id}' not found in artifacts container")
-                
+
         except Exception as e:
             # Fall back to the original method
             return super().locate(timeout)
@@ -59,7 +59,7 @@ class StatusLine(ControlBase):
     """Control for the status line that shows artifact count."""
     def __init__(self):
         super().__init__("//div[@class='status-line']")
-    
+
     def get_total_artifacts(self, timeout=5):
         """Extract the total number of artifacts from the status line."""
         text = self.get_text(timeout)

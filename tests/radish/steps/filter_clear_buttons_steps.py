@@ -1,7 +1,5 @@
-from radish import given, when, then
+from radish import when, then
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 
 
 @when("I toggle the flag filter")
@@ -10,7 +8,7 @@ def i_toggle_flag_filter(step):
     from radish import world
     flag_filter = world.driver.find_element(By.ID, "flagFilter")
     flag_filter.click()
-    
+
     # Wait for the filter to take effect
     import time
     time.sleep(1)
@@ -22,7 +20,7 @@ def i_click_clear_all_button(step):
     from radish import world
     clear_all_btn = world.driver.find_element(By.ID, "clearAllFilters")
     clear_all_btn.click()
-    
+
     # Wait for the filters to be cleared
     import time
     time.sleep(1)
@@ -34,7 +32,7 @@ def i_click_search_clear_button(step):
     from radish import world
     clear_search_btn = world.driver.find_element(By.ID, "clearSearch")
     clear_search_btn.click()
-    
+
     # Wait for the search to be cleared
     import time
     time.sleep(1)
@@ -46,7 +44,7 @@ def i_click_category_clear_button(step):
     from radish import world
     clear_category_btn = world.driver.find_element(By.ID, "clearCategory")
     clear_category_btn.click()
-    
+
     # Wait for the category filter to be cleared
     import time
     time.sleep(1)
@@ -104,23 +102,23 @@ def clear_all_button_should_be_disabled(step):
 def all_filters_should_have_active_states(step):
     """Verify all filters have active states"""
     from radish import world
-    
+
     # Check type filter
     type_filter = world.driver.find_element(By.ID, "typeFilter")
     assert "active" in type_filter.get_attribute("class"), "Type filter should have active state"
-    
+
     # Check status filter
     status_filter = world.driver.find_element(By.ID, "statusFilter")
     assert "active" in status_filter.get_attribute("class"), "Status filter should have active state"
-    
+
     # Check search input
     search_input = world.driver.find_element(By.ID, "search-input")
     assert "active" in search_input.get_attribute("class"), "Search input should have active state"
-    
+
     # Check category filter
     category_filter = world.driver.find_element(By.ID, "categoryFilter")
     assert "active" in category_filter.get_attribute("class"), "Category filter should have active state"
-    
+
     # Check flag filter
     flag_filter = world.driver.find_element(By.ID, "flagFilter")
     assert "active" in flag_filter.get_attribute("class"), "Flag filter should have active state"
@@ -130,23 +128,23 @@ def all_filters_should_have_active_states(step):
 def no_filters_should_have_active_states(step):
     """Verify no filters have active states"""
     from radish import world
-    
+
     # Check type filter
     type_filter = world.driver.find_element(By.ID, "typeFilter")
     assert "active" not in type_filter.get_attribute("class"), "Type filter should not have active state"
-    
+
     # Check status filter
     status_filter = world.driver.find_element(By.ID, "statusFilter")
     assert "active" not in status_filter.get_attribute("class"), "Status filter should not have active state"
-    
+
     # Check search input
     search_input = world.driver.find_element(By.ID, "search-input")
     assert "active" not in search_input.get_attribute("class"), "Search input should not have active state"
-    
+
     # Check category filter
     category_filter = world.driver.find_element(By.ID, "categoryFilter")
     assert "active" not in category_filter.get_attribute("class"), "Category filter should not have active state"
-    
+
     # Check flag filter
     flag_filter = world.driver.find_element(By.ID, "flagFilter")
     assert "active" not in flag_filter.get_attribute("class"), "Flag filter should not have active state"
@@ -156,10 +154,10 @@ def no_filters_should_have_active_states(step):
 def both_clear_buttons_should_be_visible(step):
     """Verify both clear buttons are visible"""
     from radish import world
-    
+
     clear_search_btn = world.driver.find_element(By.ID, "clearSearch")
     clear_category_btn = world.driver.find_element(By.ID, "clearCategory")
-    
+
     assert "visible" in clear_search_btn.get_attribute("class"), "Search clear button should be visible"
     assert "visible" in clear_category_btn.get_attribute("class"), "Category clear button should be visible"
 

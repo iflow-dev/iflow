@@ -7,17 +7,19 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
 from radish import step, world
+import time
 
 from bdd.controls import Title
 from bdd.controls.editor import Editor
 from bdd.controls.dropdown import CustomDropdown
+
 
 @step("I am on the artifacts page")
 def i_am_on_artifacts_page(step):
     # Verify we're on the iflow page (don't navigate, just verify)
     title = Title("iflow")
     title.locate()
-    
+
     # Verify we have the artifacts container (search functionality)
     wait = WebDriverWait(world.driver, 10)
     wait.until(EC.presence_of_element_located((By.CLASS_NAME, "artifacts-container")))
@@ -37,14 +39,14 @@ def i_fill_in_artifact_details(step):
     # Wait for modal to appear
     wait = WebDriverWait(world.driver, 10)
     wait.until(EC.visibility_of_element_located((By.ID, "artifactModal")))
-    
+
     # Get the data table from the step
     if hasattr(step, 'table') and step.table:
         # Radish table has rows as dictionaries with column names as keys
         for row in step.table:
             field = row.get("Field")
             value = row.get("Value")
-            
+
             if field and value:
                 if field == "Type":
                     # Use CustomDropdown for custom DIV dropdowns.
@@ -68,7 +70,7 @@ def i_fill_in_artifact_details(step):
             "Category": "Test",
             "Status": "open"
         }
-        
+
         for field, value in default_data.items():
             if field == "Type":
                 dropdown = CustomDropdown(world.driver.find_element(By.ID, "artifactType"))
@@ -100,7 +102,7 @@ def i_save_the_artifact(step):
 def new_artifact_should_be_created(step):
     # Wait for modal to close
     world.wait.until(EC.invisibility_of_element_located((By.ID, "artifactModal")))
-    
+
     # Verify the artifact appears in the list
     artifacts = world.driver.find_elements(By.CLASS_NAME, "artifact-card")
     assert len(artifacts) > 0, "No artifacts found after creation"
@@ -108,7 +110,8 @@ def new_artifact_should_be_created(step):
 @step("it should appear in the artifacts list")
 def artifact_should_appear_in_list(step):
     # Look for the artifact with the test summary
-    artifact = world.driver.find_element(By.XPATH, "//div[contains(@class, 'artifact-summary') and contains(text(), 'Test requirement')]")
+    artifact = world.driver.find_element(
+        By.XPATH, "//div[contains(@class, 'artifact-summary') and contains(text(), 'Test requirement')]")
     assert artifact.is_displayed(), "New artifact not found in the list"
 
 @step("the modal should close")
@@ -144,7 +147,8 @@ def artifact_should_be_updated(step):
     # Wait for modal to close
     world.wait.until(EC.invisibility_of_element_located((By.ID, "artifactModal")))
     # Look for the modified description
-    modified_artifact = world.driver.find_element(By.XPATH, "//div[contains(@class, 'artifact-description') and contains(text(), 'Modified description for testing')]")
+    modified_artifact = world.driver.find_element(
+        By.XPATH, "//div[contains(@class, 'artifact-description') and contains(text(), 'Modified description for testing')]")
     assert modified_artifact.is_displayed(), "Modified artifact not found"
 
 
@@ -181,7 +185,8 @@ def i_click_delete_button(step):
 @step("I confirm the deletion")
 def i_confirm_deletion(step):
     # Wait for confirmation dialog and click confirm
-    confirm_button = world.driver.find_element(By.XPATH, "//button[contains(text(), 'Confirm') or contains(text(), 'Delete')]")
+    confirm_button = world.driver.find_element(
+        By.XPATH, "//button[contains(text(), 'Confirm') or contains(text(), 'Delete')]")
     confirm_button.click()
 
 
@@ -227,7 +232,8 @@ def only_artifacts_containing_text_should_be_displayed(step, text):
         if artifact.is_displayed():
             summary = artifact.find_element(By.CLASS_NAME, "artifact-summary")
             description = artifact.find_element(By.CLASS_NAME, "artifact-description")
-            assert text.lower() in summary.text.lower() or text.lower() in description.text.lower(), f"Artifact does not contain '{text}'"
+            assert (text.lower() in summary.text.lower() or
+            text.lower() in description.text.lower()), f"Artifact does not contain '{text}'"
 
 @step("I click on a category link in an artifact tile")
 def i_click_on_category_link(step):
@@ -289,11 +295,11 @@ def when_i_edit_an_artifact(step):
     # Click the edit button
     edit_button = world.driver.find_element(By.XPATH, "//button[.//ion-icon[@name='create-outline']]")
     edit_button.click()
-    
+
     # Wait for edit modal to appear
     wait = WebDriverWait(world.driver, 10)
     wait.until(EC.visibility_of_element_located((By.ID, "artifactDescription")))
-    
+
     # Modify the description
     description_field = world.driver.find_element(By.ID, "artifactDescription")
     description_field.clear()
@@ -317,16 +323,16 @@ def i_set_filter_to_value(step, name, value):
         "iteration": ("iterationFilter", "select"),
         "flagged": ("flaggedFilter", "checkbox")
     }
-    
+
     if name.lower() not in filter_mapping:
         raise ValueError(f"Unknown filter '{name}'. Supported filters: {', '.join(filter_mapping.keys())}")
-    
+
     element_id, filter_type = filter_mapping[name.lower()]
-    
+
     # Wait for the filter element to be present
     wait = WebDriverWait(world.driver, 10)
     element = wait.until(EC.presence_of_element_located((By.ID, element_id)))
-    
+
     if filter_type == "select":
         # Handle dropdown/select filters using SelectDropdown
         from bdd.controls.dropdown import SelectDropdown

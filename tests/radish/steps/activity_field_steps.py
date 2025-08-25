@@ -2,7 +2,7 @@
 Step definitions for activity field functionality.
 """
 
-from radish import when, then, step, world
+from radish import when, then, world
 from selenium.webdriver.common.by import By
 
 
@@ -26,8 +26,6 @@ def set_activity_to(step, text):
     activity_field = world.driver.find_element(By.ID, "artifactActivity")
     activity_field.clear()
     activity_field.send_keys(text)
-
-
 
 
 @then("I see the activity is {activity}")

@@ -10,7 +10,7 @@ Radish test runner with environment support.
 
             tests/run_radish.py local features/* --tags=smoke --trace
     2.  NOTE THAT the directory to the feature files must be relative to tests/ directory as
-        in the example 
+        in the example
     3.   REMEMBER: TESTS TAKE A LOT TIME
     4.   BE PATIENT, TESTS TAKE A LONG TIME TO FINISH !!!!!!!!!!!!
 """
@@ -19,8 +19,6 @@ import os
 import sys
 import subprocess
 import time
-import signal
-import atexit
 from pathlib import Path
 from typing import List
 import typer
@@ -51,10 +49,10 @@ def start_local_server() -> subprocess.Popen:
     """
     script_dir = get_script_dir()
     start_server_script = script_dir / "start_server.py"
-    
+
     if not start_server_script.exists():
         raise FileNotFoundError(f"start_server.py not found at {start_server_script}")
-    
+
     # Initialize the temp database synchronously
     logger.trace("🔧 Initializing temporary database...")
     cmd_init_db = [sys.executable, str(start_server_script), "--init-db", "--output-db-path"]
@@ -71,21 +69,21 @@ def start_local_server() -> subprocess.Popen:
     except subprocess.CalledProcessError as e:
         # Provide stderr in the error for easier debugging
         raise RuntimeError(f"❌ Failed to initialize database: {e}; stderr={e.stderr!r}")
-    
+
     time.sleep(2)
-    
+
     # Start the server with the temp database on port 7000
     cmd = [sys.executable, str(start_server_script),
            "--port", str(DEFAULT_PORT),
            "--database", temp_db_path]
-    
+
     logger.trace(f"🚀 Starting server with temp DB: {temp_db_path}")
     # Start the server in the tests directory so the server uses local repo files
     process = subprocess.Popen(cmd, cwd=script_dir, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    
+
     # Wait for server to start
     time.sleep(10)
-    
+
     # Check if server is running
     try:
         import requests
@@ -125,13 +123,13 @@ def setup_python_path() -> None:
     """Set up Python path to include the tests directory."""
     script_dir = get_script_dir()
     tests_dir = script_dir / "support"
-    
+
     current_pythonpath = os.environ.get("PYTHONPATH", "")
     if current_pythonpath:
         new_pythonpath = f"{tests_dir}:{current_pythonpath}"
     else:
         new_pythonpath = str(tests_dir)
-    
+
     os.environ["PYTHONPATH"] = new_pythonpath
 
 
@@ -142,9 +140,9 @@ def run_radish(args: List[str]) -> int:
     # Build the radish command
     args.append("-t")
     radish_cmd = ["radish"] + args
-    
+
     logger.trace(f"Running command: {' '.join(radish_cmd)}")
-    
+
     try:
         result = subprocess.run("source ../venv-local/bin/activate && " + " ".join(radish_cmd),
                                 check=False, cwd=script_dir, shell=True)
@@ -157,33 +155,33 @@ def run_radish(args: List[str]) -> int:
 
 def main_simple():
     """
-    Single entrypoint ignoring typer, always using port 7000, 
+    Single entrypoint ignoring typer, always using port 7000,
     and always runs with PYTHON_LOG_LEVEL=TRACE.
     """
     if len(sys.argv) < 3:
         logger.trace("Usage: run_radish.py <environment> <radish_args...>\nExample: run_radish.py local tests/features/")
         sys.exit(1)
-    
+
     # We ignore environment, just read the param to check if 'local' is used
     environment = sys.argv[1]
     radish_args = sys.argv[2:]
-    
+
     # Check for --foreground and --dry-run before filtering other known args
     foreground_mode = "--foreground" in radish_args
     dry_run_mode = "--dry-run" in radish_args
-    
+
     # Filter out known args including --foreground and --dry-run (since we handle them separately)
     known_args = ["--foreground", "--debug", "--trace", "--local", "--dry-run"]
     radish_args = [arg for arg in radish_args if arg not in known_args]
-    
+
     logger.trace(f"DEBUG: After filtering, radish_args: {radish_args}")
-    
+
     # Hard-coded defaults
     local_mode = (environment == "local")
-    
+
     # Always set trace logging
     os.environ["PYTHON_LOG_LEVEL"] = "TRACE"
-    
+
     # Set headless mode based on --foreground flag
     if foreground_mode:
         os.environ["HEADLESS_MODE"] = "false"
@@ -191,15 +189,15 @@ def main_simple():
     else:
         os.environ["HEADLESS_MODE"] = "true"
         logger.trace("HEADLESS_MODE=true (headless mode enabled)")
-    
+
     local_server_process = None
-    
+
     def cleanup_local_server(signum=None, frame=None):
         if local_server_process:
             stop_local_server(local_server_process)
         if signum:
             sys.exit(1)
-    
+
     try:
         if dry_run_mode:
             # Skip server startup for dry-run mode
@@ -217,16 +215,16 @@ def main_simple():
             env_url = f"http://localhost:{DEFAULT_PORT}"
             os.environ["IFLOW_BASE_URL"] = env_url
             logger.trace(f"Using environment: {environment} => {env_url}")
-        
+
         logger.trace("PYTHON_LOG_LEVEL=TRACE (hard-coded)")
-        
+
         setup_python_path()
-        
+
         # Add --dry-run flag back to radish args if dry-run mode is enabled
         if dry_run_mode:
             radish_args.append("--dry-run")
             logger.trace(f"🔍 Adding --dry-run to radish command")
-        
+
         status_code = run_radish(radish_args)
         sys.exit(status_code)
     finally:

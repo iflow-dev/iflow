@@ -7,7 +7,7 @@ import sys
 import os
 # Add the tests directory to the Python path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
- 
+
 from controls.base import ControlBase
 from selenium.webdriver.common.by import By
 from bdd.logging import logger
@@ -15,11 +15,11 @@ from bdd.logging import logger
 
 class InputField(ControlBase):
     """Control for locating and interacting with input fields."""
-    
+
     def __init__(self, field_type):
         """
         Initialize input field control.
-        
+
         Args:
             field_type: Type of input field (e.g., "summary", "description", "status")
         """
@@ -36,11 +36,11 @@ class InputField(ControlBase):
         else:
             xpath = f"//input[@name='{field_type}' or @id='{field_type}' or @placeholder='{field_type}']"
         super().__init__(xpath)
-    
+
     def set_value(self, driver, value, timeout=5):
         """Set the value of the input field."""
         element = self.locate(timeout)
-        
+
         # Handle different element types
         tag_name = element.tag_name.lower()
         if tag_name == 'select':
@@ -53,21 +53,21 @@ class InputField(ControlBase):
                     return self._set_custom_dropdown_value(driver, custom_dropdown, value)
             except:
                 pass
-            
+
             # Fall back to standard select handling
             return self._set_standard_select_value(driver, element, value)
         else:
             # For input/textarea elements, clear and send keys
             element.clear()
             element.send_keys(value)
-        
+
         return element
-    
+
     def _set_custom_dropdown_value(self, driver, dropdown_element, value):
         """Set value for custom dropdown (div-based) using JavaScript accessibility functions."""
         from selenium.webdriver.common.by import By
         import time
-        
+
         try:
             # Get the original select element ID
             original_select = None
@@ -80,10 +80,10 @@ class InputField(ControlBase):
             except Exception as e:
                 logger.trace(f"Could not find original select element: {e}")
                 return dropdown_element
-            
+
             # Use the new JavaScript accessibility function to set the value
             logger.trace(f"Using JavaScript accessibility function to set dropdown value '{value}'...")
-            
+
             # Call the global setDropdownValue function
             result = driver.execute_script(f"""
                 if (typeof setDropdownValue === 'function') {{
@@ -93,10 +93,10 @@ class InputField(ControlBase):
                     return false;
                 }}
             """)
-            
+
             if result:
                 logger.trace(f"Successfully set dropdown value '{value}' using JavaScript accessibility function")
-                
+
                 # Verify the value was set correctly
                 actual_value = driver.execute_script(f"""
                     if (typeof getDropdownValue === 'function') {{
@@ -105,26 +105,26 @@ class InputField(ControlBase):
                         return null;
                     }}
                 """)
-                
+
                 if actual_value == value:
                     logger.trace(f"Verified dropdown value is now '{actual_value}'")
                 else:
                     logger.trace(f"Warning: Expected value '{value}', but got '{actual_value}'")
-                
+
                 return dropdown_element
             else:
                 logger.trace(f"Failed to set dropdown value '{value}' using JavaScript accessibility function")
                 raise Exception(f"JavaScript setDropdownValue returned false for value '{value}'")
-                
+
         except Exception as e:
             logger.trace(f"JavaScript accessibility function failed: {e}")
             raise Exception(f"Failed to set dropdown value '{value}' using accessibility functions: {e}")
-    
+
     def _set_standard_select_value(self, driver, element, value):
         """Set value for standard HTML select element."""
         import time
         from selenium.webdriver.common.by import By
-        
+
         # Wait for dropdown options to be populated
         max_wait = 10  # Wait up to 10 seconds
         wait_time = 0
@@ -141,13 +141,13 @@ class InputField(ControlBase):
                 logger.trace(f"Error checking dropdown options: {e}")
                 time.sleep(0.5)
                 wait_time += 0.5
-        
+
         if wait_time >= max_wait:
             logger.trace("Warning: Dropdown options not populated after waiting")
-        
+
         # Now try to select the value using multiple methods
         success = False
-        
+
         # Method 1: Try Select class
         if not success:
             try:
@@ -158,7 +158,7 @@ class InputField(ControlBase):
                 success = True
             except Exception as e:
                 logger.trace(f"Select class method failed: {e}")
-        
+
         # Method 2: Try JavaScript
         if not success:
             try:
@@ -167,7 +167,7 @@ class InputField(ControlBase):
                 success = True
             except Exception as e:
                 logger.trace(f"JavaScript method failed: {e}")
-        
+
         # Method 3: Try clicking the option directly
         if not success:
             try:
@@ -177,12 +177,12 @@ class InputField(ControlBase):
                 success = True
             except Exception as e:
                 logger.trace(f"Click method failed: {e}")
-        
+
         if not success:
             raise Exception(f"All methods failed to select '{value}' from dropdown")
-        
+
         return element
-    
+
     def get_value(self, driver, timeout=5):
         """Get the current value of the input field."""
         element = self.locate(timeout)

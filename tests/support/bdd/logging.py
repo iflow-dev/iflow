@@ -71,23 +71,23 @@ def configure_logging():
     # Set root level to TRACE so handlers control what is emitted (handlers will filter).
     root = logging.getLogger()
     root.setLevel(logging.WARNING)
-    
+
     # Remove existing handlers added by other code (if any)
     for h in list(root.handlers):
         root.removeHandler(h)
-    
+
     # Formatter with timestamp
     formatter = logging.Formatter(
         "%(asctime)s %(levelname)s:%(name)s:%(message)s", "%Y-%m-%d %H:%M:%S"
     )
-    
+
     # File handler: write logs to the logfile.
     # Use the configured 'level' (from PYTHON_LOG_LEVEL) so file captures the requested verbosity.
     fh = logging.FileHandler(logfile_path, encoding="utf-8")
     fh.setLevel(level)
     fh.setFormatter(formatter)
     root.addHandler(fh)
-    
+
     # Stream handler: console output should only show WARNINGS and above.
     # This ensures INFO (and lower like DEBUG/TRACE) are recorded in the logfile but not printed to console.
     sh = logging.StreamHandler()
@@ -126,7 +126,7 @@ def configure_logging():
     # Make logfile path available to callers
     global LOGFILE_PATH
     LOGFILE_PATH = logfile_path
-    
+
     # Return module logger
     return logging.getLogger(__name__)
 

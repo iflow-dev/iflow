@@ -13,7 +13,7 @@ def page_has_loaded_completely(world):
     from radish import world
     from selenium.webdriver.support.ui import WebDriverWait
     from selenium.webdriver.support import expected_conditions as EC
-    
+
     world.wait = WebDriverWait(world.driver, 10)
     # Wait for artifacts container to be present
     world.wait.until(EC.presence_of_element_located((By.ID, "artifacts-container")))
@@ -26,13 +26,13 @@ def page_has_loaded_completely(world):
 def i_select_type_filter(step, filter_value):
     """Select a type filter value"""
     from radish import world
-    
+
     # Use the JavaScript function to set the dropdown value
     result = world.driver.execute_script(f"return setDropdownValue('typeFilter', '{filter_value}');")
-    
+
     if not result:
         raise AssertionError(f"Failed to set type filter to '{filter_value}'")
-    
+
     # Wait for the filter to take effect
     import time
     time.sleep(1)
@@ -42,13 +42,13 @@ def i_select_type_filter(step, filter_value):
 def i_select_status_filter(step, filter_value):
     """Select a status filter value"""
     from radish import world
-    
+
     # Use the JavaScript function to set the dropdown value
     result = world.driver.execute_script(f"return setDropdownValue('statusFilter', '{filter_value}');")
-    
+
     if not result:
         raise AssertionError(f"Failed to set status filter to '{filter_value}'")
-    
+
     # Wait for the filter to take effect
     import time
     time.sleep(1)
@@ -76,13 +76,13 @@ def i_enter_in_search_box(step, text):
 def i_clear_type_filter(step):
     """Clear the type filter"""
     from radish import world
-    
+
     # Use the JavaScript function to clear the dropdown value
     result = world.driver.execute_script("return setDropdownValue('typeFilter', '');")
-    
+
     if not result:
         raise AssertionError("Failed to clear type filter")
-    
+
     # Wait for the filter to take effect
     import time
     time.sleep(1)
@@ -92,13 +92,13 @@ def i_clear_type_filter(step):
 def i_clear_status_filter(step):
     """Clear the status filter"""
     from radish import world
-    
+
     # Use the JavaScript function to clear the dropdown value
     result = world.driver.execute_script("return setDropdownValue('statusFilter', '');")
-    
+
     if not result:
         raise AssertionError("Failed to clear status filter")
-    
+
     # Wait for the filter to take effect
     import time
     time.sleep(1)
@@ -108,10 +108,10 @@ def i_clear_status_filter(step):
 def i_clear_category_filter(step):
     """Clear the category filter"""
     from radish import world
-    
+
     # Use JavaScript to clear the category filter and update the state
     result = world.driver.execute_script("return clearCategoryFilter();")
-    
+
     # Wait for the filter to take effect
     import time
     time.sleep(1)
@@ -121,10 +121,10 @@ def i_clear_category_filter(step):
 def i_clear_search_input(step):
     """Clear the search input"""
     from radish import world
-    
+
     # Use JavaScript to clear the search input and update the state
     result = world.driver.execute_script("return clearSearchFilter();")
-    
+
     # Wait for the filter to take effect
     import time
     time.sleep(1)
@@ -211,7 +211,7 @@ def no_filters_should_have_orange_borders(step):
     status_filter = world.driver.find_element(By.ID, "statusFilter")
     category_filter = world.driver.find_element(By.ID, "categoryFilter")
     search_input = world.driver.find_element(By.ID, "search-input")
-    
+
     assert "active" not in type_filter.get_attribute("class"), "Type filter should not have 'active' class"
     assert "active" not in status_filter.get_attribute("class"), "Status filter should not have 'active' class"
     assert "active" not in category_filter.get_attribute("class"), "Category filter should not have 'active' class"

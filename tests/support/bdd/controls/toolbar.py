@@ -7,10 +7,10 @@ from controls.button import Button
 
 class Toolbar:
     """Control class for toolbar interactions."""
-    
+
     def __init__(self, driver=None):
         """Initialize the Toolbar control.
-        
+
         Args:
             driver: WebDriver instance (optional, will use world.driver if not provided)
         """
@@ -19,17 +19,17 @@ class Toolbar:
             self.driver = world.driver
         else:
             self.driver = driver
-    
+
     @property
     def filter(self):
         """Access to filter controls in the toolbar."""
         return FilterControls(self.driver)
-    
+
     @property
     def buttons(self):
         """Access to button controls in the toolbar."""
         return ButtonControls(self.driver)
-    
+
     def wait_for_toolbar(self, timeout=10):
         """Wait for the toolbar to be visible and loaded."""
         wait = WebDriverWait(self.driver, timeout)
@@ -38,45 +38,45 @@ class Toolbar:
 
 class FilterControls:
     """Control class for filter-specific interactions in the toolbar."""
-    
+
     def __init__(self, driver):
         """Initialize the FilterControls.
-        
+
         Args:
             driver: WebDriver instance
         """
         self.driver = driver
-    
+
     @property
     def flag(self):
         """Access to the flag filter button."""
         return Button("flagFilter", self.driver)
-    
+
     @property
     def status(self):
         """Access to the status filter dropdown."""
         return StatusFilter(self.driver)
-    
+
     @property
     def type(self):
         """Access to the type filter dropdown."""
         return TypeFilter(self.driver)
-    
+
     @property
     def category(self):
         """Access to the category filter dropdown."""
         return CategoryFilter(self.driver)
-    
+
     @property
     def verification(self):
         """Access to the verification filter dropdown."""
         return VerificationFilter(self.driver)
-    
+
     @property
     def activity(self):
         """Access to the activity filter input."""
         return ActivityFilter(self.driver)
-    
+
     @property
     def iteration(self):
         """Access to the iteration filter dropdown."""
@@ -85,16 +85,16 @@ class FilterControls:
 
 class StatusFilter(ControlBase):
     """Control class for the status filter dropdown."""
-    
+
     def __init__(self, driver):
         """Initialize the StatusFilter control.
-        
+
         Args:
             driver: WebDriver instance
         """
         super().__init__("statusFilter")
         self.driver = driver
-    
+
     def select(self, value):
         """Select a status value from the dropdown."""
         from selenium.webdriver.support.ui import Select
@@ -107,18 +107,18 @@ class StatusFilter(ControlBase):
         """Set the status filter value (alias for select)."""
         self.select(value)
         return self
-    
+
     @property
     def value(self):
         """Get the currently selected status filter value."""
         from selenium.webdriver.support.ui import Select
         from selenium.webdriver.common.by import By
-        
+
         try:
             element = self.find_element(self.driver)
             select = Select(element)
             selected_option = select.first_selected_option
-            
+
             if selected_option:
                 return selected_option.get_attribute("value")
             else:
@@ -129,16 +129,16 @@ class StatusFilter(ControlBase):
 
 class TypeFilter(ControlBase):
     """Control class for the type filter dropdown."""
-    
+
     def __init__(self, driver):
         """Initialize the TypeFilter control.
-        
+
         Args:
             driver: WebDriver instance
         """
         super().__init__("typeFilter")
         self.driver = driver
-    
+
     def select(self, value):
         """Select a type value from the dropdown."""
         from selenium.webdriver.support.ui import Select
@@ -155,16 +155,16 @@ class TypeFilter(ControlBase):
 
 class CategoryFilter(ControlBase):
     """Control class for the category filter dropdown."""
-    
+
     def __init__(self, driver):
         """Initialize the CategoryFilter control.
-        
+
         Args:
             driver: WebDriver instance
         """
         super().__init__("categoryFilter")
         self.driver = driver
-    
+
     def select(self, value):
         """Select a category value from the dropdown."""
         from selenium.webdriver.support.ui import Select
@@ -181,16 +181,16 @@ class CategoryFilter(ControlBase):
 
 class VerificationFilter(ControlBase):
     """Control class for the verification filter dropdown."""
-    
+
     def __init__(self, driver):
         """Initialize the VerificationFilter control.
-        
+
         Args:
             driver: WebDriver instance
         """
         super().__init__("verificationFilter")
         self.driver = driver
-    
+
     def select(self, value):
         """Select a verification value from the dropdown."""
         from selenium.webdriver.support.ui import Select
@@ -207,16 +207,16 @@ class VerificationFilter(ControlBase):
 
 class ActivityFilter(ControlBase):
     """Control class for the activity filter input."""
-    
+
     def __init__(self, driver):
         """Initialize the ActivityFilter control.
-        
+
         Args:
             driver: WebDriver instance
         """
         super().__init__("activityFilter")
         self.driver = driver
-    
+
     def set_value(self, value):
         """Set the activity filter value."""
         element = self.find_element(self.driver)
@@ -232,16 +232,16 @@ class ActivityFilter(ControlBase):
 
 class IterationFilter(ControlBase):
     """Control class for the iteration filter dropdown."""
-    
+
     def __init__(self, driver):
         """Initialize the IterationFilter control.
-        
+
         Args:
             driver: WebDriver instance
         """
         super().__init__("iterationFilter")
         self.driver = driver
-    
+
     def select(self, value):
         """Select an iteration value from the dropdown."""
         from selenium.webdriver.support.ui import Select
@@ -258,20 +258,20 @@ class IterationFilter(ControlBase):
 
 class ButtonControls:
     """Control class for button-specific interactions in the toolbar."""
-    
+
     def __init__(self, driver):
         """Initialize the ButtonControls.
-        
+
         Args:
             driver: WebDriver instance
         """
         self.driver = driver
-    
+
     @property
     def create(self):
         """Access to the create button."""
         return CreateButton(self.driver)
-    
+
     @property
     def refresh(self):
         """Access to the refresh button."""
@@ -280,23 +280,23 @@ class ButtonControls:
 
 class CreateButton(ControlBase):
     """Control class for the create button in the toolbar."""
-    
+
     def __init__(self, driver):
         """Initialize the CreateButton control.
-        
+
         Args:
             driver: WebDriver instance
         """
         super().__init__("//button[.//img[contains(@src, 'create-outline')]]")
         self.driver = driver
-    
+
 
 class RefreshButton(ControlBase):
     """Control class for the refresh button in the toolbar."""
-    
+
     def __init__(self, driver):
         """Initialize the RefreshButton control.
-        
+
         Args:
             driver: WebDriver instance
         """

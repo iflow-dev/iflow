@@ -9,10 +9,10 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from radish import world
 import logging
- 
+
 # Module logger
 logger = logging.getLogger(__name__)
- 
+
 # Default timeout for element operations (in seconds)
 DEFAULT_TIMEOUT = 5
 
@@ -20,22 +20,22 @@ DEFAULT_TIMEOUT = 5
 class ControlBase:
     # Class-level debug mode flag - can be toggled at runtime
     DEBUG_MODE = False
-    
+
     def __init__(self, xpath):
         self.xpath = xpath
-    
+
     @classmethod
     def set_debug_mode(cls, enabled):
         """Enable or disable debug mode for all controls."""
         cls.DEBUG_MODE = enabled
         logger.debug(f"🔧 ControlBase debug mode: {'ON' if enabled else 'OFF'}")
-    
+
     @classmethod
     def enable_debug_for_test(cls):
         """Enable debug mode for the current test run."""
         cls.set_debug_mode(True)
         logger.debug("🐛 Debug mode enabled for this test run")
-    
+
     def _debug_log(self, message):
         """Log debug message if debug mode is enabled."""
         if self.__class__.DEBUG_MODE:
@@ -44,11 +44,11 @@ class ControlBase:
     def locate(self, timeout=None):
         """Locate the element within timeout, assert if not found."""
         # Use module-level logger defined at top of file
-        
+
         # Set default timeout if None is provided
         if timeout is None:
             timeout = DEFAULT_TIMEOUT
-        
+
         logger.debug(f"Looking for element with XPath: {self.xpath}")
 
         wait = WebDriverWait(world.driver, timeout)
@@ -81,16 +81,16 @@ class ControlBase:
         # Set default timeout if None is provided
         if timeout is None:
             timeout = DEFAULT_TIMEOUT
-        
+
         element = self.locate(timeout)
         element.click()
-    
+
     def clear(self, timeout=None):
         """Clear/clean up UI state (e.g., close modals, clear forms)."""
         # Set default timeout if None is provided
         if timeout is None:
             timeout = DEFAULT_TIMEOUT
-        
+
         try:
             # Wait for any modal to close if it was open
             wait = WebDriverWait(world.driver, timeout)

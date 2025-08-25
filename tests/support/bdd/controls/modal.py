@@ -13,11 +13,11 @@ from controls.base import ControlBase
 
 class Modal(ControlBase):
     """Control for locating and interacting with modal dialogs."""
-    
+
     def __init__(self, identifier=None):
         """
         Initialize modal control.
-        
+
         Args:
             identifier: Optional identifier for the modal (text, class, or id)
         """
@@ -29,7 +29,7 @@ class Modal(ControlBase):
         else:
             xpath = "//div[contains(@class, 'modal')]"
         super().__init__(xpath)
-    
+
     def is_visible(self, timeout=5):
         """Check if the modal is currently visible."""
         try:
@@ -37,7 +37,7 @@ class Modal(ControlBase):
             return element.is_displayed()
         except:
             return False
-    
+
     def wait_for_visible(self, timeout=5):
         """Wait for modal to become visible."""
         element = self.locate(timeout)

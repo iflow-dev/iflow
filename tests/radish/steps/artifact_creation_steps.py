@@ -52,7 +52,7 @@ def i_cancel_artifact_creation(step):
 def i_see_artifact(step, identifier):
     """Verify that a specific artifact is visible by ID or summary."""
     artifacts = Artifacts()
-    
+
     try:
         # Check if identifier is a numeric string like "00001"
         if identifier.isdigit():
@@ -61,12 +61,12 @@ def i_see_artifact(step, identifier):
         else:
             # Treat as summary
             artifact_element = artifacts.find_one(summary=identifier)
-        
+
         # Verify the artifact is visible
         assert artifact_element, f"Artifact '{identifier}' not found"
         logger.debug(f"Artifact '{identifier}' is visible")
-        
-    except (ValueError, AttributeError) as e:
+
+    except (ValueError, AttributeError):
         # Fallback to summary search
         try:
             artifact_element = artifacts.find_one(summary=identifier)
@@ -80,7 +80,7 @@ def i_see_artifact(step, identifier):
 def i_do_not_see_artifact(step, identifier):
     """Verify that the specified artifact is NOT visible."""
     artifacts = Artifacts()
-    
+
     try:
         if identifier.isdigit():
             # Look for artifact with this exact ID string
@@ -88,13 +88,13 @@ def i_do_not_see_artifact(step, identifier):
         else:
             # Treat as summary
             artifact_element = artifacts.find_one(summary=identifier)
-        
+
         # If we found the artifact, it should NOT be visible
         if artifact_element:
             raise AssertionError(f"Artifact '{identifier}' was found but should not be visible")
-        
+
         logger.debug(f"Artifact '{identifier}' correctly not visible")
-        
+
     except ValueError:
         # If find_one raises ValueError, the artifact doesn't exist - that's good
         logger.debug(f"Artifact '{identifier}' correctly not found")

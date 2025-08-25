@@ -7,7 +7,6 @@ from radish import step, world
 from bdd.controls.artifact import Artifacts
 from bdd.controls.editor import Editor
 from bdd.controls.artifact_tile import ArtifactTile
-from bdd.logging import logger
 
 
 @step("I see the editor is open")
@@ -52,7 +51,7 @@ def i_open_artifact_by_title(step, title):
 def i_see_artifact_has_status(step, identifier, status):
     """Verify that the specified artifact has the expected status."""
     artifacts = Artifacts()
-    
+
     # Try to find by ID first (if it's numeric), then by summary
     try:
         # Check if identifier is a numeric string like "00001"
@@ -65,8 +64,9 @@ def i_see_artifact_has_status(step, identifier, status):
     except (ValueError, AttributeError):
         # Fallback to summary search
         artifact_element = artifacts.find_one(summary=identifier)
-    
+
     # Create ArtifactTile control and get status text
     tile = ArtifactTile(artifact_element.locate())
     actual_status = tile.get_status_text()
-    assert actual_status == status.lower(), f"Expected artifact '{identifier}' to have status '{status}', but got '{actual_status}'"
+    assert actual_status == status.lower(), (
+        f"Expected artifact '{identifier}' to have status '{status}', but got '{actual_status}'")

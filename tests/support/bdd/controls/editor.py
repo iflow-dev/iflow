@@ -137,7 +137,7 @@ class Editor(ControlBase):
             wait = WebDriverWait(self.driver, 10)
             # Locate the element for the status field
             element = wait.until(EC.visibility_of_element_located((By.ID, "artifactStatus")))
-            
+
             # Try to get the value from the native select element first
             try:
                 select = Select(element)

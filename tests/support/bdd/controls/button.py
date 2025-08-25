@@ -13,11 +13,11 @@ from controls.base import ControlBase
 
 class Button(ControlBase):
     """Control for locating and interacting with buttons."""
-    
+
     def __init__(self, type, text, icon):
         """
         Initialize button control with type, text, and icon.
-        
+
         Args:
             type: Button type (e.g., "submit", "icon")
             text: Button text content (e.g., "Create", "Save", "Cancel")
@@ -35,5 +35,5 @@ class Button(ControlBase):
                 xpath = f"//button[contains(text(), '{text}')]"
             else:
                 xpath = "//button"  # Any button regardless of text
-        
+
         super().__init__(xpath)

@@ -6,10 +6,10 @@ from .base import ControlBase
 
 class VerificationField(ControlBase):
     """Control for verification field elements."""
-    
+
     def __init__(self):
         super().__init__("//select[@id='artifactVerification']")
-    
+
     @property
     def value(self):
         """Get current verification field value."""
@@ -18,7 +18,7 @@ class VerificationField(ControlBase):
             return element.get_attribute("value")
         except:
             return None
-    
+
     @property
     def is_visible(self):
         """Check if verification field is visible."""
@@ -26,7 +26,7 @@ class VerificationField(ControlBase):
             return self.locate().is_displayed()
         except:
             return False
-    
+
     @property
     def is_enabled(self):
         """Check if verification field is enabled."""
@@ -34,7 +34,7 @@ class VerificationField(ControlBase):
             return self.locate().is_enabled()
         except:
             return False
-    
+
     def set_value(self, value):
         """Set verification field value."""
         element = self.locate()
@@ -44,16 +44,16 @@ class VerificationField(ControlBase):
 
 class ArtifactForm(ControlBase):
     """Control for artifact form fields."""
-    
+
     def __init__(self):
         super().__init__("//form")
-    
+
     def set_summary(self, summary):
         """Set artifact summary field."""
         summary_field = self.locate().find_element(By.ID, "artifactSummary")
         summary_field.clear()
         summary_field.send_keys(summary)
-    
+
     def set_description(self, description):
         """Set artifact description field."""
         description_field = self.locate().find_element(By.ID, "artifactDescription")
@@ -63,10 +63,10 @@ class ArtifactForm(ControlBase):
 
 class ArtifactVerification(ControlBase):
     """Control for artifact verification display."""
-    
+
     def __init__(self):
         super().__init__("//div[contains(@class, 'artifact-verification')]")
-    
+
     @property
     def text(self):
         """Get verification method text."""
@@ -74,7 +74,7 @@ class ArtifactVerification(ControlBase):
             return self.locate().text.strip()
         except:
             return None
-    
+
     @property
     def is_visible(self):
         """Check if verification method is visible."""
@@ -82,7 +82,7 @@ class ArtifactVerification(ControlBase):
             return self.locate().is_displayed()
         except:
             return False
-    
+
     def contains_method(self, method):
         """Check if verification method contains specific value."""
         text = self.text
@@ -91,10 +91,10 @@ class ArtifactVerification(ControlBase):
 
 class SuccessIndicator(ControlBase):
     """Control for success message indicators."""
-    
+
     def __init__(self):
         super().__init__("//div[@class='artifacts-container']")
-    
+
     def wait_for_success(self, timeout=10):
         """Wait for success indicator to appear."""
         wait = WebDriverWait(world.driver, timeout)

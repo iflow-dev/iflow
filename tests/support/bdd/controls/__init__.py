@@ -21,7 +21,7 @@ from .dropdown import BaseDropdown, SelectDropdown, CustomDropdown
 __all__ = [
     'ControlBase',
     'Title',
-    'Navigation', 
+    'Navigation',
     'Tile',
     'StatusLine',
     'Button',

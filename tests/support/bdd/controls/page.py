@@ -11,15 +11,15 @@ from controls.artifact import Artifacts
 
 class Page:
     """Page control class for common page operations."""
-    
+
     def __init__(self):
         pass
-    
+
     @property
     def artifacts(self):
         """Return an Artifacts instance for finding artifacts on the page."""
         return Artifacts()
-    
+
     def wait(self, timeout=10):
         """ Waits for the "loading text in view to disappear"""
         WebDriverWait(world.driver, timeout).until(
@@ -27,22 +27,22 @@ class Page:
         )
         return WebDriverWait(world.driver, timeout)
 
-    
+
     def wait_for_element_visible(self, by, value, timeout=10):
         """Wait for an element to be visible."""
         wait = self.wait(timeout)
         return wait.until(EC.visibility_of_element_located((by, value)))
-    
+
     def wait_for_elements(self, by, value, timeout=10):
         """Wait for multiple elements to be present."""
         wait = self.wait(timeout)
         return wait.until(EC.presence_of_all_elements_located((by, value)))
-    
+
     def wait_for_element_invisible(self, by, value, timeout=10):
         """Wait for an element to become invisible."""
         wait = self.wait(timeout)
         return wait.until(EC.invisibility_of_element_located((by, value)))
-    
+
     def clear_modal(self):
         """Close any open modal to ensure clean state."""
         try:

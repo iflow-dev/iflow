@@ -12,7 +12,7 @@ from bdd.logging import logger
 def setup_test_environment(features, marker):
     """Set up the test environment before all tests."""
     logger.trace("Starting BDD test environment setup...")
-    
+
     # Initialize world.driver to None
     world.driver = None
     logger.trace("world.driver initialized to None")
@@ -36,7 +36,7 @@ def _preinit():
 
 def _init_driver():
     global global_driver
-    
+
     _preinit()
 
     chrome_options = Options()
@@ -58,7 +58,7 @@ def _init_driver():
 
     world.driver = webdriver.Chrome(options=chrome_options)
     world.driver.implicitly_wait(1)
-    
+
     # Store reference for @after.all cleanup
     global_driver = world.driver
     logger.trace("Driver created and stored globally for cleanup")
@@ -81,7 +81,7 @@ def cleanup_test_environment(features, marker):
 def before_scenario(scenario):
     """Set up the test environment before each scenario."""
     logger.trace(f"Setting up scenario: {scenario.sentence}")
-    
+
     # Skip driver creation in dry-run mode
     if hasattr(world, 'config') and hasattr(world.config, 'dry_run') and world.config.dry_run:
         logger.trace("Dry-run mode: Skipping driver creation")
